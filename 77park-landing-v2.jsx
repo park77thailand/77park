@@ -1,620 +1,556 @@
-import { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>77Park – ที่จอดรถทั่วไทย 77 จังหวัด</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#fff}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,28,59,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)}
+.logo{font-weight:900;font-size:24px;cursor:pointer}.logo span:first-child{color:#F97316}.logo span:last-child{color:#fff}
+.nav-right{display:flex;gap:10px;align-items:center}
+.nav-user{color:#fff;font-size:14px;font-weight:600;display:none}
+.btn-nav{border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-login{background:rgba(255,255,255,.1);color:#fff}
+.btn-login:hover{background:rgba(255,255,255,.18)}
+.btn-register{background:#F97316;color:#fff;box-shadow:0 2px 10px rgba(249,115,22,.4)}
+.btn-logout{background:rgba(239,68,68,.15);color:#FCA5A5;display:none}
+/* HERO */
+.hero{background:linear-gradient(160deg,#081C3B 0%,#0F2D5E 60%,#1A3A6B 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero-77{position:absolute;font-size:clamp(200px,35vw,500px);font-weight:900;color:rgba(249,115,22,.04);pointer-events:none;user-select:none;letter-spacing:-20px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);border-radius:40px;padding:7px 16px;margin-bottom:24px;font-size:13px;color:#F97316;font-weight:700}
+h1{font-size:clamp(34px,6vw,70px);font-weight:900;line-height:1.15;color:#fff;margin:0 0 20px;max-width:780px}
+h1 span{color:#F97316;text-shadow:0 0 40px rgba(249,115,22,.4)}
+.hero-sub{font-size:clamp(15px,2vw,19px);color:rgba(255,255,255,.65);max-width:540px;line-height:1.7;margin:0 0 40px}
+.search-bar{display:flex;gap:10px;max-width:520px;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:8px;margin-bottom:32px}
+.search-bar input{flex:1;background:none;border:none;color:#fff;font-size:15px;outline:none;font-family:inherit;padding:6px 8px}
+.search-bar input::placeholder{color:rgba(255,255,255,.4)}
+.search-bar button{background:#F97316;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn-primary{background:#F97316;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-weight:800;font-size:16px;cursor:pointer;font-family:inherit;box-shadow:0 4px 24px rgba(249,115,22,.5)}
+.btn-outline{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:14px 32px;font-weight:700;font-size:16px;cursor:pointer;font-family:inherit}
+/* STATS */
+.stats{background:#F97316;padding:48px 24px}
+.stats-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;text-align:center}
+.stat-num{font-size:36px;font-weight:900;color:#fff;line-height:1}
+.stat-label{font-size:14px;color:rgba(255,255,255,.8);margin-top:4px;font-weight:600}
+/* SECTIONS */
+.section{padding:80px 24px}
+.section-inner{max-width:1000px;margin:0 auto}
+.eyebrow{font-size:12px;font-weight:800;color:#F97316;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+h2{font-size:clamp(26px,4vw,42px);font-weight:900;color:#0F172A;margin-bottom:48px}
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.step{background:#fff;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.07);border:1px solid #E4E9F2;position:relative;overflow:hidden}
+.step-num{position:absolute;top:-10px;right:8px;font-size:72px;font-weight:900;color:rgba(249,115,22,.06);line-height:1}
+.step-label{font-size:11px;font-weight:800;color:#F97316;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.step h3{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:8px}
+.step p{font-size:14px;color:#64748B;line-height:1.7}
+/* FEATURES */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.card{background:#fff;border-radius:16px;padding:24px;border:1px solid #E4E9F2;transition:box-shadow .2s}
+.card:hover{box-shadow:0 8px 32px rgba(249,115,22,.12)}
+/* PRICING */
+.pricing{background:#081C3B;padding:80px 24px}
+.pricing-inner{max-width:760px;margin:0 auto;text-align:center}
+.price-card{border-radius:24px;padding:32px;text-align:left}
+.price-card.featured{background:rgba(255,255,255,.06);border:2px solid #F97316;position:relative}
+.price-card.regular{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.price-tag{position:absolute;top:-12px;left:24px;background:#F97316;color:#fff;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px}
+.price-amount{font-size:48px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px}
+.price-period{font-size:16px;color:rgba(255,255,255,.5);font-weight:400}
+.price-desc{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:24px}
+.price-item{display:flex;gap:10px;margin-bottom:10px;font-size:14px;color:rgba(255,255,255,.8)}
+.check-g{color:#22C55E;font-weight:700}
+.check-b{color:#60A5FA;font-weight:700}
+.price-note{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600}
+.price-note.o{background:rgba(249,115,22,.15);color:#F97316}
+.price-note.b{background:rgba(27,110,243,.15);color:#7BB8FF}
+.price-btn{width:100%;margin-top:24px;padding:14px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;border:none}
+.price-btn.o{background:#F97316;color:#fff}
+.price-btn.g{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff}
+/* PROVINCES */
+.prov-section{background:#F4F6FA;padding:80px 24px}
+.prov-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.prov-tag{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#fff;border:1px solid #E4E9F2;color:#0F172A;cursor:pointer;transition:all .2s}
+.prov-tag:hover{background:#F97316;color:#fff;border-color:#F97316}
+/* CTA */
+.cta-section{background:linear-gradient(135deg,#F97316,#EA580C);padding:80px 24px;text-align:center}
+.cta-section h2{color:#fff;margin-bottom:16px}
+.cta-section p{font-size:18px;color:rgba(255,255,255,.85);margin-bottom:32px;line-height:1.7}
+.cta-btn{background:#fff;color:#F97316;border:none;border-radius:14px;padding:16px 40px;font-weight:900;font-size:18px;cursor:pointer;font-family:inherit;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+/* FOOTER */
+footer{background:#081C3B;padding:40px 24px 24px}
+.footer-logo{font-weight:900;font-size:22px;margin-bottom:8px}
+.footer-copy{border-top:1px solid rgba(255,255,255,.08);padding-top:20px;text-align:center;font-size:13px;margin-top:32px;color:rgba(255,255,255,.4)}
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:24px;padding:32px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#64748B;line-height:1}
+.modal-logo{text-align:center;font-size:28px;font-weight:900;margin-bottom:4px}
+.modal-title{font-weight:900;font-size:20px;color:#0F172A;margin-bottom:4px}
+.modal-sub{font-size:13px;color:#64748B;margin-bottom:24px}
+.progress{display:flex;gap:6px;margin-bottom:28px}
+.progress-bar{flex:1;height:4px;border-radius:4px}
+.pb-done{background:#F97316}.pb-pending{background:#E4E9F2}
+label{font-size:13px;font-weight:700;color:#0F172A;display:block;margin-bottom:5px}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],select{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;color:#0F172A;margin-bottom:14px;transition:border-color .2s}
+input:focus,select:focus{border-color:#F97316}
+.row2{display:flex;gap:10px}
+.row2>div{flex:1}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.btn-back{flex:1;padding:12px;border-radius:12px;border:1.5px solid #E4E9F2;background:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;color:#64748B}
+.btn-next{flex:2;padding:12px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px}
+.btn-full{width:100%;padding:13px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px;margin-bottom:10px}
+.btn-google{width:100%;padding:12px;border-radius:12px;border:1.5px solid #E4E9F2;background:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
+.divider{text-align:center;color:#64748B;font-size:13px;margin:12px 0;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:#E4E9F2}
+.divider::before{left:0}.divider::after{right:0}
+.link-text{text-align:center;font-size:13px;color:#64748B;margin-top:16px}
+.link-text a{color:#F97316;font-weight:700;cursor:pointer;text-decoration:none}
+.alert{padding:12px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none}
+.alert-error{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.alert-success{background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC}
+.qr-box{width:160px;height:160px;margin:0 auto 16px;background:#F4F6FA;border-radius:16px;border:2px dashed #F97316;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-size:11px;color:#64748B}
+.note-box{padding:14px;background:#FFF3E8;border-radius:12px;font-size:13px;color:#F97316;font-weight:600;line-height:1.7}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@media(max-width:600px){.hero-btns{flex-direction:column;width:100%}.btn-primary,.btn-outline{width:100%}.nav-right .btn-login{display:none}}
+</style>
+</head>
+<body>
 
-/* ─── Brand Tokens ─── */
-const B = {
-  navy:    "#081C3B",
-  navyMid: "#0F2D5E",
-  blue:    "#1B6EF3",
-  orange:  "#F97316",
-  orangeL: "#FFF3E8",
-  gold:    "#F59E0B",
-  green:   "#22C55E",
-  bg:      "#F4F7FF",
-  white:   "#FFFFFF",
-  text:    "#0F172A",
-  sub:     "#64748B",
-  border:  "#E2E8F0",
-};
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="scrollTo(0,0)"><span>77</span><span>Park</span></div>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="btn-nav btn-login" onclick="openLogin()">เข้าสู่ระบบ</button>
+    <button class="btn-nav btn-register" onclick="openRegister()">สมัครสมาชิก</button>
+    <button class="btn-nav btn-logout" id="btnLogout" onclick="logout()">ออกจากระบบ</button>
+  </div>
+</nav>
 
-/* 77 Province names */
-const PROVINCES = [
-  "กรุงเทพฯ","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา",
-  "ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก",
-  "นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน",
-  "บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
-  "พะเยา","พระแสง","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต",
-  "มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด","ระนอง","ระยอง",
-  "ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล",
-  "สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย",
-  "สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ",
-  "อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี",
-];
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-77">77</div>
+  <div class="hero-badge">🇹🇭 ครอบคลุมทุกจังหวัดในไทย · 77 จังหวัด</div>
+  <h1>ที่จอดรถ<br/><span>ทั่วไทย</span><br/>ค้นหาง่าย จองได้เลย</h1>
+  <p class="hero-sub">รวมที่จอดรถทั้ง 77 จังหวัด จากเจ้าของจริง<br/>ราคาชัดเจน จองล่วงหน้าได้ทันที</p>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍  ค้นหาจังหวัด ย่าน หรือสถานที่..."/>
+    <button onclick="handleSearch()">ค้นหา</button>
+  </div>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="openOwnerRegister()">📋 เปิดร้านจอดรถ · ฿200</button>
+    <button class="btn-outline" onclick="handleSearch()">🚗 หาที่จอดรถ</button>
+  </div>
+  <div style="position:absolute;bottom:32px;font-size:22px;color:rgba(255,255,255,.25);animation:bounce 2s infinite">↓</div>
+</section>
 
-const HOW_OWNER = [
-  { n:"01", icon:"📝", title:"สมัครเปิดร้าน", desc:"กรอกข้อมูลที่จอด ใส่รูปภาพ กำหนดราคา" },
-  { n:"02", icon:"💳", title:"ชำระ ฿200", desc:"โอน PromptPay ส่งสลิป รอ Approve ภายใน 24 ชม." },
-  { n:"03", icon:"🚗", title:"รับลูกค้าทันที", desc:"ที่จอดของคุณขึ้นเว็บ ลูกค้าจองได้เลย" },
-];
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-grid">
+    <div><div class="stat-num">77</div><div class="stat-label">จังหวัดทั่วไทย</div></div>
+    <div><div class="stat-num">฿200</div><div class="stat-label">ค่าสมัครเปิดร้าน</div></div>
+    <div><div class="stat-num">15%</div><div class="stat-label">Commission ต่อการจอง</div></div>
+    <div><div class="stat-num">24/7</div><div class="stat-label">เข้าถึงได้ตลอดเวลา</div></div>
+  </div>
+</div>
 
-const HOW_DRIVER = [
-  { n:"01", icon:"🔍", title:"ค้นหา", desc:"พิมพ์ชื่อจังหวัด ย่าน หรือ BTS/MRT" },
-  { n:"02", icon:"📅", title:"เลือกวันเวลา", desc:"จองล่วงหน้า เลือกเวลาเข้า-ออก" },
-  { n:"03", icon:"✅", title:"จอดได้เลย", desc:"รับรหัสการจอง นำทาง GPS แสดงรหัสเข้า" },
-];
-
-const FEATURES = [
-  { icon:"🗺️", title:"ครบ 77 จังหวัด", desc:"ค้นหาที่จอดได้ทั่วประเทศไทย ทุกจังหวัด" },
-  { icon:"📸", title:"รูปภาพจริง", desc:"เจ้าของอัปโหลดภาพจริง เห็นก่อนจอง" },
-  { icon:"💬", title:"รีวิวจริง", desc:"ให้คะแนนจากผู้เคยใช้จริงทุกครั้ง" },
-  { icon:"🔒", title:"ปลอดภัย", desc:"ระบบยืนยันตัวตน ทุกที่จอดผ่านการตรวจสอบ" },
-  { icon:"📱", title:"ใช้ได้ทุกอุปกรณ์", desc:"เว็บ + PWA ลงมือถือได้ไม่ต้องโหลดแอป" },
-  { icon:"⚡", title:"จองเร็ว", desc:"ยืนยันการจองทันที ไม่เสียเวลารอ" },
-];
-
-function Nav({ onRegister }) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-  return (
-    <nav style={{
-      position:"fixed", top:0, left:0, right:0, zIndex:100,
-      background: scrolled ? "rgba(8,28,59,.97)" : "transparent",
-      backdropFilter: scrolled ? "blur(12px)" : "none",
-      borderBottom: scrolled ? "1px solid rgba(255,255,255,.08)" : "none",
-      transition:"all .3s", padding:"0 24px",
-      display:"flex", alignItems:"center", justifyContent:"space-between",
-      height:64,
-    }}>
-      {/* Logo */}
-      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-        <div style={{ fontWeight:900, fontSize:26, lineHeight:1 }}>
-          <span style={{ color:B.orange }}>77</span>
-          <span style={{ color:B.white }}>Park</span>
-        </div>
-        <div style={{
-          fontSize:10, color:B.orange, background:"rgba(249,115,22,.15)",
-          padding:"2px 7px", borderRadius:20, fontWeight:700, border:"1px solid rgba(249,115,22,.3)",
-        }}>THAILAND</div>
-      </div>
-      {/* Nav links */}
-      <div style={{ display:"flex", gap:28, alignItems:"center" }}>
-        {["สำหรับเจ้าของ","ค้นหาที่จอด","ราคา"].map(l=>(
-          <a key={l} href="#" style={{ color:"rgba(255,255,255,.7)", fontSize:14, textDecoration:"none", fontWeight:500 }}>{l}</a>
-        ))}
-        <button onClick={onRegister} style={{
-          background:B.orange, color:B.white, border:"none", borderRadius:10,
-          padding:"9px 20px", fontWeight:700, fontSize:14, cursor:"pointer",
-          fontFamily:"inherit", boxShadow:"0 2px 12px rgba(249,115,22,.4)",
-        }}>เปิดร้าน ฿200</button>
-      </div>
-    </nav>
-  );
-}
-
-function Hero({ onRegister, onSearch }) {
-  const [search, setSearch] = useState("");
-  return (
-    <section style={{
-      background:`linear-gradient(160deg, ${B.navy} 0%, ${B.navyMid} 60%, #1A3A6B 100%)`,
-      minHeight:"100vh", position:"relative", overflow:"hidden",
-      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-      padding:"100px 24px 60px", textAlign:"center",
-    }}>
-      {/* Giant "77" bg decoration */}
-      <div style={{
-        position:"absolute", fontSize:"clamp(280px,40vw,520px)", fontWeight:900,
-        color:"rgba(249,115,22,.05)", lineHeight:1, top:"50%", left:"50%",
-        transform:"translate(-50%,-50%)", pointerEvents:"none", userSelect:"none",
-        letterSpacing:-20,
-      }}>77</div>
-
-      {/* Grid dots */}
-      <div style={{
-        position:"absolute", inset:0, opacity:.3,
-        backgroundImage:"radial-gradient(rgba(255,255,255,.15) 1px, transparent 1px)",
-        backgroundSize:"32px 32px",
-      }}/>
-
-      {/* Badge */}
-      <div style={{
-        display:"inline-flex", alignItems:"center", gap:8,
-        background:"rgba(249,115,22,.12)", border:"1px solid rgba(249,115,22,.3)",
-        borderRadius:40, padding:"7px 16px", marginBottom:24,
-        fontSize:13, color:B.orange, fontWeight:700,
-      }}>
-        🇹🇭 ครอบคลุมทุกจังหวัดในไทย · 77 จังหวัด
-      </div>
-
-      {/* Headline */}
-      <h1 style={{
-        fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.15,
-        color:B.white, margin:"0 0 20px", maxWidth:780,
-      }}>
-        ที่จอดรถ{" "}
-        <span style={{
-          color:B.orange,
-          textShadow:"0 0 40px rgba(249,115,22,.4)",
-        }}>ทั่วไทย</span>
-        <br/>ค้นหาง่าย จองได้เลย
-      </h1>
-
-      <p style={{
-        fontSize:"clamp(16px,2vw,20px)", color:"rgba(255,255,255,.65)",
-        maxWidth:560, lineHeight:1.7, margin:"0 0 40px",
-      }}>
-        รวมที่จอดรถทั้ง 77 จังหวัด จากเจ้าของจริง<br/>
-        ราคาชัดเจน จองล่วงหน้าได้ทันที
-      </p>
-
-      {/* Search bar */}
-      <div style={{
-        display:"flex", gap:10, maxWidth:540, width:"100%",
-        background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.15)",
-        borderRadius:16, padding:8, marginBottom:32,
-        backdropFilter:"blur(10px)",
-      }}>
-        <input value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder="🔍  ค้นหาจังหวัด ย่าน หรือสถานที่..."
-          style={{
-            flex:1, background:"none", border:"none", color:B.white,
-            fontSize:15, outline:"none", fontFamily:"inherit", padding:"6px 8px",
-          }}/>
-        <button onClick={onSearch} style={{
-          background:B.orange, color:B.white, border:"none", borderRadius:10,
-          padding:"10px 24px", fontWeight:700, fontSize:14, cursor:"pointer",
-          fontFamily:"inherit", whiteSpace:"nowrap",
-        }}>ค้นหา</button>
-      </div>
-
-      {/* CTAs */}
-      <div style={{ display:"flex", gap:12, flexWrap:"wrap", justifyContent:"center" }}>
-        <button onClick={onRegister} style={{
-          background:B.orange, color:B.white, border:"none", borderRadius:12,
-          padding:"14px 32px", fontWeight:800, fontSize:16, cursor:"pointer",
-          fontFamily:"inherit", boxShadow:"0 4px 24px rgba(249,115,22,.5)",
-        }}>📋 เปิดร้านจอดรถ · ฿200</button>
-        <button style={{
-          background:"rgba(255,255,255,.1)", color:B.white,
-          border:"1px solid rgba(255,255,255,.25)", borderRadius:12,
-          padding:"14px 32px", fontWeight:700, fontSize:16, cursor:"pointer",
-          fontFamily:"inherit",
-        }}>🚗 หาที่จอดรถ</button>
-      </div>
-
-      {/* Scroll hint */}
-      <div style={{ position:"absolute", bottom:32, fontSize:22, color:"rgba(255,255,255,.3)", animation:"bounce 2s infinite" }}>↓</div>
-      <style>{`@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}`}</style>
-    </section>
-  );
-}
-
-function Stats() {
-  const items = [
-    { num:"77", label:"จังหวัดทั่วไทย", icon:"🗺️" },
-    { num:"฿200", label:"ค่าสมัครเปิดร้าน", icon:"💳" },
-    { num:"15%", label:"Commission ต่อการจอง", icon:"💰" },
-    { num:"24/7", label:"เข้าถึงได้ตลอดเวลา", icon:"⚡" },
-  ];
-  return (
-    <section style={{ background:B.orange, padding:"48px 24px" }}>
-      <div style={{
-        maxWidth:1000, margin:"0 auto",
-        display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:24,
-      }}>
-        {items.map(({ num, label, icon }) => (
-          <div key={label} style={{ textAlign:"center" }}>
-            <div style={{ fontSize:32, marginBottom:6 }}>{icon}</div>
-            <div style={{ fontSize:36, fontWeight:900, color:B.white, lineHeight:1 }}>{num}</div>
-            <div style={{ fontSize:14, color:"rgba(255,255,255,.8)", marginTop:4, fontWeight:600 }}>{label}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function HowItWorks() {
-  const [tab, setTab] = useState("owner");
-  const steps = tab === "owner" ? HOW_OWNER : HOW_DRIVER;
-  return (
-    <section style={{ background:B.bg, padding:"80px 24px" }}>
-      <div style={{ maxWidth:880, margin:"0 auto" }}>
-        <div style={{ textAlign:"center", marginBottom:48 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:B.orange, letterSpacing:2, marginBottom:8, textTransform:"uppercase" }}>วิธีการทำงาน</div>
-          <h2 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:900, color:B.text, margin:0 }}>ง่าย · เร็ว · ปลอดภัย</h2>
-        </div>
-
-        {/* Tab toggle */}
-        <div style={{
-          display:"flex", background:"rgba(0,0,0,.06)", borderRadius:14,
-          padding:5, maxWidth:320, margin:"0 auto 48px", gap:4,
-        }}>
-          {[["owner","🏢 สำหรับเจ้าของ"],["driver","🚗 สำหรับผู้จอด"]].map(([k,l])=>(
-            <button key={k} onClick={()=>setTab(k)} style={{
-              flex:1, padding:"10px 0", borderRadius:10, border:"none",
-              fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:"inherit",
-              background:tab===k ? B.orange : "transparent",
-              color:tab===k ? B.white : B.sub,
-              transition:"all .2s",
-            }}>{l}</button>
-          ))}
-        </div>
-
-        {/* Steps */}
-        <div style={{
-          display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:24,
-        }}>
-          {steps.map((s, i) => (
-            <div key={s.n} style={{
-              background:B.white, borderRadius:20, padding:28,
-              boxShadow:"0 4px 20px rgba(0,0,0,.07)",
-              border:`1px solid ${B.border}`,
-              position:"relative", overflow:"hidden",
-            }}>
-              {/* bg number */}
-              <div style={{
-                position:"absolute", top:-10, right:8, fontSize:72, fontWeight:900,
-                color:"rgba(249,115,22,.06)", lineHeight:1, pointerEvents:"none",
-              }}>{s.n}</div>
-              <div style={{ fontSize:36, marginBottom:14 }}>{s.icon}</div>
-              <div style={{
-                fontSize:11, fontWeight:800, color:B.orange, letterSpacing:2,
-                marginBottom:6, textTransform:"uppercase",
-              }}>STEP {s.n}</div>
-              <div style={{ fontSize:18, fontWeight:800, color:B.text, marginBottom:8 }}>{s.title}</div>
-              <div style={{ fontSize:14, color:B.sub, lineHeight:1.7 }}>{s.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Features() {
-  return (
-    <section style={{ background:B.white, padding:"80px 24px" }}>
-      <div style={{ maxWidth:1000, margin:"0 auto" }}>
-        <div style={{ textAlign:"center", marginBottom:48 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:B.orange, letterSpacing:2, marginBottom:8, textTransform:"uppercase" }}>คุณสมบัติ</div>
-          <h2 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:900, color:B.text, margin:0 }}>ทำไมต้อง <span style={{ color:B.orange }}>77Park</span>?</h2>
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:20 }}>
-          {FEATURES.map(f=>(
-            <div key={f.title} style={{
-              padding:24, borderRadius:16, border:`1px solid ${B.border}`,
-              transition:"all .2s", cursor:"default",
-            }}
-            onMouseEnter={e=>e.currentTarget.style.boxShadow="0 8px 32px rgba(249,115,22,.12)"}
-            onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
-              <div style={{ fontSize:32, marginBottom:12 }}>{f.icon}</div>
-              <div style={{ fontWeight:800, fontSize:16, color:B.text, marginBottom:6 }}>{f.title}</div>
-              <div style={{ fontSize:14, color:B.sub, lineHeight:1.7 }}>{f.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Pricing({ onRegister }) {
-  return (
-    <section style={{ background:B.navy, padding:"80px 24px" }}>
-      <div style={{ maxWidth:760, margin:"0 auto", textAlign:"center" }}>
-        <div style={{ fontSize:13, fontWeight:700, color:B.orange, letterSpacing:2, marginBottom:8, textTransform:"uppercase" }}>ราคา</div>
-        <h2 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:900, color:B.white, margin:"0 0 48px" }}>โปร่งใส ไม่มีค่าใช้จ่ายซ่อน</h2>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:20 }}>
-          {/* Owner card */}
-          <div style={{
-            background:"rgba(255,255,255,.06)", border:`2px solid ${B.orange}`,
-            borderRadius:24, padding:32, textAlign:"left", position:"relative",
-          }}>
-            <div style={{
-              position:"absolute", top:-12, left:24,
-              background:B.orange, color:B.white, fontSize:11, fontWeight:800,
-              padding:"4px 14px", borderRadius:20,
-            }}>เจ้าของที่จอดรถ</div>
-            <div style={{ fontSize:48, fontWeight:900, color:B.white, lineHeight:1, marginTop:8 }}>
-              ฿200<span style={{ fontSize:16, color:"rgba(255,255,255,.5)", fontWeight:400 }}> /ครั้ง</span>
-            </div>
-            <div style={{ fontSize:14, color:"rgba(255,255,255,.5)", marginBottom:24 }}>ค่าสมัครเปิดร้านครั้งแรก</div>
-            {[
-              "ลงประกาศได้ไม่จำกัดรูปภาพ",
-              "ตั้งราคา รายวัน / รายเดือน",
-              "ระบบจัดการการจองออนไลน์",
-              "รับเงินผ่าน PromptPay โดยตรง",
-              "แดชบอร์ดดูรายได้",
-            ].map(i=>(
-              <div key={i} style={{ display:"flex", gap:10, marginBottom:10 }}>
-                <span style={{ color:B.green, fontWeight:700 }}>✓</span>
-                <span style={{ color:"rgba(255,255,255,.8)", fontSize:14 }}>{i}</span>
-              </div>
-            ))}
-            <div style={{ marginTop:12, padding:"10px 14px", background:"rgba(249,115,22,.15)", borderRadius:10, fontSize:13, color:B.orange, fontWeight:600 }}>
-              Commission 15% เฉพาะเมื่อมีการจอง
-            </div>
-            <button onClick={onRegister} style={{
-              width:"100%", marginTop:24, padding:"14px", borderRadius:12,
-              background:B.orange, border:"none", color:B.white,
-              fontWeight:800, fontSize:16, cursor:"pointer", fontFamily:"inherit",
-            }}>สมัครเปิดร้านเลย</button>
-          </div>
-          {/* Driver card */}
-          <div style={{
-            background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.12)",
-            borderRadius:24, padding:32, textAlign:"left",
-          }}>
-            <div style={{ fontSize:48, fontWeight:900, color:B.white, lineHeight:1 }}>
-              ฿0<span style={{ fontSize:16, color:"rgba(255,255,255,.5)", fontWeight:400 }}> /ตลอดกาล</span>
-            </div>
-            <div style={{ fontSize:14, color:"rgba(255,255,255,.5)", marginBottom:24 }}>สำหรับผู้ต้องการจอดรถ</div>
-            {[
-              "ค้นหาที่จอดรถฟรี ไม่มีค่าสมัคร",
-              "ดูรูปภาพและรีวิวก่อนจอง",
-              "จองล่วงหน้า เลือกเวลาได้",
-              "รับรหัสการจองทันที",
-              "นำทาง GPS ไปที่จอดรถ",
-            ].map(i=>(
-              <div key={i} style={{ display:"flex", gap:10, marginBottom:10 }}>
-                <span style={{ color:B.blue, fontWeight:700 }}>✓</span>
-                <span style={{ color:"rgba(255,255,255,.8)", fontSize:14 }}>{i}</span>
-              </div>
-            ))}
-            <div style={{ marginTop:12, padding:"10px 14px", background:"rgba(27,110,243,.15)", borderRadius:10, fontSize:13, color:"#7BB8FF", fontWeight:600 }}>
-              + ค่าบริการ 15% รวมในราคาที่แสดง
-            </div>
-            <button style={{
-              width:"100%", marginTop:24, padding:"14px", borderRadius:12,
-              background:"rgba(255,255,255,.1)", border:"1px solid rgba(255,255,255,.2)",
-              color:B.white, fontWeight:800, fontSize:16, cursor:"pointer", fontFamily:"inherit",
-            }}>ค้นหาที่จอดรถ</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Provinces() {
-  const [show, setShow] = useState(false);
-  const visible = show ? PROVINCES : PROVINCES.slice(0,21);
-  return (
-    <section style={{ background:B.bg, padding:"80px 24px" }}>
-      <div style={{ maxWidth:1000, margin:"0 auto" }}>
-        <div style={{ textAlign:"center", marginBottom:40 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:B.orange, letterSpacing:2, marginBottom:8, textTransform:"uppercase" }}>ครอบคลุม</div>
-          <h2 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:900, color:B.text, margin:0 }}>
-            <span style={{ color:B.orange }}>77</span> จังหวัด ทั่วประเทศไทย
-          </h2>
-        </div>
-        <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center" }}>
-          {visible.map(p=>(
-            <div key={p} style={{
-              padding:"7px 14px", borderRadius:20, fontSize:13, fontWeight:600,
-              background:B.white, border:`1px solid ${B.border}`, color:B.text,
-              transition:"all .2s", cursor:"pointer",
-            }}
-            onMouseEnter={e=>{e.currentTarget.style.background=B.orange;e.currentTarget.style.color=B.white;e.currentTarget.style.borderColor=B.orange;}}
-            onMouseLeave={e=>{e.currentTarget.style.background=B.white;e.currentTarget.style.color=B.text;e.currentTarget.style.borderColor=B.border;}}>
-              {p}
-            </div>
-          ))}
-        </div>
-        {!show && (
-          <div style={{ textAlign:"center", marginTop:20 }}>
-            <button onClick={()=>setShow(true)} style={{
-              background:"none", border:`1.5px solid ${B.orange}`, color:B.orange,
-              borderRadius:10, padding:"10px 28px", fontWeight:700, fontSize:14,
-              cursor:"pointer", fontFamily:"inherit",
-            }}>ดูทั้ง 77 จังหวัด →</button>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function CTA({ onRegister }) {
-  return (
-    <section style={{
-      background:`linear-gradient(135deg, ${B.orange}, #EA580C)`,
-      padding:"80px 24px", textAlign:"center",
-    }}>
-      <div style={{ maxWidth:620, margin:"0 auto" }}>
-        <div style={{ fontSize:48, marginBottom:16 }}>🅿️</div>
-        <h2 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:900, color:B.white, margin:"0 0 16px" }}>
-          มีที่จอดรถ? เริ่มสร้างรายได้เลย
-        </h2>
-        <p style={{ fontSize:18, color:"rgba(255,255,255,.85)", margin:"0 0 32px", lineHeight:1.7 }}>
-          สมัครเพียง ฿200 ครั้งเดียว<br/>
-          เปิดรับลูกค้าได้จากทั่วประเทศ
-        </p>
-        <button onClick={onRegister} style={{
-          background:B.white, color:B.orange, border:"none",
-          borderRadius:14, padding:"16px 40px", fontWeight:900,
-          fontSize:18, cursor:"pointer", fontFamily:"inherit",
-          boxShadow:"0 8px 32px rgba(0,0,0,.2)",
-        }}>สมัครเปิดร้านเลย →</button>
-      </div>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer style={{ background:B.navy, padding:"40px 24px 24px", color:"rgba(255,255,255,.5)" }}>
-      <div style={{ maxWidth:1000, margin:"0 auto" }}>
-        <div style={{ display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:24, marginBottom:32 }}>
-          <div>
-            <div style={{ fontWeight:900, fontSize:22, marginBottom:8 }}>
-              <span style={{ color:B.orange }}>77</span>
-              <span style={{ color:B.white }}>Park</span>
-            </div>
-            <div style={{ fontSize:13, lineHeight:1.8, maxWidth:220 }}>
-              แพลตฟอร์มจองที่จอดรถ<br/>ครบทุก 77 จังหวัดในประเทศไทย
-            </div>
-          </div>
-          {[
-            { title:"บริการ", links:["ค้นหาที่จอดรถ","เปิดร้านจอดรถ","ราคา & แพ็กเกจ"] },
-            { title:"บริษัท", links:["เกี่ยวกับเรา","ติดต่อ","นโยบายความเป็นส่วนตัว"] },
-          ].map(g=>(
-            <div key={g.title}>
-              <div style={{ fontWeight:700, color:B.white, marginBottom:12, fontSize:14 }}>{g.title}</div>
-              {g.links.map(l=>(
-                <div key={l} style={{ marginBottom:8 }}>
-                  <a href="#" style={{ color:"rgba(255,255,255,.5)", fontSize:13, textDecoration:"none" }}>{l}</a>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-        <div style={{ borderTop:"1px solid rgba(255,255,255,.08)", paddingTop:20, textAlign:"center", fontSize:13 }}>
-          © 2024 77Park · ที่จอดรถทั่วไทย · สร้างด้วย ❤️ เพื่อคนไทย
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-/* ─── Register Modal ─── */
-function RegisterModal({ onClose }) {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name:"", province:"", address:"", daily:"", monthly:"", phone:"", email:"" });
-  const set = (k,v) => setForm(f=>({...f,[k]:v}));
-
-  const Field = ({ label, k, placeholder, type="text" }) => (
-    <div style={{ marginBottom:14 }}>
-      <label style={{ fontSize:12, fontWeight:700, color:B.sub, display:"block", marginBottom:5 }}>{label}</label>
-      {k==="province" ? (
-        <select value={form[k]} onChange={e=>set(k,e.target.value)} style={{
-          width:"100%", padding:"10px 12px", borderRadius:10, border:`1.5px solid ${B.border}`,
-          fontSize:14, fontFamily:"inherit", outline:"none", color:B.text, boxSizing:"border-box",
-        }}>
-          <option value="">เลือกจังหวัด</option>
-          {PROVINCES.map(p=><option key={p} value={p}>{p}</option>)}
-        </select>
-      ) : (
-        <input type={type} value={form[k]} onChange={e=>set(k,e.target.value)}
-          placeholder={placeholder} style={{
-            width:"100%", padding:"10px 12px", borderRadius:10,
-            border:`1.5px solid ${B.border}`, fontSize:14,
-            fontFamily:"inherit", outline:"none", color:B.text, boxSizing:"border-box",
-          }}/>
-      )}
+<!-- HOW IT WORKS -->
+<section class="section" style="background:#F4F6FA">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="eyebrow">วิธีการทำงาน</div>
+      <h2 style="margin-bottom:0">ง่าย · เร็ว · ปลอดภัย</h2>
     </div>
-  );
+    <div style="display:flex;gap:8px;background:rgba(0,0,0,.06);border-radius:14px;padding:5px;max-width:320px;margin:0 auto 48px">
+      <button id="tabOwner" onclick="switchTab('owner')" style="flex:1;padding:10px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:#F97316;color:#fff;transition:all .2s">🏢 สำหรับเจ้าของ</button>
+      <button id="tabDriver" onclick="switchTab('driver')" style="flex:1;padding:10px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:transparent;color:#64748B;transition:all .2s">🚗 สำหรับผู้จอด</button>
+    </div>
+    <div class="steps" id="stepsOwner">
+      <div class="step"><div class="step-num">01</div><div class="step-label">STEP 01</div><h3>สมัครเปิดร้าน</h3><p>กรอกข้อมูลที่จอด ใส่รูปภาพ กำหนดราคา</p></div>
+      <div class="step"><div class="step-num">02</div><div class="step-label">STEP 02</div><h3>ชำระ ฿200</h3><p>โอน PromptPay ส่งสลิป รอ Approve ภายใน 24 ชม.</p></div>
+      <div class="step"><div class="step-num">03</div><div class="step-label">STEP 03</div><h3>รับลูกค้าทันที</h3><p>ที่จอดของคุณขึ้นเว็บ ลูกค้าจองได้เลย รับเงินผ่าน PromptPay</p></div>
+    </div>
+    <div class="steps" id="stepsDriver" style="display:none">
+      <div class="step"><div class="step-num">01</div><div class="step-label">STEP 01</div><h3>ค้นหา</h3><p>พิมพ์ชื่อจังหวัด ย่าน หรือ BTS/MRT</p></div>
+      <div class="step"><div class="step-num">02</div><div class="step-label">STEP 02</div><h3>เลือกวันเวลา</h3><p>จองล่วงหน้า เลือกเวลาเข้า-ออก</p></div>
+      <div class="step"><div class="step-num">03</div><div class="step-label">STEP 03</div><h3>จอดได้เลย</h3><p>รับรหัสการจอง นำทาง GPS แสดงรหัสเข้า</p></div>
+    </div>
+  </div>
+</section>
 
-  return (
-    <div style={{
-      position:"fixed", inset:0, background:"rgba(0,0,0,.6)", zIndex:200,
-      display:"flex", alignItems:"center", justifyContent:"center", padding:20,
-    }} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{
-        background:B.white, borderRadius:24, padding:32, width:"100%", maxWidth:460,
-        maxHeight:"90vh", overflowY:"auto",
-      }}>
-        {/* Header */}
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24 }}>
-          <div>
-            <div style={{ fontWeight:900, fontSize:20, color:B.text }}>เปิดร้านจอดรถ</div>
-            <div style={{ fontSize:13, color:B.sub }}>ขั้นตอนที่ {step}/3</div>
-          </div>
-          <button onClick={onClose} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:B.sub }}>×</button>
-        </div>
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:48px"><div class="eyebrow">คุณสมบัติ</div><h2 style="margin-bottom:0">ทำไมต้อง <span style="color:#F97316">77Park</span>?</h2></div>
+    <div class="cards">
+      <div class="card"><div style="font-size:32px;margin-bottom:12px">🗺️</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">ครบ 77 จังหวัด</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ค้นหาที่จอดได้ทั่วประเทศไทย ทุกจังหวัด</p></div>
+      <div class="card"><div style="font-size:32px;margin-bottom:12px">📸</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">รูปภาพจริง</h3><p style="font-size:14px;color:#64748B;line-height:1.7">เจ้าของอัปโหลดภาพจริง เห็นก่อนจอง</p></div>
+      <div class="card"><div style="font-size:32px;margin-bottom:12px">💬</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">รีวิวจริง</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ให้คะแนนจากผู้เคยใช้จริงทุกครั้ง</p></div>
+      <div class="card"><div style="font-size:32px;margin-bottom:12px">🔒</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">ปลอดภัย</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ระบบยืนยันตัวตน ทุกที่จอดผ่านการตรวจสอบ</p></div>
+      <div class="card"><div style="font-size:32px;margin-bottom:12px">📱</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">ใช้ได้ทุกอุปกรณ์</h3><p style="font-size:14px;color:#64748B;line-height:1.7">เว็บ + PWA ลงมือถือได้ไม่ต้องโหลดแอป</p></div>
+      <div class="card"><div style="font-size:32px;margin-bottom:12px">🔄</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">คืนเงินได้</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ยกเลิกก่อน 24 ชม. คืนเงิน 100% ปลอดภัย</p></div>
+    </div>
+  </div>
+</section>
 
-        {/* Progress */}
-        <div style={{ display:"flex", gap:6, marginBottom:28 }}>
-          {[1,2,3].map(i=>(
-            <div key={i} style={{
-              flex:1, height:4, borderRadius:4,
-              background:i<=step ? B.orange : B.border, transition:"background .3s",
-            }}/>
-          ))}
-        </div>
-
-        {step===1 && (
-          <div>
-            <div style={{ fontWeight:700, fontSize:16, color:B.text, marginBottom:16 }}>📋 ข้อมูลที่จอดรถ</div>
-            <Field label="ชื่อที่จอดรถ *" k="name" placeholder="เช่น ที่จอดรถ ABC สุขุมวิท"/>
-            <Field label="จังหวัด *" k="province"/>
-            <Field label="ที่อยู่โดยละเอียด *" k="address" placeholder="เลขที่ ถนน แขวง เขต"/>
-            <div style={{ display:"flex", gap:10 }}>
-              <div style={{ flex:1 }}><Field label="ราคารายวัน (฿)" k="daily" placeholder="100" type="number"/></div>
-              <div style={{ flex:1 }}><Field label="ราคารายเดือน (฿)" k="monthly" placeholder="2500" type="number"/></div>
-            </div>
-          </div>
-        )}
-        {step===2 && (
-          <div>
-            <div style={{ fontWeight:700, fontSize:16, color:B.text, marginBottom:16 }}>👤 ข้อมูลติดต่อ</div>
-            <Field label="ชื่อ-นามสกุล *" k="name" placeholder="ชื่อเจ้าของ"/>
-            <Field label="อีเมล *" k="email" placeholder="email@example.com" type="email"/>
-            <Field label="เบอร์โทร *" k="phone" placeholder="08X-XXX-XXXX"/>
-          </div>
-        )}
-        {step===3 && (
-          <div style={{ textAlign:"center" }}>
-            <div style={{ fontWeight:700, fontSize:16, color:B.text, marginBottom:20 }}>💳 ชำระค่าสมัคร</div>
-            {/* QR placeholder */}
-            <div style={{
-              width:180, height:180, margin:"0 auto 16px",
-              background:B.bg, borderRadius:16, border:`2px dashed ${B.orange}`,
-              display:"flex", alignItems:"center", justifyContent:"center",
-              flexDirection:"column", gap:8,
-            }}>
-              <div style={{ fontSize:40 }}>📱</div>
-              <div style={{ fontSize:12, color:B.sub, fontWeight:600 }}>QR PromptPay</div>
-            </div>
-            <div style={{ fontSize:22, fontWeight:900, color:B.orange, marginBottom:4 }}>฿200</div>
-            <div style={{ fontSize:13, color:B.sub, marginBottom:20 }}>โอนและส่งสลิปมาที่ Line: @77park</div>
-            <div style={{
-              padding:14, background:B.orangeL, borderRadius:12,
-              fontSize:13, color:B.orange, textAlign:"left", lineHeight:1.7,
-            }}>
-              ✅ หลังโอนเงิน ส่งสลิปพร้อมชื่อร้านมาที่ Line<br/>
-              ✅ ทีมงานจะ Approve ภายใน 24 ชั่วโมง<br/>
-              ✅ ร้านของคุณจะขึ้นเว็บ 77Park ทันที
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div style={{ display:"flex", gap:10, marginTop:24 }}>
-          {step>1 && <button onClick={()=>setStep(s=>s-1)} style={{
-            flex:1, padding:"12px", borderRadius:12, border:`1.5px solid ${B.border}`,
-            background:"none", fontWeight:700, cursor:"pointer", fontFamily:"inherit", fontSize:14,
-          }}>← ย้อนกลับ</button>}
-          <button onClick={()=>step<3?setStep(s=>s+1):onClose()} style={{
-            flex:2, padding:"12px", borderRadius:12, border:"none",
-            background:B.orange, color:B.white, fontWeight:800, cursor:"pointer",
-            fontFamily:"inherit", fontSize:15,
-          }}>{step===3?"เสร็จสิ้น ✓":"ถัดไป →"}</button>
-        </div>
+<!-- PRICING -->
+<div class="pricing">
+  <div class="pricing-inner">
+    <div class="eyebrow" style="color:#F97316">ราคา</div>
+    <h2 style="color:#fff">โปร่งใส ไม่มีค่าใช้จ่ายซ่อน</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+      <div class="price-card featured">
+        <div class="price-tag">เจ้าของที่จอดรถ</div>
+        <div class="price-amount" style="margin-top:8px">฿200<span class="price-period"> /ครั้ง</span></div>
+        <div class="price-desc">ค่าสมัครเปิดร้านครั้งแรก</div>
+        <div class="price-item"><span class="check-g">✓</span> ลงประกาศได้ไม่จำกัดรูปภาพ</div>
+        <div class="price-item"><span class="check-g">✓</span> ตั้งราคา รายวัน / รายเดือน</div>
+        <div class="price-item"><span class="check-g">✓</span> ระบบจัดการการจองออนไลน์</div>
+        <div class="price-item"><span class="check-g">✓</span> รับเงินผ่าน PromptPay โดยตรง</div>
+        <div class="price-note o">Commission 15% เฉพาะเมื่อมีการจอง</div>
+        <button class="price-btn o" onclick="openOwnerRegister()">สมัครเปิดร้านเลย</button>
+      </div>
+      <div class="price-card regular">
+        <div class="price-amount">฿0<span class="price-period"> /ตลอดกาล</span></div>
+        <div class="price-desc">สำหรับผู้ต้องการจอดรถ</div>
+        <div class="price-item"><span class="check-b">✓</span> ค้นหาที่จอดรถฟรี ไม่มีค่าสมัคร</div>
+        <div class="price-item"><span class="check-b">✓</span> ดูรูปภาพและรีวิวก่อนจอง</div>
+        <div class="price-item"><span class="check-b">✓</span> จองล่วงหน้า เลือกเวลาได้</div>
+        <div class="price-item"><span class="check-b">✓</span> รับรหัสการจองทันที</div>
+        <div class="price-note b">+ ค่าบริการ 15% รวมในราคาที่แสดง</div>
+        <button class="price-btn g" onclick="openRegister()">สมัครสมาชิกฟรี</button>
       </div>
     </div>
-  );
+  </div>
+</div>
+
+<!-- PROVINCES -->
+<section class="prov-section">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:40px"><div class="eyebrow">ครอบคลุม</div><h2 style="margin-bottom:0"><span style="color:#F97316">77</span> จังหวัด ทั่วประเทศไทย</h2></div>
+    <div class="prov-grid" id="provGrid"></div>
+    <div style="text-align:center;margin-top:20px">
+      <button onclick="toggleProv()" id="provBtn" style="background:none;border:1.5px solid #F97316;color:#F97316;border-radius:10px;padding:10px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">ดูทั้ง 77 จังหวัด →</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div style="font-size:48px;margin-bottom:16px">🅿️</div>
+  <h2>มีที่จอดรถ? เริ่มสร้างรายได้เลย</h2>
+  <p>สมัครเพียง ฿200 ครั้งเดียว<br/>เปิดรับลูกค้าได้จากทั่วประเทศ</p>
+  <button class="cta-btn" onclick="openOwnerRegister()">สมัครเปิดร้านเลย →</button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="max-width:1000px;margin:0 auto;color:rgba(255,255,255,.5)">
+    <div class="footer-logo"><span style="color:#F97316">77</span><span style="color:#fff">Park</span></div>
+    <div style="font-size:13px;line-height:1.8;max-width:220px">แพลตฟอร์มจองที่จอดรถ<br/>ครบทุก 77 จังหวัดในประเทศไทย</div>
+    <div class="footer-copy">© 2024 77Park · ที่จอดรถทั่วไทย · สร้างด้วย ❤️ เพื่อคนไทย</div>
+  </div>
+</footer>
+
+<!-- ═══ MODAL: LOGIN ═══ -->
+<div class="modal" id="modalLogin">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAll()">×</button>
+    <div class="modal-logo"><span style="color:#F97316">77</span><span style="color:#0F172A">Park</span></div>
+    <div style="text-align:center;margin-bottom:24px">
+      <div class="modal-title">เข้าสู่ระบบ</div>
+      <div class="modal-sub">เข้าสู่ระบบเพื่อค้นหาและจองที่จอดรถ</div>
+    </div>
+    <div class="alert alert-error" id="loginError"></div>
+    <div class="alert alert-success" id="loginSuccess"></div>
+    <label>อีเมล</label>
+    <input type="email" id="loginEmail" placeholder="กรอกอีเมลของคุณ"/>
+    <label>รหัสผ่าน</label>
+    <input type="password" id="loginPass" placeholder="••••••••"/>
+    <div style="text-align:right;margin-bottom:16px;margin-top:-8px"><a style="color:#F97316;font-size:13px;font-weight:600;cursor:pointer">ลืมรหัสผ่าน?</a></div>
+    <button class="btn-full" id="loginBtn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="divider">หรือ</div>
+    <button class="btn-google" onclick="loginGoogle()">🇬 เข้าสู่ระบบด้วย Google</button>
+    <div class="link-text">ยังไม่มีบัญชี? <a onclick="openRegister()">สมัครสมาชิก</a></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: REGISTER ═══ -->
+<div class="modal" id="modalRegister">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAll()">×</button>
+    <div class="modal-logo"><span style="color:#F97316">77</span><span style="color:#0F172A">Park</span></div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="modal-title">สร้างบัญชีใหม่</div>
+      <div class="modal-sub" id="regSubtitle">ขั้นตอนที่ 1 จาก 2</div>
+    </div>
+    <div class="progress" id="regProgress">
+      <div class="progress-bar pb-done" id="rp1"></div>
+      <div class="progress-bar pb-pending" id="rp2"></div>
+    </div>
+    <div class="alert alert-error" id="regError"></div>
+    <div class="alert alert-success" id="regSuccess"></div>
+
+    <!-- Step 1 -->
+    <div id="regStep1">
+      <label>ชื่อ-นามสกุล *</label>
+      <input type="text" id="regName" placeholder="กรอกชื่อ-นามสกุล"/>
+      <label>เบอร์โทรศัพท์</label>
+      <input type="tel" id="regPhone" placeholder="เช่น 081 234 5678"/>
+      <label>อีเมล *</label>
+      <input type="email" id="regEmail" placeholder="กรอกอีเมล"/>
+      <label>รหัสผ่าน * (อย่างน้อย 6 ตัว)</label>
+      <input type="password" id="regPass" placeholder="••••••••"/>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;padding:12px;background:#F4F6FA;border-radius:10px">
+        <input type="checkbox" id="regTerms" style="margin-top:3px;accent-color:#F97316"/>
+        <span style="font-size:12px;color:#64748B;line-height:1.6">ยอมรับ <span style="color:#F97316;font-weight:600">ข้อกำหนดการใช้งาน</span> และ <span style="color:#F97316;font-weight:600">นโยบายความเป็นส่วนตัว</span></span>
+      </div>
+      <button class="btn-full" onclick="regNext()">ถัดไป →</button>
+      <div class="divider">หรือ</div>
+      <button class="btn-google" onclick="loginGoogle()">🇬 สมัครด้วย Google</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="regStep2" style="display:none">
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:48px;margin-bottom:12px">📧</div>
+        <div style="font-weight:700;font-size:16px;color:#0F172A;margin-bottom:8px">ยืนยันอีเมลของคุณ</div>
+        <div style="font-size:13px;color:#64748B;line-height:1.7">ผมส่งลิงก์ยืนยันไปที่<br/><strong id="sentEmail" style="color:#F97316"></strong><br/>กรุณาตรวจสอบอีเมลและกดลิงก์ยืนยัน</div>
+        <div style="margin-top:16px;padding:12px;background:#FFF3E8;border-radius:10px;font-size:12px;color:#F97316;font-weight:600">
+          ✅ หลังยืนยันแล้ว กลับมากด "เข้าสู่ระบบ" ได้เลย
+        </div>
+      </div>
+      <button class="btn-full" onclick="closeAll();openLogin()">ไปหน้าเข้าสู่ระบบ</button>
+    </div>
+
+    <div class="link-text" id="regLoginLink">มีบัญชีอยู่แล้ว? <a onclick="openLogin()">เข้าสู่ระบบ</a></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: OWNER REGISTER ═══ -->
+<div class="modal" id="modalOwner">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAll()">×</button>
+    <div class="modal-logo"><span style="color:#F97316">77</span><span style="color:#0F172A">Park</span></div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="modal-title">เปิดร้านจอดรถ</div>
+      <div class="modal-sub" id="ownerStepTxt">ขั้นตอนที่ 1 จาก 3</div>
+    </div>
+    <div class="progress">
+      <div class="progress-bar pb-done" id="op1"></div>
+      <div class="progress-bar pb-pending" id="op2"></div>
+      <div class="progress-bar pb-pending" id="op3"></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="ownerStep1">
+      <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:14px">📋 ข้อมูลที่จอดรถ</div>
+      <label>ชื่อที่จอดรถ *</label>
+      <input type="text" id="owName" placeholder="เช่น ที่จอดรถ ABC สุขุมวิท"/>
+      <label>จังหวัด *</label>
+      <select id="owProv"><option value="">เลือกจังหวัด</option></select>
+      <label>ที่อยู่โดยละเอียด *</label>
+      <input type="text" id="owAddr" placeholder="เลขที่ ถนน แขวง เขต"/>
+      <div class="row2">
+        <div><label>ราคารายวัน (฿)</label><input type="number" id="owDaily" placeholder="100"/></div>
+        <div><label>ราคารายเดือน (฿)</label><input type="number" id="owMonthly" placeholder="2500"/></div>
+      </div>
+      <div class="modal-btns"><button class="btn-next" style="flex:1" onclick="ownerNext(1)">ถัดไป →</button></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="ownerStep2" style="display:none">
+      <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:14px">👤 ข้อมูลเจ้าของ</div>
+      <label>ชื่อ-นามสกุล *</label>
+      <input type="text" id="owContactName" placeholder="ชื่อเจ้าของ"/>
+      <label>อีเมล *</label>
+      <input type="email" id="owEmail" placeholder="email@example.com"/>
+      <label>เบอร์โทร *</label>
+      <input type="tel" id="owTel" placeholder="08X-XXX-XXXX"/>
+      <div class="modal-btns">
+        <button class="btn-back" onclick="ownerBack(2)">← ย้อนกลับ</button>
+        <button class="btn-next" onclick="ownerNext(2)">ถัดไป →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="ownerStep3" style="display:none;text-align:center">
+      <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:16px">💳 ชำระค่าสมัคร</div>
+      <div class="qr-box"><div style="font-size:40px">📱</div><div>QR PromptPay</div></div>
+      <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:4px">฿200</div>
+      <div style="font-size:13px;color:#64748B;margin-bottom:16px">โอนและส่งสลิปมาที่ Line: @77park</div>
+      <div class="note-box">✅ โอนเงิน → ส่งสลิปพร้อมชื่อร้านใน Line<br/>✅ ทีมงาน Approve ภายใน 24 ชั่วโมง<br/>✅ ร้านจะขึ้นบน 77Park ทันที</div>
+      <div class="modal-btns" style="margin-top:16px">
+        <button class="btn-back" onclick="ownerBack(3)">← ย้อนกลับ</button>
+        <button class="btn-next" onclick="closeAll()">เสร็จสิ้น ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Supabase Init ── */
+const SUPA_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
+const SUPA_KEY = 'sb_publishable_H910cMOV2IaqF8BK6Sokrw_zADVGSOf';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+/* ── Auth State ── */
+sb.auth.onAuthStateChange((event, session) => {
+  if (session?.user) {
+    const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
+    document.getElementById('navUser').textContent = '👤 ' + name;
+    document.getElementById('navUser').style.display = 'inline';
+    document.querySelectorAll('.btn-login,.btn-register').forEach(b=>b.style.display='none');
+    document.getElementById('btnLogout').style.display = 'inline-block';
+  } else {
+    document.getElementById('navUser').style.display = 'none';
+    document.querySelectorAll('.btn-login,.btn-register').forEach(b=>b.style.display='inline-block');
+    document.getElementById('btnLogout').style.display = 'none';
+  }
+});
+
+/* ── Auth Functions ── */
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const btn   = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+  const sucEl = document.getElementById('loginSuccess');
+  errEl.style.display='none'; sucEl.style.display='none';
+  if (!email||!pass){showErr(errEl,'กรุณากรอกอีเมลและรหัสผ่าน');return;}
+  btn.innerHTML='<span class="spinner"></span>กำลังเข้าสู่ระบบ...';
+  btn.disabled=true;
+  const {error} = await sb.auth.signInWithPassword({email,password:pass});
+  btn.innerHTML='เข้าสู่ระบบ'; btn.disabled=false;
+  if (error){showErr(errEl,thaiError(error.message));return;}
+  sucEl.textContent='✅ เข้าสู่ระบบสำเร็จ!'; sucEl.style.display='block';
+  setTimeout(closeAll, 1000);
 }
 
-/* ─── Main App ─── */
-export default function App() {
-  const [modal, setModal] = useState(false);
-  return (
-    <div style={{ fontFamily:"'Sarabun','Noto Sans Thai',sans-serif", color:B.text }}>
-      <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-      <Nav onRegister={()=>setModal(true)}/>
-      <Hero onRegister={()=>setModal(true)} onSearch={()=>{}}/>
-      <Stats/>
-      <HowItWorks/>
-      <Features/>
-      <Pricing onRegister={()=>setModal(true)}/>
-      <Provinces/>
-      <CTA onRegister={()=>setModal(true)}/>
-      <Footer/>
-      {modal && <RegisterModal onClose={()=>setModal(false)}/>}
-    </div>
-  );
+async function regNext() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const terms = document.getElementById('regTerms').checked;
+  const errEl = document.getElementById('regError');
+  errEl.style.display='none';
+  if (!name||!email||!pass){showErr(errEl,'กรุณากรอกข้อมูลให้ครบ');return;}
+  if (pass.length<6){showErr(errEl,'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');return;}
+  if (!terms){showErr(errEl,'กรุณายอมรับข้อกำหนดการใช้งาน');return;}
+  const {error} = await sb.auth.signUp({
+    email, password:pass,
+    options:{data:{name, phone:document.getElementById('regPhone').value}}
+  });
+  if (error){showErr(errEl,thaiError(error.message));return;}
+  document.getElementById('sentEmail').textContent = email;
+  document.getElementById('regStep1').style.display='none';
+  document.getElementById('regStep2').style.display='block';
+  document.getElementById('regLoginLink').style.display='none';
+  document.getElementById('rp1').className='progress-bar pb-done';
+  document.getElementById('rp2').className='progress-bar pb-done';
+  document.getElementById('regSubtitle').textContent='ยืนยันอีเมล';
 }
+
+async function loginGoogle() {
+  await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+}
+
+async function logout() {
+  await sb.auth.signOut();
+}
+
+/* ── Modal Controls ── */
+function openLogin(){closeAll();document.getElementById('modalLogin').classList.add('open');}
+function openRegister(){closeAll();document.getElementById('modalRegister').classList.add('open');resetRegister();}
+function openOwnerRegister(){
+  const {data:{session}}=sb.auth.getSession?.()||{data:{session:null}};
+  closeAll();
+  document.getElementById('modalOwner').classList.add('open');
+}
+function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeAll();}));
+
+function resetRegister(){
+  ['regName','regPhone','regEmail','regPass'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('regTerms').checked=false;
+  document.getElementById('regStep1').style.display='block';
+  document.getElementById('regStep2').style.display='none';
+  document.getElementById('regLoginLink').style.display='block';
+  document.getElementById('regSubtitle').textContent='ขั้นตอนที่ 1 จาก 2';
+  document.getElementById('rp1').className='progress-bar pb-done';
+  document.getElementById('rp2').className='progress-bar pb-pending';
+  document.getElementById('regError').style.display='none';
+}
+
+/* ── Owner Modal ── */
+let owStep=1;
+function ownerNext(s){
+  if(s===1){
+    if(!document.getElementById('owName').value||!document.getElementById('owProv').value||!document.getElementById('owAddr').value){alert('กรุณากรอกข้อมูลให้ครบ');return;}
+    owStep=2;
+  } else if(s===2){
+    if(!document.getElementById('owContactName').value||!document.getElementById('owEmail').value){alert('กรุณากรอกข้อมูลให้ครบ');return;}
+    owStep=3;
+  }
+  updateOwnerStep();
+}
+function ownerBack(s){owStep=s-1;updateOwnerStep();}
+function updateOwnerStep(){
+  [1,2,3].forEach(i=>{
+    document.getElementById('ownerStep'+i).style.display=i===owStep?'block':'none';
+    document.getElementById('op'+i).className='progress-bar '+(i<=owStep?'pb-done':'pb-pending');
+  });
+  document.getElementById('ownerStepTxt').textContent='ขั้นตอนที่ '+owStep+' จาก 3';
+}
+
+/* ── Helpers ── */
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+function thaiError(msg){
+  if(msg.includes('Invalid login credentials'))return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+  if(msg.includes('Email not confirmed'))return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
+  if(msg.includes('already registered'))return 'อีเมลนี้มีบัญชีอยู่แล้ว กรุณาเข้าสู่ระบบ';
+  if(msg.includes('Password should be'))return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+  return msg;
+}
+
+/* ── Provinces ── */
+const provinces=['กรุงเทพฯ','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
+let showAll=false;
+function renderProv(){
+  const g=document.getElementById('provGrid');
+  const list=showAll?provinces:provinces.slice(0,21);
+  g.innerHTML=list.map(p=>`<div class="prov-tag" onclick="document.getElementById('searchInput').value='${p}';scrollTo(0,0)">${p}</div>`).join('');
+  // Fill owner select
+  const sel=document.getElementById('owProv');
+  if(sel&&sel.options.length<2) provinces.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+}
+function toggleProv(){showAll=!showAll;renderProv();document.getElementById('provBtn').textContent=showAll?'แสดงน้อยลง ↑':'ดูทั้ง 77 จังหวัด →';}
+renderProv();
+
+/* ── Tab ── */
+function switchTab(t){
+  document.getElementById('stepsOwner').style.display=t==='owner'?'grid':'none';
+  document.getElementById('stepsDriver').style.display=t==='driver'?'grid':'none';
+  document.getElementById('tabOwner').style.cssText+=t==='owner'?';background:#F97316;color:#fff':';background:transparent;color:#64748B';
+  document.getElementById('tabDriver').style.cssText+=t==='driver'?';background:#F97316;color:#fff':';background:transparent;color:#64748B';
+}
+
+/* ── Search ── */
+function handleSearch(){
+  const q=document.getElementById('searchInput').value;
+  alert(q?`🔍 กำลังค้นหา "${q}"\n\nฟีเจอร์ค้นหาจะพร้อมเร็วๆ นี้ครับ!`:'กรุณาพิมพ์จังหวัดหรือสถานที่ก่อนค้นหา');
+}
+</script>
+</body>
+</html>
