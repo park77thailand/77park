@@ -18,6 +18,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 .btn-login{background:rgba(255,255,255,.1);color:#fff}
 .btn-login:hover{background:rgba(255,255,255,.18)}
 .btn-register{background:#F97316;color:#fff;box-shadow:0 2px 10px rgba(249,115,22,.4)}
+.btn-dashboard{background:rgba(255,255,255,.1);color:#fff;display:none}
+.btn-dashboard:hover{background:rgba(255,255,255,.18)}
 .btn-logout{background:rgba(239,68,68,.15);color:#FCA5A5;display:none}
 /* HERO */
 .hero{background:linear-gradient(160deg,#081C3B 0%,#0F2D5E 60%,#1A3A6B 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
@@ -108,6 +110,7 @@ input:focus,select:focus{border-color:#F97316}
 .btn-next{flex:2;padding:12px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px}
 .btn-full{width:100%;padding:13px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px;margin-bottom:10px}
 .btn-google{width:100%;padding:12px;border-radius:12px;border:1.5px solid #E4E9F2;background:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-apple{width:100%;padding:12px;border-radius:12px;border:1.5px solid #000;background:#000;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
 .divider{text-align:center;color:#64748B;font-size:13px;margin:12px 0;position:relative}
 .divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:#E4E9F2}
 .divider::before{left:0}.divider::after{right:0}
@@ -133,6 +136,7 @@ input:focus,select:focus{border-color:#F97316}
     <span class="nav-user" id="navUser"></span>
     <button class="btn-nav btn-login" onclick="openLogin()">เข้าสู่ระบบ</button>
     <button class="btn-nav btn-register" onclick="openRegister()">สมัครสมาชิก</button>
+    <button class="btn-nav btn-dashboard" id="btnDashboard" onclick="location.href='dashboard.html'">แดชบอร์ด</button>
     <button class="btn-nav btn-logout" id="btnLogout" onclick="logout()">ออกจากระบบ</button>
   </div>
 </nav>
@@ -159,7 +163,7 @@ input:focus,select:focus{border-color:#F97316}
   <div class="stats-grid">
     <div><div class="stat-num">77</div><div class="stat-label">จังหวัดทั่วไทย</div></div>
     <div><div class="stat-num">฿200</div><div class="stat-label">ค่าสมัครเปิดร้าน</div></div>
-    <div><div class="stat-num">15%</div><div class="stat-label">Commission ต่อการจอง</div></div>
+    <div><div class="stat-num">฿15</div><div class="stat-label">Commission ต่อการจอง</div></div>
     <div><div class="stat-num">24/7</div><div class="stat-label">เข้าถึงได้ตลอดเวลา</div></div>
   </div>
 </div>
@@ -217,7 +221,7 @@ input:focus,select:focus{border-color:#F97316}
         <div class="price-item"><span class="check-g">✓</span> ตั้งราคา รายวัน / รายเดือน</div>
         <div class="price-item"><span class="check-g">✓</span> ระบบจัดการการจองออนไลน์</div>
         <div class="price-item"><span class="check-g">✓</span> รับเงินผ่าน PromptPay โดยตรง</div>
-        <div class="price-note o">Commission 15% เฉพาะเมื่อมีการจอง</div>
+        <div class="price-note o">Commission ฿15 ต่อการจอง 1 ครั้ง</div>
         <button class="price-btn o" onclick="openOwnerRegister()">สมัครเปิดร้านเลย</button>
       </div>
       <div class="price-card regular">
@@ -227,7 +231,7 @@ input:focus,select:focus{border-color:#F97316}
         <div class="price-item"><span class="check-b">✓</span> ดูรูปภาพและรีวิวก่อนจอง</div>
         <div class="price-item"><span class="check-b">✓</span> จองล่วงหน้า เลือกเวลาได้</div>
         <div class="price-item"><span class="check-b">✓</span> รับรหัสการจองทันที</div>
-        <div class="price-note b">+ ค่าบริการ 15% รวมในราคาที่แสดง</div>
+        <div class="price-note b">+ ค่าบริการ ฿15 ต่อการจอง รวมในราคาที่แสดง</div>
         <button class="price-btn g" onclick="openRegister()">สมัครสมาชิกฟรี</button>
       </div>
     </div>
@@ -281,6 +285,7 @@ input:focus,select:focus{border-color:#F97316}
     <button class="btn-full" id="loginBtn" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="divider">หรือ</div>
     <button class="btn-google" onclick="loginGoogle()">🇬 เข้าสู่ระบบด้วย Google</button>
+    <button class="btn-apple" onclick="loginApple()"> เข้าสู่ระบบด้วย Apple</button>
     <div class="link-text">ยังไม่มีบัญชี? <a onclick="openRegister()">สมัครสมาชิก</a></div>
   </div>
 </div>
@@ -318,6 +323,7 @@ input:focus,select:focus{border-color:#F97316}
       <button class="btn-full" onclick="regNext()">ถัดไป →</button>
       <div class="divider">หรือ</div>
       <button class="btn-google" onclick="loginGoogle()">🇬 สมัครด้วย Google</button>
+      <button class="btn-apple" onclick="loginApple()"> สมัครด้วย Apple</button>
     </div>
 
     <!-- Step 2 -->
@@ -351,6 +357,7 @@ input:focus,select:focus{border-color:#F97316}
       <div class="progress-bar pb-pending" id="op2"></div>
       <div class="progress-bar pb-pending" id="op3"></div>
     </div>
+    <div class="alert alert-error" id="ownerError"></div>
 
     <!-- Step 1 -->
     <div id="ownerStep1">
@@ -392,7 +399,7 @@ input:focus,select:focus{border-color:#F97316}
       <div class="note-box">✅ โอนเงิน → ส่งสลิปพร้อมชื่อร้านใน Line<br/>✅ ทีมงาน Approve ภายใน 24 ชั่วโมง<br/>✅ ร้านจะขึ้นบน 77Park ทันที</div>
       <div class="modal-btns" style="margin-top:16px">
         <button class="btn-back" onclick="ownerBack(3)">← ย้อนกลับ</button>
-        <button class="btn-next" onclick="closeAll()">เสร็จสิ้น ✓</button>
+        <button class="btn-next" id="ownerSubmitBtn" onclick="submitOwnerRegistration()">เสร็จสิ้น ✓</button>
       </div>
     </div>
   </div>
@@ -413,10 +420,12 @@ sb.auth.onAuthStateChange((event, session) => {
     document.getElementById('navUser').style.display = 'inline';
     document.querySelectorAll('.btn-login,.btn-register').forEach(b=>b.style.display='none');
     document.getElementById('btnLogout').style.display = 'inline-block';
+    document.getElementById('btnDashboard').style.display = 'inline-block';
   } else {
     document.getElementById('navUser').style.display = 'none';
     document.querySelectorAll('.btn-login,.btn-register').forEach(b=>b.style.display='inline-block');
     document.getElementById('btnLogout').style.display = 'none';
+    document.getElementById('btnDashboard').style.display = 'none';
   }
 });
 
@@ -466,6 +475,10 @@ async function loginGoogle() {
   await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
 }
 
+async function loginApple() {
+  await sb.auth.signInWithOAuth({provider:'apple',options:{redirectTo:window.location.href}});
+}
+
 async function logout() {
   await sb.auth.signOut();
 }
@@ -474,8 +487,9 @@ async function logout() {
 function openLogin(){closeAll();document.getElementById('modalLogin').classList.add('open');}
 function openRegister(){closeAll();document.getElementById('modalRegister').classList.add('open');resetRegister();}
 function openOwnerRegister(){
-  const {data:{session}}=sb.auth.getSession?.()||{data:{session:null}};
   closeAll();
+  owStep=1; updateOwnerStep();
+  document.getElementById('ownerError').style.display='none';
   document.getElementById('modalOwner').classList.add('open');
 }
 function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));}
@@ -514,6 +528,65 @@ function updateOwnerStep(){
   document.getElementById('ownerStepTxt').textContent='ขั้นตอนที่ '+owStep+' จาก 3';
 }
 
+/* บันทึกข้อมูลร้านลง Supabase จริง (parkings + registration_payments) */
+async function submitOwnerRegistration(){
+  const {data:{session}} = await sb.auth.getSession();
+  const errEl = document.getElementById('ownerError');
+  errEl.style.display='none';
+  if (!session){
+    showErr(errEl,'กรุณาเข้าสู่ระบบก่อนสมัครเปิดร้านครับ');
+    setTimeout(()=>{closeAll();openLogin();},1200);
+    return;
+  }
+  const btn = document.getElementById('ownerSubmitBtn');
+  btn.innerHTML='<span class="spinner"></span>กำลังบันทึก...';
+  btn.disabled=true;
+
+  const provName = document.getElementById('owProv').value;
+  const {data:prov,error:provErr} = await sb.from('provinces').select('id').eq('name_th',provName).maybeSingle();
+  if (provErr || !prov){
+    showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');
+    btn.innerHTML='เสร็จสิ้น ✓'; btn.disabled=false;
+    return;
+  }
+
+  const {data:parking,error:pErr} = await sb.from('parkings').insert({
+    owner_id: session.user.id,
+    province_id: prov.id,
+    name: document.getElementById('owName').value.trim(),
+    address: document.getElementById('owAddr').value.trim(),
+    daily_price: parseFloat(document.getElementById('owDaily').value)||null,
+    monthly_price: parseFloat(document.getElementById('owMonthly').value)||null
+  }).select().single();
+
+  if (pErr){
+    showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);
+    btn.innerHTML='เสร็จสิ้น ✓'; btn.disabled=false;
+    return;
+  }
+
+  await sb.from('registration_payments').insert({
+    owner_id: session.user.id,
+    parking_id: parking.id,
+    amount: 200
+  });
+
+  await sb.from('users').update({
+    name: document.getElementById('owContactName').value.trim(),
+    phone: document.getElementById('owTel').value.trim(),
+    role: 'owner'
+  }).eq('id', session.user.id);
+
+  document.getElementById('ownerStep3').innerHTML = `
+    <div style="padding:20px 0">
+      <div style="font-size:48px;margin-bottom:12px">✅</div>
+      <div style="font-weight:800;font-size:17px;color:#0F172A;margin-bottom:8px">บันทึกข้อมูลร้านเรียบร้อย!</div>
+      <div style="font-size:13px;color:#64748B;line-height:1.7">โอนเงิน ฿200 แล้วส่งสลิปพร้อมชื่อร้าน<br/>มาที่ Line: @77park<br/>ทีมงานจะ Approve ภายใน 24 ชั่วโมง</div>
+    </div>
+    <button class="btn-full" onclick="closeAll()">ปิดหน้าต่าง</button>
+  `;
+}
+
 /* ── Helpers ── */
 function showErr(el,msg){el.textContent=msg;el.style.display='block';}
 function thaiError(msg){
@@ -525,7 +598,7 @@ function thaiError(msg){
 }
 
 /* ── Provinces ── */
-const provinces=['กรุงเทพฯ','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
+const provinces=['กรุงเทพฯ','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พังงา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
 let showAll=false;
 function renderProv(){
   const g=document.getElementById('provGrid');
