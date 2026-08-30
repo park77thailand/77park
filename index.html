@@ -6,6 +6,7 @@
 <title>77Park – ที่จอดรถทั่วไทย 77 จังหวัด</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#fff}
@@ -285,7 +286,8 @@ input:focus,select:focus{border-color:#F97316}
     <button class="btn-full" id="loginBtn" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="divider">หรือ</div>
     <button class="btn-google" onclick="loginGoogle()">🇬 เข้าสู่ระบบด้วย Google</button>
-    <button class="btn-apple" onclick="loginApple()"> เข้าสู่ระบบด้วย Apple</button>
+    <!-- ซ่อนไว้ก่อน: ยังไม่มีบัญชี Apple Developer — เปิดใช้เมื่อพร้อม -->
+    <button class="btn-apple" onclick="loginApple()" style="display:none"> เข้าสู่ระบบด้วย Apple</button>
     <div class="link-text">ยังไม่มีบัญชี? <a onclick="openRegister()">สมัครสมาชิก</a></div>
   </div>
 </div>
@@ -323,7 +325,8 @@ input:focus,select:focus{border-color:#F97316}
       <button class="btn-full" onclick="regNext()">ถัดไป →</button>
       <div class="divider">หรือ</div>
       <button class="btn-google" onclick="loginGoogle()">🇬 สมัครด้วย Google</button>
-      <button class="btn-apple" onclick="loginApple()"> สมัครด้วย Apple</button>
+      <!-- ซ่อนไว้ก่อน: ยังไม่มีบัญชี Apple Developer — เปิดใช้เมื่อพร้อม -->
+      <button class="btn-apple" onclick="loginApple()" style="display:none"> สมัครด้วย Apple</button>
     </div>
 
     <!-- Step 2 -->
@@ -393,7 +396,9 @@ input:focus,select:focus{border-color:#F97316}
     <!-- Step 3 -->
     <div id="ownerStep3" style="display:none;text-align:center">
       <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:16px">💳 ชำระค่าสมัคร</div>
-      <div class="qr-box"><div style="font-size:40px">📱</div><div>QR PromptPay</div></div>
+      <div style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
+        <canvas id="promptpayCanvas"></canvas>
+      </div>
       <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:4px">฿200</div>
       <div style="font-size:13px;color:#64748B;margin-bottom:16px">โอนและส่งสลิปมาที่ Line: @77park</div>
       <div class="note-box">✅ โอนเงิน → ส่งสลิปพร้อมชื่อร้านใน Line<br/>✅ ทีมงาน Approve ภายใน 24 ชั่วโมง<br/>✅ ร้านจะขึ้นบน 77Park ทันที</div>
@@ -411,6 +416,55 @@ const SUPA_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
 const SUPA_KEY = 'sb_publishable_H910cMOV2IaqF8BK6Sokrw_zADVGSOf';
 const { createClient } = supabase;
 const sb = createClient(SUPA_URL, SUPA_KEY);
+
+/* ── PromptPay QR (มาตรฐาน Thai QR Payment / EMVCo) ── */
+const OWNER_PROMPTPAY_ID = '0988557869'; // เบอร์พร้อมเพย์ผู้ดูแลระบบ รับค่าสมัครเปิดร้าน ฿200
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+function crc16ccitt(str){
+  let crc = 0xFFFF;
+  for (let i=0; i<str.length; i++){
+    crc ^= (str.charCodeAt(i) << 8);
+    for (let j=0; j<8; j++){
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,'0');
+}
+
+function generatePromptPayPayload(idRaw, amount){
+  const id = idRaw.replace(/\D/g,'');
+  let proxyType, proxyValue;
+  if (id.length===10 && id.startsWith('0')){
+    proxyType='01'; proxyValue='0066'+id.substring(1); // เบอร์มือถือ -> 0066XXXXXXXXX (13 หลัก)
+  } else if (id.length===13){
+    proxyType='02'; proxyValue=id; // เลขบัตรประชาชน/เลขผู้เสียภาษี
+  } else {
+    return null;
+  }
+  const aid = 'A000000677010111';
+  const merchantInfo = '00'+pad2(aid.length)+aid + proxyType+pad2(proxyValue.length)+proxyValue;
+  const amt = amount.toFixed(2);
+  let payload =
+    '000201' +                                     // Payload Format Indicator
+    '010212' +                                     // Point of Initiation: dynamic (มีจำนวนเงิน)
+    '29'+pad2(merchantInfo.length)+merchantInfo +   // Merchant Account Info (PromptPay)
+    '5303764' +                                     // Currency: THB
+    '54'+pad2(amt.length)+amt +                     // Amount
+    '5802TH' +                                       // Country
+    '6304';                                          // CRC placeholder
+  return payload + crc16ccitt(payload);
+}
+
+function renderPromptPayQR(amount){
+  const canvas = document.getElementById('promptpayCanvas');
+  if (!canvas || !window.QRCode) return;
+  const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
+  if (!payload) return;
+  QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}});
+}
 
 /* ── Auth State ── */
 sb.auth.onAuthStateChange((event, session) => {
@@ -516,6 +570,7 @@ function ownerNext(s){
   } else if(s===2){
     if(!document.getElementById('owContactName').value||!document.getElementById('owEmail').value){alert('กรุณากรอกข้อมูลให้ครบ');return;}
     owStep=3;
+    setTimeout(()=>renderPromptPayQR(200), 50);
   }
   updateOwnerStep();
 }
