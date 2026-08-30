@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>แดชบอร์ดเจ้าของร้าน – 77Park</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#F4F6FA;min-height:100vh}
+nav{position:sticky;top:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:#081C3B}
+.logo{font-weight:900;font-size:22px;cursor:pointer}.logo span:first-child{color:#F97316}.logo span:last-child{color:#fff}
+.nav-right{display:flex;gap:10px;align-items:center}
+.nav-user{color:#fff;font-size:14px;font-weight:600}
+.btn-nav{border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-home{background:rgba(255,255,255,.1);color:#fff}
+.btn-logout{background:rgba(239,68,68,.15);color:#FCA5A5}
+.wrap{max-width:1000px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:26px;font-weight:900;margin-bottom:4px}
+.sub{color:#64748B;font-size:14px;margin-bottom:28px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:32px}
+.sum-card{background:#fff;border-radius:16px;padding:18px;border:1px solid #E4E9F2}
+.sum-num{font-size:26px;font-weight:900;color:#0F172A}
+.sum-label{font-size:12px;color:#64748B;font-weight:600;margin-top:2px}
+.sum-card.orange .sum-num{color:#F97316}
+.panel{background:#fff;border-radius:20px;padding:24px;border:1px solid #E4E9F2;margin-bottom:20px}
+.panel h2{font-size:16px;font-weight:800;margin-bottom:16px}
+.parking-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #F4F6FA}
+.parking-row:last-child{border-bottom:none}
+.parking-name{font-weight:700;font-size:14px}
+.parking-addr{font-size:12px;color:#64748B;margin-top:2px}
+.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.badge-live{background:#F0FDF4;color:#16A34A}
+.badge-pending{background:#FFF3E8;color:#F97316}
+.booking-card{border:1px solid #E4E9F2;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.booking-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.booking-code{font-weight:800;font-size:14px}
+.booking-parking{font-size:12px;color:#64748B}
+.booking-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:#334155}
+.booking-amount{text-align:right}
+.amount-total{font-weight:800;font-size:15px;color:#0F172A}
+.amount-fee{font-size:11px;color:#94A3B8}
+.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:capitalize}
+.status-pending{background:#FFF3E8;color:#F97316}
+.status-confirmed{background:#EFF6FF;color:#2563EB}
+.status-completed{background:#F0FDF4;color:#16A34A}
+.status-cancelled{background:#FEF2F2;color:#DC2626}
+.empty{text-align:center;padding:40px 20px;color:#64748B}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty a{color:#F97316;font-weight:700;text-decoration:none}
+.loading{text-align:center;padding:60px 20px;color:#64748B;font-size:14px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #E4E9F2;border-top-color:#F97316;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="location.href='index.html'"><span>77</span><span>Park</span></div>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="btn-nav btn-home" onclick="location.href='index.html'">หน้าแรก</button>
+    <button class="btn-nav btn-logout" onclick="logout()">ออกจากระบบ</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1>แดชบอร์ดเจ้าของร้าน</h1>
+  <div class="sub">ภาพรวมที่จอดรถและการจองของคุณ</div>
+  <div id="content">
+    <div class="loading"><span class="spinner"></span>กำลังโหลดข้อมูล...</div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
+const SUPA_KEY = 'sb_publishable_H910cMOV2IaqF8BK6Sokrw_zADVGSOf';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+const STATUS_TH = {pending:'รอดำเนินการ', confirmed:'ยืนยันแล้ว', completed:'เสร็จสิ้น', cancelled:'ยกเลิก'};
+
+async function logout(){ await sb.auth.signOut(); location.href='index.html'; }
+
+async function init(){
+  const {data:{session}} = await sb.auth.getSession();
+  if (!session){
+    location.href = 'index.html';
+    return;
+  }
+  const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
+  document.getElementById('navUser').textContent = '👤 ' + name;
+
+  const {data: parkings, error: pErr} = await sb.from('parkings')
+    .select('*')
+    .eq('owner_id', session.user.id)
+    .order('created_at', {ascending:false});
+
+  const content = document.getElementById('content');
+
+  if (pErr){
+    content.innerHTML = `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${pErr.message}</div>`;
+    return;
+  }
+
+  if (!parkings || parkings.length===0){
+    content.innerHTML = `
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">🅿️</div>
+          <div style="font-weight:700;margin-bottom:6px">คุณยังไม่มีที่จอดรถที่ลงทะเบียน</div>
+          <div style="font-size:13px;margin-bottom:14px">เปิดร้านจอดรถเพื่อเริ่มรับการจอง</div>
+          <a href="index.html">← กลับไปเปิดร้านจอดรถ</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const parkingIds = parkings.map(p=>p.id);
+  const {data: bookings, error: bErr} = await sb.from('bookings')
+    .select('*')
+    .in('parking_id', parkingIds)
+    .order('date', {ascending:false});
+
+  const bookingList = bookings || [];
+  const parkingMap = {};
+  parkings.forEach(p=>parkingMap[p.id]=p);
+
+  const totalRevenue = bookingList.reduce((s,b)=>s+(parseFloat(b.subtotal)||0),0);
+  const totalCommission = bookingList.reduce((s,b)=>s+(parseFloat(b.service_fee)||0),0);
+
+  let html = '';
+
+  html += `<div class="summary">
+    <div class="sum-card"><div class="sum-num">${parkings.length}</div><div class="sum-label">ที่จอดรถ</div></div>
+    <div class="sum-card"><div class="sum-num">${bookingList.length}</div><div class="sum-label">การจองทั้งหมด</div></div>
+    <div class="sum-card orange"><div class="sum-num">฿${totalRevenue.toLocaleString()}</div><div class="sum-label">รายได้ก่อนหักคอมมิชชั่น</div></div>
+    <div class="sum-card"><div class="sum-num">฿${totalCommission.toLocaleString()}</div><div class="sum-label">คอมมิชชั่นที่หัก (฿15/ครั้ง)</div></div>
+  </div>`;
+
+  html += `<div class="panel"><h2>ที่จอดรถของคุณ</h2>`;
+  parkings.forEach(p=>{
+    const isLive = p.is_active;
+    html += `<div class="parking-row">
+      <div>
+        <div class="parking-name">${escapeHtml(p.name)}</div>
+        <div class="parking-addr">${escapeHtml(p.address||'')}</div>
+      </div>
+      <span class="badge ${isLive?'badge-live':'badge-pending'}">${isLive?'เปิดใช้งาน':'รอตรวจสอบ'}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="panel"><h2>การจองล่าสุด</h2>`;
+  if (bookingList.length===0){
+    html += `<div class="empty"><div class="empty-icon">📋</div>ยังไม่มีการจองเข้ามาครับ</div>`;
+  } else {
+    bookingList.forEach(b=>{
+      const st = b.status || 'pending';
+      html += `<div class="booking-card">
+        <div class="booking-top">
+          <div>
+            <div class="booking-code">${escapeHtml(b.booking_code||b.id.slice(0,8))}</div>
+            <div class="booking-parking">${escapeHtml(parkingMap[b.parking_id]?.name||'')}</div>
+          </div>
+          <div class="booking-amount">
+            <div class="amount-total">฿${(parseFloat(b.total)||0).toLocaleString()}</div>
+            <div class="amount-fee">คอมฯ ฿${(parseFloat(b.service_fee)||0).toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="booking-meta">
+          <span>📅 ${b.date||'-'}</span>
+          <span>🕐 ${(b.start_time||'-')}–${(b.end_time||'-')}</span>
+          <span>🚗 ${escapeHtml(b.vehicle_plate||'-')}</span>
+          <span class="status-pill status-${st}">${STATUS_TH[st]||st}</span>
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  content.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+init();
+</script>
+</body>
+</html>
