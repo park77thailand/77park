@@ -102,7 +102,7 @@ footer{background:#081C3B;padding:40px 24px 24px}
 .progress-bar{flex:1;height:4px;border-radius:4px}
 .pb-done{background:#F97316}.pb-pending{background:#E4E9F2}
 label{font-size:13px;font-weight:700;color:#0F172A;display:block;margin-bottom:5px}
-input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],select{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;color:#0F172A;margin-bottom:14px;transition:border-color .2s}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],input[type=date],input[type=time],select{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;color:#0F172A;margin-bottom:14px;transition:border-color .2s}
 input:focus,select:focus{border-color:#F97316}
 .row2{display:flex;gap:10px}
 .row2>div{flex:1}
@@ -154,7 +154,7 @@ input:focus,select:focus{border-color:#F97316}
   </div>
   <div class="hero-btns">
     <button class="btn-primary" onclick="openOwnerRegister()">📋 เปิดร้านจอดรถ · ฿200</button>
-    <button class="btn-outline" onclick="handleSearch()">🚗 หาที่จอดรถ</button>
+    <button class="btn-outline" onclick="browseAll()">🚗 หาที่จอดรถ</button>
   </div>
   <div style="position:absolute;bottom:32px;font-size:22px;color:rgba(255,255,255,.25);animation:bounce 2s infinite">↓</div>
 </section>
@@ -410,6 +410,45 @@ input:focus,select:focus{border-color:#F97316}
   </div>
 </div>
 
+<!-- ═══ MODAL: SEARCH RESULTS ═══ -->
+<div class="modal" id="modalSearchResults">
+  <div class="modal-box" style="max-width:560px">
+    <button class="modal-close" onclick="closeAll()">×</button>
+    <div class="modal-logo"><span style="color:#F97316">77</span><span style="color:#0F172A">Park</span></div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="modal-title">ผลการค้นหา</div>
+      <div class="modal-sub" id="searchResultsSub"></div>
+    </div>
+    <div id="searchResultsList"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: BOOKING ═══ -->
+<div class="modal" id="modalBooking">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAll()">×</button>
+    <div class="modal-logo"><span style="color:#F97316">77</span><span style="color:#0F172A">Park</span></div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="modal-title">จองที่จอดรถ</div>
+      <div class="modal-sub" id="bookingParkingName"></div>
+    </div>
+    <div class="alert alert-error" id="bookingError"></div>
+    <div id="bookingFormView">
+      <label>วันที่จอด *</label>
+      <input type="date" id="bkDate"/>
+      <div class="row2">
+        <div><label>เวลาเข้า</label><input type="time" id="bkStart" value="08:00"/></div>
+        <div><label>เวลาออก</label><input type="time" id="bkEnd" value="18:00"/></div>
+      </div>
+      <label>ทะเบียนรถ *</label>
+      <input type="text" id="bkPlate" placeholder="เช่น กข 1234"/>
+      <div class="note-box" id="bkPriceBox" style="margin-bottom:14px"></div>
+      <button class="btn-full" id="bookingSubmitBtn" onclick="submitBooking()">ยืนยันและชำระเงิน</button>
+    </div>
+    <div id="bookingPayView" style="display:none;text-align:center"></div>
+  </div>
+</div>
+
 <script>
 /* ── Supabase Init ── */
 const SUPA_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
@@ -658,7 +697,7 @@ let showAll=false;
 function renderProv(){
   const g=document.getElementById('provGrid');
   const list=showAll?provinces:provinces.slice(0,21);
-  g.innerHTML=list.map(p=>`<div class="prov-tag" onclick="document.getElementById('searchInput').value='${p}';scrollTo(0,0)">${p}</div>`).join('');
+  g.innerHTML=list.map(p=>`<div class="prov-tag" onclick="document.getElementById('searchInput').value='${p}';scrollTo(0,0);runSearch('${p}')">${p}</div>`).join('');
   // Fill owner select
   const sel=document.getElementById('owProv');
   if(sel&&sel.options.length<2) provinces.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
@@ -676,8 +715,165 @@ function switchTab(t){
 
 /* ── Search ── */
 function handleSearch(){
-  const q=document.getElementById('searchInput').value;
-  alert(q?`🔍 กำลังค้นหา "${q}"\n\nฟีเจอร์ค้นหาจะพร้อมเร็วๆ นี้ครับ!`:'กรุณาพิมพ์จังหวัดหรือสถานที่ก่อนค้นหา');
+  const q=document.getElementById('searchInput').value.trim();
+  runSearch(q);
+}
+function browseAll(){
+  document.getElementById('searchInput').value='';
+  runSearch('');
+}
+function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+let currentSearchResults = [];
+
+async function runSearch(q){
+  closeAll();
+  document.getElementById('modalSearchResults').classList.add('open');
+  document.getElementById('searchResultsSub').textContent = 'กำลังค้นหา...';
+  document.getElementById('searchResultsList').innerHTML = '';
+
+  let provinceIds = [];
+  if (q){
+    const {data:provs} = await sb.from('provinces').select('id').ilike('name_th', `%${q}%`);
+    provinceIds = (provs||[]).map(p=>p.id);
+  }
+  let query = sb.from('parkings').select('*, provinces(name_th)').eq('is_active', true);
+  if (q){
+    let orParts = [`name.ilike.%${q}%`,`address.ilike.%${q}%`];
+    if (provinceIds.length) orParts.push(`province_id.in.(${provinceIds.join(',')})`);
+    query = query.or(orParts.join(','));
+  }
+  const {data, error} = await query.order('created_at',{ascending:false}).limit(30);
+  currentSearchResults = data||[];
+  renderSearchResults(q, error);
+}
+
+function renderSearchResults(q, error){
+  const sub = document.getElementById('searchResultsSub');
+  const list = document.getElementById('searchResultsList');
+  if (error){
+    sub.textContent = '';
+    list.innerHTML = `<div style="text-align:center;color:#DC2626;padding:20px 0">ค้นหาไม่สำเร็จ: ${escHtml(error.message)}</div>`;
+    return;
+  }
+  sub.textContent = q ? `ผลลัพธ์สำหรับ "${q}" (${currentSearchResults.length} ที่)` : `ที่จอดรถทั้งหมด (${currentSearchResults.length} ที่)`;
+  if (currentSearchResults.length===0){
+    list.innerHTML = `<div style="text-align:center;padding:30px 0;color:#64748B">
+      <div style="font-size:36px;margin-bottom:8px">🅿️</div>
+      ยังไม่มีที่จอดรถในระบบตอนนี้<br/>ลองค้นหาคำอื่น หรือกลับมาดูใหม่ภายหลัง
+    </div>`;
+    return;
+  }
+  list.innerHTML = currentSearchResults.map((p,i)=>`
+    <div style="border:1px solid #E4E9F2;border-radius:16px;padding:16px;margin-bottom:12px">
+      <div style="font-weight:800;font-size:15px;margin-bottom:4px">${escHtml(p.name)}</div>
+      <div style="font-size:13px;color:#64748B;margin-bottom:8px">📍 ${escHtml(p.provinces?.name_th||'')} · ${escHtml(p.address||'')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;color:#F97316;font-size:16px">฿${Number(p.daily_price||0).toLocaleString()}<span style="font-size:12px;color:#64748B;font-weight:400"> /วัน</span></div>
+        <button class="price-btn o" style="width:auto;margin:0;padding:8px 20px;font-size:13px" onclick="openBooking(${i})">จองเลย</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Booking ── */
+let selectedParking = null;
+
+function openBooking(i){
+  selectedParking = currentSearchResults[i];
+  closeAll();
+  document.getElementById('modalBooking').classList.add('open');
+  document.getElementById('bookingParkingName').textContent = selectedParking.name;
+  document.getElementById('bookingFormView').style.display='block';
+  document.getElementById('bookingPayView').style.display='none';
+  document.getElementById('bookingError').style.display='none';
+  document.getElementById('bkDate').value='';
+  document.getElementById('bkPlate').value='';
+  document.getElementById('bkStart').value='08:00';
+  document.getElementById('bkEnd').value='18:00';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('bkDate').min = today;
+  updateBookingPrice();
+  document.getElementById('bookingSubmitBtn').innerHTML='ยืนยันและชำระเงิน';
+  document.getElementById('bookingSubmitBtn').disabled=false;
+}
+
+function updateBookingPrice(){
+  const subtotal = Number(selectedParking?.daily_price||0);
+  const fee = 15;
+  const total = subtotal + fee;
+  document.getElementById('bkPriceBox').innerHTML =
+    `ค่าที่จอด ฿${subtotal.toLocaleString()} + ค่าบริการ ฿${fee} = <strong>รวม ฿${total.toLocaleString()}</strong>`;
+}
+
+async function submitBooking(){
+  const errEl = document.getElementById('bookingError');
+  errEl.style.display='none';
+  const {data:{session}} = await sb.auth.getSession();
+  if (!session){
+    showErr(errEl,'กรุณาเข้าสู่ระบบก่อนจองครับ');
+    setTimeout(()=>{closeAll();openLogin();},1200);
+    return;
+  }
+  const date = document.getElementById('bkDate').value;
+  const start = document.getElementById('bkStart').value;
+  const end = document.getElementById('bkEnd').value;
+  const plate = document.getElementById('bkPlate').value.trim();
+  if (!date || !plate){ showErr(errEl,'กรุณากรอกวันที่และทะเบียนรถให้ครบ'); return; }
+
+  const btn = document.getElementById('bookingSubmitBtn');
+  btn.innerHTML='<span class="spinner"></span>กำลังตรวจสอบที่ว่าง...';
+  btn.disabled=true;
+
+  const {count} = await sb.from('bookings')
+    .select('id',{count:'exact',head:true})
+    .eq('parking_id', selectedParking.id)
+    .eq('date', date)
+    .in('status', ['pending','confirmed']);
+  const slots = selectedParking.total_slots || 1;
+  if ((count||0) >= slots){
+    showErr(errEl,'ขออภัย ที่จอดวันนี้เต็มแล้ว กรุณาเลือกวันอื่น');
+    btn.innerHTML='ยืนยันและชำระเงิน'; btn.disabled=false;
+    return;
+  }
+
+  const subtotal = Number(selectedParking.daily_price||0);
+  const {data:booking, error} = await sb.from('bookings').insert({
+    user_id: session.user.id,
+    parking_id: selectedParking.id,
+    date, start_time: start, end_time: end,
+    vehicle_plate: plate,
+    subtotal
+  }).select().single();
+
+  if (error){
+    showErr(errEl,'จองไม่สำเร็จ: '+error.message);
+    btn.innerHTML='ยืนยันและชำระเงิน'; btn.disabled=false;
+    return;
+  }
+
+  showBookingPayment(booking);
+}
+
+function showBookingPayment(booking){
+  document.getElementById('bookingFormView').style.display='none';
+  const view = document.getElementById('bookingPayView');
+  view.style.display='block';
+  view.innerHTML = `
+    <div style="font-weight:800;font-size:15px;margin-bottom:4px">รหัสการจอง: ${escHtml(booking.booking_code)}</div>
+    <div style="font-size:13px;color:#64748B;margin-bottom:16px">สแกนจ่ายผ่าน PromptPay ให้ครบก่อนถึงวันจอด</div>
+    <div style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
+      <canvas id="bookingQrCanvas"></canvas>
+    </div>
+    <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:12px">฿${Number(booking.total).toLocaleString()}</div>
+    <div class="note-box">✅ สแกนจ่ายแล้ว ส่งสลิปมาที่ Line: @77park พร้อมรหัสการจอง<br/>✅ เจ้าของที่จอดจะยืนยันการจองภายใน 24 ชม.</div>
+    <button class="btn-full" style="margin-top:16px" onclick="closeAll()">เสร็จสิ้น</button>
+  `;
+  setTimeout(()=>{
+    const canvas = document.getElementById('bookingQrCanvas');
+    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, Number(booking.total));
+    if (canvas && window.QRCode && payload) QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}});
+  }, 50);
 }
 </script>
 </body>
