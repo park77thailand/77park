@@ -396,7 +396,7 @@ input:focus,select:focus{border-color:#F97316}
     <!-- Step 3 -->
     <div id="ownerStep3" style="display:none;text-align:center">
       <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:16px">💳 ชำระค่าสมัคร</div>
-      <div style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
+      <div id="promptpayQrBox" style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
         <canvas id="promptpayCanvas"></canvas>
       </div>
       <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:4px">฿200</div>
@@ -497,12 +497,37 @@ function generatePromptPayPayload(idRaw, amount){
   return payload + crc16ccitt(payload);
 }
 
+function showQrError(box, retryFn){
+  if (!box) return;
+  box.innerHTML = '';
+  const msg = document.createElement('div');
+  msg.style.cssText = 'font-size:12px;color:#DC2626;text-align:center;padding:8px;line-height:1.6';
+  msg.textContent = 'สร้าง QR ไม่สำเร็จ เช็คสัญญาณเน็ตแล้วลองใหม่';
+  const btn = document.createElement('a');
+  btn.textContent = 'ลองใหม่';
+  btn.style.cssText = 'display:inline-block;margin-top:6px;color:#F97316;font-weight:700;cursor:pointer;text-decoration:underline';
+  btn.onclick = retryFn;
+  box.appendChild(msg);
+  box.appendChild(btn);
+}
+
 function renderPromptPayQR(amount){
+  const box = document.getElementById('promptpayQrBox');
+  if (!box) return;
+  box.innerHTML = '<canvas id="promptpayCanvas"></canvas>';
   const canvas = document.getElementById('promptpayCanvas');
-  if (!canvas || !window.QRCode) return;
+  if (!window.QRCode){
+    showQrError(box, () => renderPromptPayQR(amount));
+    return;
+  }
   const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
-  if (!payload) return;
-  QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}});
+  if (!payload){
+    showQrError(box, () => renderPromptPayQR(amount));
+    return;
+  }
+  QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
+    if (err) showQrError(box, () => renderPromptPayQR(amount));
+  });
 }
 
 /* ── Auth State ── */
@@ -862,18 +887,33 @@ function showBookingPayment(booking){
   view.innerHTML = `
     <div style="font-weight:800;font-size:15px;margin-bottom:4px">รหัสการจอง: ${escHtml(booking.booking_code)}</div>
     <div style="font-size:13px;color:#64748B;margin-bottom:16px">สแกนจ่ายผ่าน PromptPay ให้ครบก่อนถึงวันจอด</div>
-    <div style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
+    <div id="bookingQrBox" style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
       <canvas id="bookingQrCanvas"></canvas>
     </div>
     <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:12px">฿${Number(booking.total).toLocaleString()}</div>
     <div class="note-box">✅ สแกนจ่ายแล้ว ส่งสลิปมาที่ Line: @77park พร้อมรหัสการจอง<br/>✅ เจ้าของที่จอดจะยืนยันการจองภายใน 24 ชม.</div>
     <button class="btn-full" style="margin-top:16px" onclick="closeAll()">เสร็จสิ้น</button>
   `;
-  setTimeout(()=>{
-    const canvas = document.getElementById('bookingQrCanvas');
-    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, Number(booking.total));
-    if (canvas && window.QRCode && payload) QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}});
-  }, 50);
+  renderBookingQR(Number(booking.total));
+}
+
+function renderBookingQR(amount){
+  const box = document.getElementById('bookingQrBox');
+  if (!box) return;
+  box.innerHTML = '<canvas id="bookingQrCanvas"></canvas>';
+  const canvas = document.getElementById('bookingQrCanvas');
+  if (!window.QRCode){
+    showQrError(box, () => renderBookingQR(amount));
+    return;
+  }
+  const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
+  if (!payload){
+    showQrError(box, () => renderBookingQR(amount));
+    return;
+  }
+  QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
+    if (err) showQrError(box, () => renderBookingQR(amount));
+  });
 }
 </script>
 </body>
