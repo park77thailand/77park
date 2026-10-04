@@ -497,17 +497,44 @@ function generatePromptPayPayload(idRaw, amount){
   return payload + crc16ccitt(payload);
 }
 
-function showQrError(box, retryFn){
+/* ── โหลด QR library สำรอง ถ้า CDN หลักใช้ไม่ได้ ── */
+function loadScriptOnce(src){
+  return new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = ()=>resolve();
+    s.onerror = ()=>reject(new Error('โหลดสคริปต์ไม่สำเร็จ: '+src));
+    document.head.appendChild(s);
+  });
+}
+let qrLibPromise = null;
+function ensureQrLib(){
+  if (window.QRCode) return Promise.resolve(true);
+  if (!qrLibPromise){
+    qrLibPromise = loadScriptOnce('https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js')
+      .then(()=> !!window.QRCode)
+      .catch(()=> false);
+  }
+  return qrLibPromise;
+}
+
+function showQrError(box, retryFn, detail){
   if (!box) return;
   box.innerHTML = '';
   const msg = document.createElement('div');
-  msg.style.cssText = 'font-size:12px;color:#DC2626;text-align:center;padding:8px;line-height:1.6';
+  msg.style.cssText = 'font-size:12px;color:#DC2626;text-align:center;padding:8px 8px 2px;line-height:1.6';
   msg.textContent = 'สร้าง QR ไม่สำเร็จ เช็คสัญญาณเน็ตแล้วลองใหม่';
+  box.appendChild(msg);
+  if (detail){
+    const d = document.createElement('div');
+    d.style.cssText = 'font-size:10px;color:#94A3B8;text-align:center;padding:0 8px 4px;word-break:break-word';
+    d.textContent = detail;
+    box.appendChild(d);
+  }
   const btn = document.createElement('a');
   btn.textContent = 'ลองใหม่';
-  btn.style.cssText = 'display:inline-block;margin-top:6px;color:#F97316;font-weight:700;cursor:pointer;text-decoration:underline';
+  btn.style.cssText = 'display:inline-block;color:#F97316;font-weight:700;cursor:pointer;text-decoration:underline';
   btn.onclick = retryFn;
-  box.appendChild(msg);
   box.appendChild(btn);
 }
 
@@ -515,18 +542,14 @@ function renderPromptPayQR(amount){
   const box = document.getElementById('promptpayQrBox');
   if (!box) return;
   box.innerHTML = '<canvas id="promptpayCanvas"></canvas>';
-  const canvas = document.getElementById('promptpayCanvas');
-  if (!window.QRCode){
-    showQrError(box, () => renderPromptPayQR(amount));
-    return;
-  }
-  const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
-  if (!payload){
-    showQrError(box, () => renderPromptPayQR(amount));
-    return;
-  }
-  QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
-    if (err) showQrError(box, () => renderPromptPayQR(amount));
+  ensureQrLib().then(ok=>{
+    if (!ok){ showQrError(box, () => renderPromptPayQR(amount), 'โหลดไลบรารี QR ไม่สำเร็จ'); return; }
+    const canvas = document.getElementById('promptpayCanvas');
+    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
+    if (!payload){ showQrError(box, () => renderPromptPayQR(amount), 'ข้อมูลพร้อมเพย์ไม่ถูกต้อง'); return; }
+    QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
+      if (err) showQrError(box, () => renderPromptPayQR(amount), err.message||String(err));
+    });
   });
 }
 
@@ -901,18 +924,14 @@ function renderBookingQR(amount){
   const box = document.getElementById('bookingQrBox');
   if (!box) return;
   box.innerHTML = '<canvas id="bookingQrCanvas"></canvas>';
-  const canvas = document.getElementById('bookingQrCanvas');
-  if (!window.QRCode){
-    showQrError(box, () => renderBookingQR(amount));
-    return;
-  }
-  const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
-  if (!payload){
-    showQrError(box, () => renderBookingQR(amount));
-    return;
-  }
-  QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
-    if (err) showQrError(box, () => renderBookingQR(amount));
+  ensureQrLib().then(ok=>{
+    if (!ok){ showQrError(box, () => renderBookingQR(amount), 'โหลดไลบรารี QR ไม่สำเร็จ'); return; }
+    const canvas = document.getElementById('bookingQrCanvas');
+    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
+    if (!payload){ showQrError(box, () => renderBookingQR(amount), 'ข้อมูลพร้อมเพย์ไม่ถูกต้อง'); return; }
+    QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
+      if (err) showQrError(box, () => renderBookingQR(amount), err.message||String(err));
+    });
   });
 }
 </script>
