@@ -1,193 +1,553 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>แดชบอร์ดเจ้าของร้าน – 77Park</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>77Park — แดชบอร์ด</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#F4F6FA;min-height:100vh}
-nav{position:sticky;top:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:#081C3B}
-.logo{font-weight:900;font-size:22px;cursor:pointer}.logo span:first-child{color:#F97316}.logo span:last-child{color:#fff}
-.nav-right{display:flex;gap:10px;align-items:center}
-.nav-user{color:#fff;font-size:14px;font-weight:600}
-.btn-nav{border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
-.btn-home{background:rgba(255,255,255,.1);color:#fff}
-.btn-logout{background:rgba(239,68,68,.15);color:#FCA5A5}
-.wrap{max-width:1000px;margin:0 auto;padding:32px 20px 80px}
-h1{font-size:26px;font-weight:900;margin-bottom:4px}
-.sub{color:#64748B;font-size:14px;margin-bottom:28px}
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:32px}
-.sum-card{background:#fff;border-radius:16px;padding:18px;border:1px solid #E4E9F2}
-.sum-num{font-size:26px;font-weight:900;color:#0F172A}
-.sum-label{font-size:12px;color:#64748B;font-weight:600;margin-top:2px}
-.sum-card.orange .sum-num{color:#F97316}
-.panel{background:#fff;border-radius:20px;padding:24px;border:1px solid #E4E9F2;margin-bottom:20px}
-.panel h2{font-size:16px;font-weight:800;margin-bottom:16px}
-.parking-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #F4F6FA}
-.parking-row:last-child{border-bottom:none}
-.parking-name{font-weight:700;font-size:14px}
-.parking-addr{font-size:12px;color:#64748B;margin-top:2px}
-.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
-.badge-live{background:#F0FDF4;color:#16A34A}
-.badge-pending{background:#FFF3E8;color:#F97316}
-.booking-card{border:1px solid #E4E9F2;border-radius:14px;padding:14px 16px;margin-bottom:10px}
-.booking-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.booking-code{font-weight:800;font-size:14px}
-.booking-parking{font-size:12px;color:#64748B}
-.booking-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:#334155}
-.booking-amount{text-align:right}
-.amount-total{font-weight:800;font-size:15px;color:#0F172A}
-.amount-fee{font-size:11px;color:#94A3B8}
-.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:capitalize}
-.status-pending{background:#FFF3E8;color:#F97316}
-.status-confirmed{background:#EFF6FF;color:#2563EB}
-.status-completed{background:#F0FDF4;color:#16A34A}
-.status-cancelled{background:#FEF2F2;color:#DC2626}
-.empty{text-align:center;padding:40px 20px;color:#64748B}
-.empty-icon{font-size:40px;margin-bottom:10px}
-.empty a{color:#F97316;font-weight:700;text-decoration:none}
-.loading{text-align:center;padding:60px 20px;color:#64748B;font-size:14px}
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid #E4E9F2;border-top-color:#F97316;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
+  :root {
+    --brand: #1a56db;
+    --brand-light: #e8f0fe;
+    --green: #0e9f6e;
+    --green-light: #def7ec;
+    --orange: #ff5a1f;
+    --orange-light: #feecdc;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+
+  /* ── AUTH ── */
+  #auth-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px;
+  }
+  .auth-card {
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 40px; width: 100%; max-width: 400px;
+  }
+  .auth-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; color: var(--brand); }
+  .auth-card p { color: var(--gray-600); font-size: 14px; margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .form-group input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200);
+    border-radius: 8px; font-size: 15px; font-family: inherit;
+    transition: border-color .15s;
+  }
+  .form-group input:focus { outline: none; border-color: var(--brand); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; border: none; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .88; }
+  .btn-primary { background: var(--brand); color: #fff; width: 100%; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+  .btn-outline { background: #fff; border: 1.5px solid var(--gray-200); color: var(--gray-800); }
+  .btn-danger { background: #fee2e2; color: #dc2626; }
+  #auth-error { color: #dc2626; font-size: 13px; margin-top: 10px; display: none; }
+
+  /* ── LAYOUT ── */
+  #app { display: none; }
+  .topbar {
+    background: #fff; border-bottom: 1px solid var(--gray-200);
+    padding: 0 24px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-logo { font-size: 20px; font-weight: 700; color: var(--brand); }
+  .topbar-user { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--gray-600); }
+  .main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 2px solid var(--gray-200); }
+  .tab {
+    padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer;
+    border: none; background: none; font-family: inherit; color: var(--gray-600);
+    border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .15s;
+  }
+  .tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: #fff; border-radius: var(--radius); padding: 20px 24px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px;
+  }
+  .stat-label { font-size: 13px; color: var(--gray-600); font-weight: 500; }
+  .stat-value { font-size: 28px; font-weight: 700; }
+  .stat-card.blue .stat-value { color: var(--brand); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.orange .stat-value { color: var(--orange); }
+
+  /* ── TABLE ── */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-200); font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: space-between; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-600); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+  td { padding: 13px 16px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  .empty-row td { text-align: center; color: var(--gray-400); padding: 40px; }
+
+  /* ── BADGE ── */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); }
+  .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+  .badge-blue { background: var(--brand-light); color: var(--brand); }
+
+  /* ── PARKING FORM ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; }
+  select:focus { outline: none; border-color: var(--brand); }
+  textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: 15px; font-family: inherit; resize: vertical; min-height: 80px; }
+  textarea:focus { outline: none; border-color: var(--brand); }
+  .form-actions { display: flex; gap: 12px; margin-top: 8px; }
+  #form-msg { font-size: 14px; margin-top: 10px; }
+
+  /* ── LOADING ── */
+  .loading { text-align: center; color: var(--gray-400); padding: 32px; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo" onclick="location.href='index.html'"><span>77</span><span>Park</span></div>
-  <div class="nav-right">
-    <span class="nav-user" id="navUser"></span>
-    <button class="btn-nav btn-home" onclick="location.href='index.html'">หน้าแรก</button>
-    <button class="btn-nav btn-logout" onclick="logout()">ออกจากระบบ</button>
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <h1>🅿️ 77Park</h1>
+    <p>เข้าสู่ระบบสำหรับเจ้าของที่จอดรถ</p>
+    <div class="form-group">
+      <label>อีเมล</label>
+      <input type="email" id="email" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="password" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" onclick="login()">เข้าสู่ระบบ</button>
+    <div id="auth-error"></div>
   </div>
-</nav>
+</div>
 
-<div class="wrap">
-  <h1>แดชบอร์ดเจ้าของร้าน</h1>
-  <div class="sub">ภาพรวมที่จอดรถและการจองของคุณ</div>
-  <div id="content">
-    <div class="loading"><span class="spinner"></span>กำลังโหลดข้อมูล...</div>
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <span class="topbar-logo">🅿️ 77Park Dashboard</span>
+    <div class="topbar-user">
+      <span id="user-name"></span>
+      <button class="btn btn-sm btn-outline" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-title">แดชบอร์ดเจ้าของที่จอดรถ</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('overview')">ภาพรวม</button>
+      <button class="tab" onclick="switchTab('bookings')">การจอง</button>
+      <button class="tab" onclick="switchTab('parkings')">ที่จอดรถของฉัน</button>
+      <button class="tab" onclick="switchTab('add-parking')">+ เพิ่มที่จอดรถ</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div id="tab-overview" class="tab-pane active">
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-label">ที่จอดรถทั้งหมด</div>
+          <div class="stat-value" id="stat-parkings">—</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">การจองทั้งหมด</div>
+          <div class="stat-value" id="stat-bookings">—</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-label">รอยืนยัน</div>
+          <div class="stat-value" id="stat-pending">—</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">รายได้รวม (฿)</div>
+          <div class="stat-value" id="stat-revenue">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">การจองล่าสุด</div>
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสจอง</th>
+              <th>ที่จอดรถ</th>
+              <th>วันที่</th>
+              <th>ทะเบียน</th>
+              <th>ยอด (฿)</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="recent-bookings-body">
+            <tr><td colspan="6" class="loading">กำลังโหลด…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div id="tab-bookings" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          การจองทั้งหมด
+          <select id="booking-filter" onchange="loadBookings()" style="width:auto;font-size:13px;padding:6px 10px;">
+            <option value="">ทุกสถานะ</option>
+            <option value="pending">รอยืนยัน</option>
+            <option value="confirmed">ยืนยันแล้ว</option>
+            <option value="cancelled">ยกเลิก</option>
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสจอง</th>
+              <th>ที่จอดรถ</th>
+              <th>วันที่</th>
+              <th>เวลา</th>
+              <th>ทะเบียน</th>
+              <th>ยอด (฿)</th>
+              <th>สถานะ</th>
+              <th>การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-body">
+            <tr><td colspan="8" class="loading">กำลังโหลด…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PARKINGS -->
+    <div id="tab-parkings" class="tab-pane">
+      <div class="card">
+        <div class="card-header">ที่จอดรถของฉัน</div>
+        <table>
+          <thead>
+            <tr>
+              <th>ชื่อ</th>
+              <th>ที่อยู่</th>
+              <th>ราคา/วัน (฿)</th>
+              <th>Slot</th>
+              <th>สถานะ</th>
+              <th>การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="parkings-body">
+            <tr><td colspan="6" class="loading">กำลังโหลด…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD PARKING -->
+    <div id="tab-add-parking" class="tab-pane">
+      <div class="card">
+        <div class="card-header">เพิ่มที่จอดรถใหม่</div>
+        <div style="padding:24px">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>ชื่อที่จอดรถ *</label>
+              <input type="text" id="p-name" placeholder="เช่น ที่จอดรถหน้าห้างฯ">
+            </div>
+            <div class="form-group full">
+              <label>ที่อยู่ *</label>
+              <textarea id="p-address" placeholder="ที่อยู่เต็ม"></textarea>
+            </div>
+            <div class="form-group">
+              <label>จังหวัด *</label>
+              <select id="p-province">
+                <option value="">เลือกจังหวัด</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ราคาต่อวัน (฿) *</label>
+              <input type="number" id="p-price" placeholder="150" min="0">
+            </div>
+            <div class="form-group">
+              <label>จำนวน Slot *</label>
+              <input type="number" id="p-slots" placeholder="1" min="1">
+            </div>
+            <div class="form-group">
+              <label>คำอธิบาย</label>
+              <input type="text" id="p-desc" placeholder="รายละเอียดเพิ่มเติม">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addParking()">บันทึกที่จอดรถ</button>
+          </div>
+          <div id="form-msg"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-const SUPA_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
-const SUPA_KEY = 'sb_publishable_H910cMOV2IaqF8BK6Sokrw_zADVGSOf';
-const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_KEY);
+const SUPABASE_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhtb214ZHhzdGlxY2dtb2FhY2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3MzQzMDUsImV4cCI6MjA5OTMxMDMwNX0.rD56iCrw7jk1t5h18L198qpJ3w54mPc5W-X-qMOYj8M';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const STATUS_TH = {pending:'รอดำเนินการ', confirmed:'ยืนยันแล้ว', completed:'เสร็จสิ้น', cancelled:'ยกเลิก'};
+let currentUser = null;
+let ownerParkingIds = [];
 
-async function logout(){ await sb.auth.signOut(); location.href='index.html'; }
+// ── AUTH ──
+async function login() {
+  const email = document.getElementById('email').value.trim();
+  const pass  = document.getElementById('password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+  await initApp(data.user);
+}
 
-async function init(){
-  const {data:{session}} = await sb.auth.getSession();
-  if (!session){
-    location.href = 'index.html';
+async function logout() {
+  await sb.auth.signOut();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) await initApp(session.user);
+});
+
+async function initApp(user) {
+  currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const { data: profile } = await sb.from('users').select('name, role').eq('id', user.id).single();
+  document.getElementById('user-name').textContent = profile?.name || user.email;
+
+  await loadProvinces();
+  await loadOverview();
+  await loadBookings();
+  await loadParkings();
+}
+
+// ── TABS ──
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── HELPERS ──
+function statusBadge(s) {
+  const map = {
+    pending: ['badge-orange','รอยืนยัน'],
+    confirmed: ['badge-green','ยืนยันแล้ว'],
+    cancelled: ['badge-gray','ยกเลิก'],
+  };
+  const [cls, label] = map[s] || ['badge-gray', s];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function numFmt(n) {
+  return Number(n || 0).toLocaleString('th-TH');
+}
+
+// ── OVERVIEW ──
+async function loadOverview() {
+  const uid = currentUser.id;
+  const { data: parkings } = await sb.from('parkings').select('id').eq('owner_id', uid);
+  ownerParkingIds = (parkings || []).map(p => p.id);
+
+  document.getElementById('stat-parkings').textContent = ownerParkingIds.length;
+
+  if (ownerParkingIds.length === 0) {
+    document.getElementById('stat-bookings').textContent = '0';
+    document.getElementById('stat-pending').textContent = '0';
+    document.getElementById('stat-revenue').textContent = '0';
+    document.getElementById('recent-bookings-body').innerHTML = '<tr class="empty-row"><td colspan="6">ยังไม่มีข้อมูล</td></tr>';
     return;
   }
-  const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
-  document.getElementById('navUser').textContent = '👤 ' + name;
 
-  const {data: parkings, error: pErr} = await sb.from('parkings')
-    .select('*')
-    .eq('owner_id', session.user.id)
-    .order('created_at', {ascending:false});
+  const { data: bookings } = await sb.from('bookings')
+    .select('id, booking_code, parking_id, date, vehicle_plate, total, status, parkings(name)')
+    .in('parking_id', ownerParkingIds)
+    .order('created_at', { ascending: false })
+    .limit(10);
 
-  const content = document.getElementById('content');
+  const all = bookings || [];
+  const pending = all.filter(b => b.status === 'pending').length;
+  const revenue = all.filter(b => b.status === 'confirmed').reduce((s, b) => s + Number(b.total || 0), 0);
 
-  if (pErr){
-    content.innerHTML = `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${pErr.message}</div>`;
+  document.getElementById('stat-bookings').textContent = all.length;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-revenue').textContent = numFmt(revenue);
+
+  const tbody = document.getElementById('recent-bookings-body');
+  if (all.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">ยังไม่มีการจอง</td></tr>';
     return;
   }
+  tbody.innerHTML = all.slice(0,8).map(b => `
+    <tr>
+      <td><code>${b.booking_code || '—'}</code></td>
+      <td>${b.parkings?.name || '—'}</td>
+      <td>${fmtDate(b.date)}</td>
+      <td>${b.vehicle_plate || '—'}</td>
+      <td>${numFmt(b.total)}</td>
+      <td>${statusBadge(b.status)}</td>
+    </tr>
+  `).join('');
+}
 
-  if (!parkings || parkings.length===0){
-    content.innerHTML = `
-      <div class="panel">
-        <div class="empty">
-          <div class="empty-icon">🅿️</div>
-          <div style="font-weight:700;margin-bottom:6px">คุณยังไม่มีที่จอดรถที่ลงทะเบียน</div>
-          <div style="font-size:13px;margin-bottom:14px">เปิดร้านจอดรถเพื่อเริ่มรับการจอง</div>
-          <a href="index.html">← กลับไปเปิดร้านจอดรถ</a>
-        </div>
-      </div>`;
+// ── BOOKINGS ──
+async function loadBookings() {
+  if (ownerParkingIds.length === 0) {
+    document.getElementById('bookings-body').innerHTML = '<tr class="empty-row"><td colspan="8">ยังไม่มีข้อมูล</td></tr>';
     return;
   }
+  const filter = document.getElementById('booking-filter').value;
+  let q = sb.from('bookings')
+    .select('id, booking_code, parking_id, date, start_time, end_time, vehicle_plate, total, status, parkings(name)')
+    .in('parking_id', ownerParkingIds)
+    .order('created_at', { ascending: false });
+  if (filter) q = q.eq('status', filter);
+  const { data } = await q;
+  const tbody = document.getElementById('bookings-body');
+  const rows = data || [];
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">ไม่มีการจอง</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(b => `
+    <tr>
+      <td><code>${b.booking_code || '—'}</code></td>
+      <td>${b.parkings?.name || '—'}</td>
+      <td>${fmtDate(b.date)}</td>
+      <td>${b.start_time || '—'} – ${b.end_time || '—'}</td>
+      <td>${b.vehicle_plate || '—'}</td>
+      <td>${numFmt(b.total)}</td>
+      <td>${statusBadge(b.status)}</td>
+      <td>
+        ${b.status === 'pending' ? `<button class="btn btn-sm badge-green" onclick="updateBooking('${b.id}','confirmed')">ยืนยัน</button>
+        <button class="btn btn-sm badge-gray" onclick="updateBooking('${b.id}','cancelled')" style="margin-left:4px">ยกเลิก</button>` : '—'}
+      </td>
+    </tr>
+  `).join('');
+}
 
-  const parkingIds = parkings.map(p=>p.id);
-  const {data: bookings, error: bErr} = await sb.from('bookings')
-    .select('*')
-    .in('parking_id', parkingIds)
-    .order('date', {ascending:false});
+async function updateBooking(id, status) {
+  await sb.from('bookings').update({ status }).eq('id', id);
+  await loadBookings();
+  await loadOverview();
+}
 
-  const bookingList = bookings || [];
-  const parkingMap = {};
-  parkings.forEach(p=>parkingMap[p.id]=p);
+// ── PARKINGS ──
+async function loadParkings() {
+  const { data } = await sb.from('parkings')
+    .select('id, name, address, daily_price, total_slots, available_slots, is_active')
+    .eq('owner_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  const tbody = document.getElementById('parkings-body');
+  const rows = data || [];
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">ยังไม่มีที่จอดรถ กด "+ เพิ่มที่จอดรถ"</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.address || '—'}</td>
+      <td>${numFmt(p.daily_price)}</td>
+      <td>${p.available_slots ?? '—'} / ${p.total_slots ?? '—'}</td>
+      <td>${p.is_active ? '<span class="badge badge-green">เปิด</span>' : '<span class="badge badge-gray">ปิด</span>'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="toggleParking('${p.id}', ${p.is_active})">
+          ${p.is_active ? 'ปิด' : 'เปิด'}ใช้งาน
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
 
-  const totalRevenue = bookingList.reduce((s,b)=>s+(parseFloat(b.subtotal)||0),0);
-  const totalCommission = bookingList.reduce((s,b)=>s+(parseFloat(b.service_fee)||0),0);
+async function toggleParking(id, current) {
+  await sb.from('parkings').update({ is_active: !current }).eq('id', id);
+  await loadParkings();
+}
 
-  let html = '';
-
-  html += `<div class="summary">
-    <div class="sum-card"><div class="sum-num">${parkings.length}</div><div class="sum-label">ที่จอดรถ</div></div>
-    <div class="sum-card"><div class="sum-num">${bookingList.length}</div><div class="sum-label">การจองทั้งหมด</div></div>
-    <div class="sum-card orange"><div class="sum-num">฿${totalRevenue.toLocaleString()}</div><div class="sum-label">รายได้ก่อนหักคอมมิชชั่น</div></div>
-    <div class="sum-card"><div class="sum-num">฿${totalCommission.toLocaleString()}</div><div class="sum-label">คอมมิชชั่นที่หัก (฿15/ครั้ง)</div></div>
-  </div>`;
-
-  html += `<div class="panel"><h2>ที่จอดรถของคุณ</h2>`;
-  parkings.forEach(p=>{
-    const isLive = p.is_active;
-    html += `<div class="parking-row">
-      <div>
-        <div class="parking-name">${escapeHtml(p.name)}</div>
-        <div class="parking-addr">${escapeHtml(p.address||'')}</div>
-      </div>
-      <span class="badge ${isLive?'badge-live':'badge-pending'}">${isLive?'เปิดใช้งาน':'รอตรวจสอบ'}</span>
-    </div>`;
+// ── ADD PARKING ──
+async function loadProvinces() {
+  const { data } = await sb.from('provinces').select('id, name_th').order('name_th');
+  const sel = document.getElementById('p-province');
+  (data || []).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name_th;
+    sel.appendChild(opt);
   });
-  html += `</div>`;
+}
 
-  html += `<div class="panel"><h2>การจองล่าสุด</h2>`;
-  if (bookingList.length===0){
-    html += `<div class="empty"><div class="empty-icon">📋</div>ยังไม่มีการจองเข้ามาครับ</div>`;
-  } else {
-    bookingList.forEach(b=>{
-      const st = b.status || 'pending';
-      html += `<div class="booking-card">
-        <div class="booking-top">
-          <div>
-            <div class="booking-code">${escapeHtml(b.booking_code||b.id.slice(0,8))}</div>
-            <div class="booking-parking">${escapeHtml(parkingMap[b.parking_id]?.name||'')}</div>
-          </div>
-          <div class="booking-amount">
-            <div class="amount-total">฿${(parseFloat(b.total)||0).toLocaleString()}</div>
-            <div class="amount-fee">คอมฯ ฿${(parseFloat(b.service_fee)||0).toLocaleString()}</div>
-          </div>
-        </div>
-        <div class="booking-meta">
-          <span>📅 ${b.date||'-'}</span>
-          <span>🕐 ${(b.start_time||'-')}–${(b.end_time||'-')}</span>
-          <span>🚗 ${escapeHtml(b.vehicle_plate||'-')}</span>
-          <span class="status-pill status-${st}">${STATUS_TH[st]||st}</span>
-        </div>
-      </div>`;
-    });
+async function addParking() {
+  const msg = document.getElementById('form-msg');
+  const name = document.getElementById('p-name').value.trim();
+  const address = document.getElementById('p-address').value.trim();
+  const province_id = document.getElementById('p-province').value;
+  const daily_price = parseFloat(document.getElementById('p-price').value);
+  const total_slots = parseInt(document.getElementById('p-slots').value);
+  const description = document.getElementById('p-desc').value.trim();
+
+  if (!name || !address || !province_id || isNaN(daily_price) || isNaN(total_slots)) {
+    msg.style.color = '#dc2626';
+    msg.textContent = 'กรุณากรอกข้อมูลให้ครบ';
+    return;
   }
-  html += `</div>`;
 
-  content.innerHTML = html;
+  const { error } = await sb.from('parkings').insert({
+    owner_id: currentUser.id,
+    name, address, description,
+    province_id: parseInt(province_id),
+    daily_price, total_slots,
+    available_slots: total_slots,
+    is_active: false,
+  });
+
+  if (error) {
+    msg.style.color = '#dc2626';
+    msg.textContent = 'เกิดข้อผิดพลาด: ' + error.message;
+    return;
+  }
+
+  msg.style.color = '#0e9f6e';
+  msg.textContent = '✅ เพิ่มที่จอดรถสำเร็จ';
+  ['p-name','p-address','p-price','p-slots','p-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p-province').value = '';
+
+  await loadOverview();
+  await loadParkings();
+  ownerParkingIds = [];
+  const { data: parkings } = await sb.from('parkings').select('id').eq('owner_id', currentUser.id);
+  ownerParkingIds = (parkings || []).map(p => p.id);
 }
-
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-init();
 </script>
 </body>
 </html>
