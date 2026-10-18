@@ -201,6 +201,9 @@ input:focus,select:focus{border-color:#F97316}
 .toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .2s}
 .toggle-cb:checked + .toggle-track{background:#F97316}
 .toggle-cb:checked + .toggle-track .toggle-thumb{left:23px}
+.ow-img-thumb{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1.5px solid #E4E9F2}
+.ow-img-thumb img{width:100%;height:100%;object-fit:cover}
+.ow-img-thumb .rm-img{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1}
 
 /* ── SEARCH RESULTS ── */
 .park-result-card{border:1.5px solid #E4E9F2;border-radius:14px;padding:16px;margin-bottom:10px;transition:box-shadow .2s}
@@ -704,7 +707,16 @@ input:focus,select:focus{border-color:#F97316}
           </div>
 
           <label>หมายเหตุเพิ่มเติม (ถ้ามี)</label>
-          <textarea id="owNote" placeholder="เช่น ข้อควรระวัง เงื่อนไขพิเศษ การเดินทางออกลานจอดรถ" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:13px;font-family:inherit;resize:vertical;min-height:72px;outline:none;margin-bottom:0;transition:border-color .2s"></textarea>
+          <textarea id="owNote" placeholder="เช่น ข้อควรระวัง เงื่อนไขพิเศษ การเดินทางออกลานจอดรถ" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:13px;font-family:inherit;resize:vertical;min-height:72px;outline:none;margin-bottom:14px;transition:border-color .2s"></textarea>
+
+          <label>รูปภาพลานจอดรถ (สูงสุด 5 รูป)</label>
+          <div id="owImgUploadArea" onclick="document.getElementById('owImgInput').click()" style="border:2px dashed #CBD5E1;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#F8FAFC;transition:border-color .2s;margin-bottom:10px" onmouseenter="this.style.borderColor='#F97316'" onmouseleave="this.style.borderColor='#CBD5E1'">
+            <div style="font-size:28px;margin-bottom:6px">📷</div>
+            <div style="font-size:13px;color:#64748B;font-weight:600">คลิกเพื่อเลือกรูป</div>
+            <div style="font-size:11px;color:#94A3B8;margin-top:4px">JPG, PNG ขนาดไม่เกิน 5MB ต่อรูป</div>
+          </div>
+          <input type="file" id="owImgInput" accept="image/*" multiple style="display:none" onchange="owPreviewImages(this)"/>
+          <div id="owImgPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px"></div>
         </div>
       </div>
       <div class="modal-btns" style="margin-top:16px">
@@ -924,6 +936,44 @@ function toggleMenu(){
 /* ── Modal Controls ── */
 function openLogin(){closeAll();document.getElementById('modalLogin').classList.add('open');}
 function openRegister(){closeAll();document.getElementById('modalRegister').classList.add('open');resetRegister();}
+let owSelectedFiles = [];
+function owPreviewImages(input){
+  const files = Array.from(input.files);
+  const remaining = 5 - owSelectedFiles.length;
+  const toAdd = files.slice(0, remaining);
+  toAdd.forEach(file=>{
+    if(file.size > 5*1024*1024){alert('รูปขนาดเกิน 5MB: '+file.name);return;}
+    owSelectedFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const idx = owSelectedFiles.length-1;
+      const thumb = document.createElement('div');
+      thumb.className='ow-img-thumb'; thumb.id='thumb-'+idx;
+      thumb.innerHTML=`<img src="${e.target.result}"/><div class="rm-img" onclick="owRemoveImg(${idx})">✕</div>`;
+      document.getElementById('owImgPreview').appendChild(thumb);
+    };
+    reader.readAsDataURL(file);
+  });
+  if(owSelectedFiles.length>=5) document.getElementById('owImgUploadArea').style.display='none';
+  input.value='';
+}
+function owRemoveImg(idx){
+  owSelectedFiles.splice(idx,1);
+  const preview = document.getElementById('owImgPreview');
+  preview.innerHTML='';
+  // re-render remaining
+  owSelectedFiles.forEach((file,i)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const thumb=document.createElement('div');
+      thumb.className='ow-img-thumb';thumb.id='thumb-'+i;
+      thumb.innerHTML=`<img src="${e.target.result}"/><div class="rm-img" onclick="owRemoveImg(${i})">✕</div>`;
+      preview.appendChild(thumb);
+    };
+    reader.readAsDataURL(file);
+  });
+  if(owSelectedFiles.length<5) document.getElementById('owImgUploadArea').style.display='';
+}
 function openOwnerRegister(){
   closeAll(); owStep=1; updateOwnerStep();
   document.getElementById('ownerError').style.display='none';
@@ -934,6 +984,10 @@ function openOwnerRegister(){
   const prov=document.getElementById('owProv'); if(prov)prov.value='';
   const type=document.getElementById('owType'); if(type)type.value='';
   switchPriceTab(1);
+  // reset images
+  owSelectedFiles = [];
+  document.getElementById('owImgPreview').innerHTML = '';
+  const fi = document.getElementById('owImgInput'); if(fi) fi.value='';
   document.getElementById('modalOwner').classList.add('open');
 }
 function closeAll(){
@@ -1044,6 +1098,22 @@ async function submitOwnerRegistration(){
     facilities:facilities
   }).select().single();
   if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
+  // upload images
+  if(owSelectedFiles.length > 0){
+    const urls = [];
+    for(const file of owSelectedFiles){
+      const ext = file.name.split('.').pop();
+      const path = `${parking.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const {data:upData, error:upErr} = await sb.storage.from('parking-images').upload(path, file, {contentType:file.type, upsert:false});
+      if(!upErr){
+        const {data:{publicUrl}} = sb.storage.from('parking-images').getPublicUrl(path);
+        urls.push(publicUrl);
+      }
+    }
+    if(urls.length > 0){
+      await sb.from('parkings').update({images:urls}).eq('id',parking.id);
+    }
+  }
   await sb.from('registration_payments').insert({owner_id:session.user.id,parking_id:parking.id,amount:200});
   await sb.from('users').update({name:document.getElementById('owCompany').value.trim(),phone:document.getElementById('owTel').value.trim(),role:'owner'}).eq('id',session.user.id);
   document.getElementById('ownerStep3').innerHTML = `
