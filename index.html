@@ -4,114 +4,168 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>77Park – ที่จอดรถทั่วไทย 77 จังหวัด</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#fff}
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,28,59,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)}
-.logo{font-weight:900;font-size:24px;cursor:pointer}.logo span:first-child{color:#F97316}.logo span:last-child{color:#fff}
-.nav-right{display:flex;gap:10px;align-items:center}
-.nav-user{color:#fff;font-size:14px;font-weight:600;display:none}
-.btn-nav{border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-login{background:rgba(255,255,255,.1);color:#fff}
-.btn-login:hover{background:rgba(255,255,255,.18)}
-.btn-register{background:#F97316;color:#fff;box-shadow:0 2px 10px rgba(249,115,22,.4)}
-.btn-dashboard{background:rgba(255,255,255,.1);color:#fff;display:none}
-.btn-dashboard:hover{background:rgba(255,255,255,.18)}
+body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#fff;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:#081C3B;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-logo{font-weight:900;font-size:22px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:2px}
+.nav-logo span:first-child{color:#F97316}.nav-logo span:last-child{color:#fff}
+.nav-logo small{font-size:11px;color:rgba(255,255,255,.4);font-weight:500;margin-left:6px;display:none}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{color:rgba(255,255,255,.75);font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;text-decoration:none;border:none;background:none;font-family:inherit;transition:all .2s;white-space:nowrap}
+.nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.08)}
+.nav-link.active{color:#F97316}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-user{color:rgba(255,255,255,.8);font-size:13px;font-weight:600;white-space:nowrap;display:none}
+.btn-nav{border:none;border-radius:10px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.btn-login{background:rgba(255,255,255,.1);color:#fff}.btn-login:hover{background:rgba(255,255,255,.18)}
+.btn-register{background:#F97316;color:#fff;box-shadow:0 2px 8px rgba(249,115,22,.35)}.btn-register:hover{background:#EA580C}
+.btn-dashboard{background:rgba(255,255,255,.1);color:#fff;display:none}.btn-dashboard:hover{background:rgba(255,255,255,.18)}
 .btn-logout{background:rgba(239,68,68,.15);color:#FCA5A5;display:none}
-/* HERO */
-.hero{background:linear-gradient(160deg,#081C3B 0%,#0F2D5E 60%,#1A3A6B 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
-.hero-77{position:absolute;font-size:clamp(200px,35vw,500px);font-weight:900;color:rgba(249,115,22,.04);pointer-events:none;user-select:none;letter-spacing:-20px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);border-radius:40px;padding:7px 16px;margin-bottom:24px;font-size:13px;color:#F97316;font-weight:700}
-h1{font-size:clamp(34px,6vw,70px);font-weight:900;line-height:1.15;color:#fff;margin:0 0 20px;max-width:780px}
-h1 span{color:#F97316;text-shadow:0 0 40px rgba(249,115,22,.4)}
-.hero-sub{font-size:clamp(15px,2vw,19px);color:rgba(255,255,255,.65);max-width:540px;line-height:1.7;margin:0 0 40px}
-.search-bar{display:flex;gap:10px;max-width:520px;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:8px;margin-bottom:32px}
-.search-bar input{flex:1;background:none;border:none;color:#fff;font-size:15px;outline:none;font-family:inherit;padding:6px 8px}
-.search-bar input::placeholder{color:rgba(255,255,255,.4)}
-.search-bar button{background:#F97316;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.btn-primary{background:#F97316;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-weight:800;font-size:16px;cursor:pointer;font-family:inherit;box-shadow:0 4px 24px rgba(249,115,22,.5)}
-.btn-outline{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:14px 32px;font-weight:700;font-size:16px;cursor:pointer;font-family:inherit}
-/* STATS */
-.stats{background:#F97316;padding:48px 24px}
-.stats-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;text-align:center}
-.stat-num{font-size:36px;font-weight:900;color:#fff;line-height:1}
-.stat-label{font-size:14px;color:rgba(255,255,255,.8);margin-top:4px;font-weight:600}
-/* SECTIONS */
-.section{padding:80px 24px}
-.section-inner{max-width:1000px;margin:0 auto}
-.eyebrow{font-size:12px;font-weight:800;color:#F97316;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
-h2{font-size:clamp(26px,4vw,42px);font-weight:900;color:#0F172A;margin-bottom:48px}
-/* HOW IT WORKS */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
-.step{background:#fff;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.07);border:1px solid #E4E9F2;position:relative;overflow:hidden}
-.step-num{position:absolute;top:-10px;right:8px;font-size:72px;font-weight:900;color:rgba(249,115,22,.06);line-height:1}
-.step-label{font-size:11px;font-weight:800;color:#F97316;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.step h3{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:8px}
-.step p{font-size:14px;color:#64748B;line-height:1.7}
-/* FEATURES */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.card{background:#fff;border-radius:16px;padding:24px;border:1px solid #E4E9F2;transition:box-shadow .2s}
-.card:hover{box-shadow:0 8px 32px rgba(249,115,22,.12)}
-/* PRICING */
-.pricing{background:#081C3B;padding:80px 24px}
-.pricing-inner{max-width:760px;margin:0 auto;text-align:center}
-.price-card{border-radius:24px;padding:32px;text-align:left}
-.price-card.featured{background:rgba(255,255,255,.06);border:2px solid #F97316;position:relative}
-.price-card.regular{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
-.price-tag{position:absolute;top:-12px;left:24px;background:#F97316;color:#fff;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px}
-.price-amount{font-size:48px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px}
-.price-period{font-size:16px;color:rgba(255,255,255,.5);font-weight:400}
-.price-desc{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:24px}
-.price-item{display:flex;gap:10px;margin-bottom:10px;font-size:14px;color:rgba(255,255,255,.8)}
-.check-g{color:#22C55E;font-weight:700}
-.check-b{color:#60A5FA;font-weight:700}
-.price-note{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600}
-.price-note.o{background:rgba(249,115,22,.15);color:#F97316}
-.price-note.b{background:rgba(27,110,243,.15);color:#7BB8FF}
-.price-btn{width:100%;margin-top:24px;padding:14px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;border:none}
-.price-btn.o{background:#F97316;color:#fff}
-.price-btn.g{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff}
-/* PROVINCES */
-.prov-section{background:#F4F6FA;padding:80px 24px}
-.prov-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.prov-tag{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#fff;border:1px solid #E4E9F2;color:#0F172A;cursor:pointer;transition:all .2s}
-.prov-tag:hover{background:#F97316;color:#fff;border-color:#F97316}
-/* CTA */
-.cta-section{background:linear-gradient(135deg,#F97316,#EA580C);padding:80px 24px;text-align:center}
-.cta-section h2{color:#fff;margin-bottom:16px}
-.cta-section p{font-size:18px;color:rgba(255,255,255,.85);margin-bottom:32px;line-height:1.7}
-.cta-btn{background:#fff;color:#F97316;border:none;border-radius:14px;padding:16px 40px;font-weight:900;font-size:18px;cursor:pointer;font-family:inherit;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-/* FOOTER */
-footer{background:#081C3B;padding:40px 24px 24px}
-.footer-logo{font-weight:900;font-size:22px;margin-bottom:8px}
-.footer-copy{border-top:1px solid rgba(255,255,255,.08);padding-top:20px;text-align:center;font-size:13px;margin-top:32px;color:rgba(255,255,255,.4)}
-/* MODAL */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:.3s}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:#081C3B;border-bottom:1px solid rgba(255,255,255,.1);z-index:99;padding:12px 0}
+.mobile-menu.open{display:block}
+.mobile-link{display:block;color:rgba(255,255,255,.8);font-size:15px;font-weight:600;padding:12px 24px;cursor:pointer;text-decoration:none;border:none;background:none;font-family:inherit;width:100%;text-align:left}
+.mobile-link:active{background:rgba(255,255,255,.05)}
+
+/* ── HERO ── */
+.hero{margin-top:64px;position:relative;min-height:520px;display:flex;align-items:center;overflow:hidden;background:#081C3B}
+.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1600&q=80') center/cover no-repeat;opacity:.3}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,28,59,.95) 40%,rgba(8,28,59,.3) 100%)}
+.hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:60px 32px;width:100%}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.35);border-radius:40px;padding:5px 14px;margin-bottom:18px;font-size:12px;color:#F97316;font-weight:700}
+.hero h1{font-size:clamp(30px,5vw,54px);font-weight:900;line-height:1.2;color:#fff;margin-bottom:10px}
+.hero h1 span{color:#F97316}
+.hero-sub{font-size:clamp(14px,1.8vw,17px);color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:32px;max-width:480px}
+
+/* Search Bar */
+.search-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:700px}
+.search-fields{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end}
+.sf-group label{font-size:11px;font-weight:700;color:#64748B;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:5px}
+.sf-group input,.sf-group select{width:100%;padding:10px 12px;border:1.5px solid #E4E9F2;border-radius:10px;font-size:14px;font-family:inherit;color:#0F172A;outline:none;background:#F8FAFC;transition:border-color .2s}
+.sf-group input:focus,.sf-group select:focus{border-color:#F97316;background:#fff}
+.btn-search{background:#F97316;color:#fff;border:none;border-radius:10px;padding:11px 24px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-search:hover{background:#EA580C}
+.hero-ctas{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.hero-cta{display:flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .2s;text-decoration:none}
+.hc-blue{background:#1B3E6F;color:#fff}.hc-blue:hover{background:#234d85}
+.hc-green{background:#065F46;color:#fff}.hc-green:hover{background:#047857}
+.hc-orange{background:#F97316;color:#fff}.hc-orange:hover{background:#EA580C}
+.hero-cta .cta-arrow{opacity:.6}
+
+/* ── WHY ── */
+.why{background:#fff;padding:64px 32px}
+.why-inner{max-width:1100px;margin:0 auto}
+.section-title{text-align:center;margin-bottom:40px}
+.section-title h2{font-size:clamp(22px,3.5vw,34px);font-weight:900;color:#0F172A}
+.section-title h2 span{color:#F97316}
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.why-card{text-align:center;padding:28px 20px;border-radius:16px;border:1.5px solid #E4E9F2;transition:all .25s}
+.why-card:hover{border-color:#F97316;box-shadow:0 4px 24px rgba(249,115,22,.1);transform:translateY(-2px)}
+.why-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px}
+.wi-blue{background:#EFF6FF}.wi-orange{background:#FFF7ED}.wi-green{background:#F0FDF4}.wi-purple{background:#FAF5FF}
+.why-card h3{font-size:15px;font-weight:800;color:#0F172A;margin-bottom:6px}
+.why-card p{font-size:13px;color:#64748B;line-height:1.7}
+
+/* ── RECOMMENDED ── */
+.recommended{background:#F8FAFC;padding:64px 32px}
+.rec-inner{max-width:1100px;margin:0 auto}
+.rec-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px}
+.rec-header h2{font-size:clamp(20px,3vw,28px);font-weight:900;color:#0F172A}
+.rec-header a{color:#F97316;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
+.rec-sub{font-size:14px;color:#64748B;margin-top:2px}
+.park-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.park-card{background:#fff;border-radius:16px;overflow:hidden;border:1.5px solid #E4E9F2;transition:all .25s;cursor:pointer}
+.park-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-3px)}
+.park-img{width:100%;aspect-ratio:16/10;object-fit:cover;background:#E4E9F2;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px;font-weight:700}
+.park-img img{width:100%;height:100%;object-fit:cover}
+.park-body{padding:14px}
+.park-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:6px}
+.pb-day{background:#FFF7ED;color:#F97316}.pb-month{background:#EFF6FF;color:#3B82F6}.pb-ev{background:#F0FDF4;color:#22C55E}
+.park-name{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.park-loc{font-size:12px;color:#64748B;margin-bottom:8px;display:flex;align-items:center;gap:3px}
+.park-footer{display:flex;justify-content:space-between;align-items:center}
+.park-price{font-size:18px;font-weight:900;color:#F97316}
+.park-price small{font-size:11px;color:#94A3B8;font-weight:500}
+.park-rating{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:#0F172A}
+.park-slots{font-size:11px;color:#64748B;margin-top:2px;display:flex;align-items:center;gap:3px}
+.btn-book{width:100%;margin-top:12px;padding:9px;border-radius:10px;background:#F97316;color:#fff;border:none;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-book:hover{background:#EA580C}
+
+/* ── HOW TO ── */
+.howto{background:#fff;padding:64px 32px}
+.howto-inner{max-width:1100px;margin:0 auto}
+.howto-cols{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:40px}
+.howto-col h3{font-size:16px;font-weight:800;color:#0F172A;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #F97316;display:flex;align-items:center;gap:8px}
+.hw-step{display:flex;gap:14px;margin-bottom:20px}
+.hw-num{width:32px;height:32px;border-radius:50%;background:#F97316;color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.hw-num.blue{background:#3B82F6}
+.hw-content h4{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:3px}
+.hw-content p{font-size:13px;color:#64748B;line-height:1.6}
+
+/* ── CTA BANNER ── */
+.cta-banner{background:linear-gradient(120deg,#081C3B 0%,#0F2D5E 100%);padding:64px 32px;position:relative;overflow:hidden}
+.cta-banner::before{content:'77';position:absolute;right:-20px;top:-40px;font-size:300px;font-weight:900;color:rgba(249,115,22,.04);pointer-events:none;line-height:1}
+.cta-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center}
+.cta-text h2{font-size:clamp(22px,3.5vw,36px);font-weight:900;color:#fff;margin-bottom:8px}
+.cta-text p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7}
+.cta-stats{display:flex;gap:24px;margin-top:16px}
+.cta-stat{text-align:center}
+.cta-stat strong{display:block;font-size:24px;font-weight:900;color:#F97316}
+.cta-stat span{font-size:12px;color:rgba(255,255,255,.5);font-weight:600}
+.cta-actions{display:flex;flex-direction:column;gap:10px;min-width:200px}
+.btn-cta-primary{background:#F97316;color:#fff;border:none;border-radius:12px;padding:14px 28px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-cta-primary:hover{background:#EA580C}
+.btn-cta-secondary{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-cta-secondary:hover{background:rgba(255,255,255,.14)}
+
+/* ── FOOTER ── */
+footer{background:#081C3B;padding:48px 32px 24px}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-logo{font-weight:900;font-size:24px;margin-bottom:8px;display:flex;align-items:center;gap:2px}
+.footer-logo span:first-child{color:#F97316}.footer-logo span:last-child{color:#fff}
+.footer-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.8;margin-bottom:16px}
+.footer-social{display:flex;gap:8px}
+.social-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;text-decoration:none;border:none}
+.social-btn:hover{background:rgba(249,115,22,.3)}
+.footer-col h4{font-size:13px;font-weight:800;color:#fff;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:8px;cursor:pointer;text-decoration:none;transition:color .2s}
+.footer-col a:hover{color:#F97316}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.3)}
+.promptpay-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px}
+.promptpay-badge span{font-size:11px;color:rgba(255,255,255,.4);font-weight:600}
+
+/* ── MODALS ── */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;padding:20px}
 .modal.open{display:flex}
 .modal-box{background:#fff;border-radius:24px;padding:32px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;position:relative}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#64748B;line-height:1}
-.modal-logo{text-align:center;font-size:28px;font-weight:900;margin-bottom:4px}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#64748B;line-height:1;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .2s}
+.modal-close:hover{background:#F1F5F9}
+.modal-logo{text-align:center;font-size:26px;font-weight:900;margin-bottom:4px}
 .modal-title{font-weight:900;font-size:20px;color:#0F172A;margin-bottom:4px}
 .modal-sub{font-size:13px;color:#64748B;margin-bottom:24px}
 .progress{display:flex;gap:6px;margin-bottom:28px}
 .progress-bar{flex:1;height:4px;border-radius:4px}
 .pb-done{background:#F97316}.pb-pending{background:#E4E9F2}
 label{font-size:13px;font-weight:700;color:#0F172A;display:block;margin-bottom:5px}
-input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],input[type=date],input[type=time],select{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;color:#0F172A;margin-bottom:14px;transition:border-color .2s}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],input[type=date],input[type=time],select{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;color:#0F172A;margin-bottom:14px;transition:border-color .2s;background:#fff}
 input:focus,select:focus{border-color:#F97316}
-.row2{display:flex;gap:10px}
-.row2>div{flex:1}
+.row2{display:flex;gap:10px}.row2>div{flex:1}
 .modal-btns{display:flex;gap:10px;margin-top:20px}
 .btn-back{flex:1;padding:12px;border-radius:12px;border:1.5px solid #E4E9F2;background:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;color:#64748B}
 .btn-next{flex:2;padding:12px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px}
-.btn-full{width:100%;padding:13px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px;margin-bottom:10px}
-.btn-google{width:100%;padding:12px;border-radius:12px;border:1.5px solid #E4E9F2;background:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
-.btn-apple{width:100%;padding:12px;border-radius:12px;border:1.5px solid #000;background:#000;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-full{width:100%;padding:13px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px;margin-bottom:10px;transition:all .2s}
+.btn-full:hover{background:#EA580C}
+.btn-google{width:100%;padding:12px;border-radius:12px;border:1.5px solid #E4E9F2;background:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+.btn-google:hover{border-color:#94A3B8;background:#F8FAFC}
 .divider{text-align:center;color:#64748B;font-size:13px;margin:12px 0;position:relative}
 .divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:#E4E9F2}
 .divider::before{left:0}.divider::after{right:0}
@@ -120,19 +174,74 @@ input:focus,select:focus{border-color:#F97316}
 .alert{padding:12px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none}
 .alert-error{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
 .alert-success{background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC}
-.qr-box{width:160px;height:160px;margin:0 auto 16px;background:#F4F6FA;border-radius:16px;border:2px dashed #F97316;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-size:11px;color:#64748B}
 .note-box{padding:14px;background:#FFF3E8;border-radius:12px;font-size:13px;color:#F97316;font-weight:600;line-height:1.7}
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
-@media(max-width:600px){.hero-btns{flex-direction:column;width:100%}.btn-primary,.btn-outline{width:100%}.nav-right .btn-login{display:none}}
+
+/* ── PROVINCES SECTION ── */
+.prov-section{background:#F8FAFC;padding:48px 32px}
+.prov-inner{max-width:1100px;margin:0 auto}
+.prov-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:24px}
+.prov-tag{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#fff;border:1.5px solid #E4E9F2;color:#0F172A;cursor:pointer;transition:all .2s}
+.prov-tag:hover{background:#F97316;color:#fff;border-color:#F97316}
+
+/* ── SEARCH RESULTS ── */
+.park-result-card{border:1.5px solid #E4E9F2;border-radius:14px;padding:16px;margin-bottom:10px;transition:box-shadow .2s}
+.park-result-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.price-btn{border-radius:10px;border:none;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s}
+.price-btn.o{background:#F97316;color:#fff;padding:9px 20px;font-size:13px}.price-btn.o:hover{background:#EA580C}
+.price-btn.g{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff}
+.qr-box{width:160px;height:160px;margin:0 auto 16px;background:#F4F6FA;border-radius:16px;border:2px dashed #F97316;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-size:11px;color:#64748B}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .park-grid{grid-template-columns:repeat(2,1fr)}
+  .why-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .howto-cols{gap:28px}
+}
+@media(max-width:768px){
+  nav{padding:0 16px}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .nav-logo small{display:inline}
+  .hero-inner{padding:40px 16px}
+  .search-fields{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}
+  .search-fields .btn-search{grid-column:1/-1}
+  .hero-ctas{gap:8px}
+  .hero-cta{font-size:12px;padding:9px 14px}
+  .why,.recommended,.howto,.cta-banner,.prov-section{padding:48px 16px}
+  .why-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .park-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .howto-cols{grid-template-columns:1fr;gap:32px}
+  .cta-inner{grid-template-columns:1fr}
+  .cta-actions{flex-direction:row;min-width:auto}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  footer{padding:40px 16px 20px}
+}
+@media(max-width:480px){
+  .park-grid{grid-template-columns:1fr}
+  .why-grid{grid-template-columns:1fr;gap:10px}
+  .search-fields{grid-template-columns:1fr}
+  .hero h1{font-size:28px}
+  .hero-ctas{flex-direction:column}
+  .hero-cta{justify-content:center}
+  .cta-actions{flex-direction:column}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:12px;text-align:center}
+}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ═══ NAV ═══ -->
 <nav>
-  <div class="logo" onclick="scrollTo(0,0)"><span>77</span><span>Park</span></div>
+  <a class="nav-logo" onclick="scrollTo(0,0)" href="#"><span>77</span><span>Park</span><small>ที่จอดรถทั่วไทย 77 จังหวัด</small></a>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="browseAll()">ค้นหาที่จอดรถ</button>
+    <button class="nav-link" onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'})">วิธีใช้งาน</button>
+    <button class="nav-link" onclick="openOwnerRegister()">สำหรับเจ้าของที่จอด</button>
+  </div>
   <div class="nav-right">
     <span class="nav-user" id="navUser"></span>
     <button class="btn-nav btn-login" onclick="openLogin()">เข้าสู่ระบบ</button>
@@ -140,130 +249,245 @@ input:focus,select:focus{border-color:#F97316}
     <button class="btn-nav btn-dashboard" id="btnDashboard" onclick="location.href='dashboard.html'">แดชบอร์ด</button>
     <button class="btn-nav btn-logout" id="btnLogout" onclick="logout()">ออกจากระบบ</button>
   </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="เมนู">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
-<!-- HERO -->
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-link" onclick="browseAll();toggleMenu()">🔍 ค้นหาที่จอดรถ</button>
+  <button class="mobile-link" onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'});toggleMenu()">📖 วิธีใช้งาน</button>
+  <button class="mobile-link" onclick="openOwnerRegister();toggleMenu()">🏢 สำหรับเจ้าของที่จอด</button>
+  <div style="border-top:1px solid rgba(255,255,255,.08);margin:8px 0;padding:8px 16px;display:flex;gap:8px">
+    <button class="btn-nav btn-login" style="flex:1" onclick="openLogin();toggleMenu()">เข้าสู่ระบบ</button>
+    <button class="btn-nav btn-register" style="flex:1" onclick="openRegister();toggleMenu()">สมัครสมาชิก</button>
+  </div>
+</div>
+
+<!-- ═══ HERO ═══ -->
 <section class="hero">
-  <div class="hero-77">77</div>
-  <div class="hero-badge">🇹🇭 ครอบคลุมทุกจังหวัดในไทย · 77 จังหวัด</div>
-  <h1>ที่จอดรถ<br/><span>ทั่วไทย</span><br/>ค้นหาง่าย จองได้เลย</h1>
-  <p class="hero-sub">รวมที่จอดรถทั้ง 77 จังหวัด จากเจ้าของจริง<br/>ราคาชัดเจน จองล่วงหน้าได้ทันที</p>
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="🔍  ค้นหาจังหวัด ย่าน หรือสถานที่..."/>
-    <button onclick="handleSearch()">ค้นหา</button>
-  </div>
-  <div class="hero-btns">
-    <button class="btn-primary" onclick="openOwnerRegister()">📋 เปิดร้านจอดรถ · ฿200</button>
-    <button class="btn-outline" onclick="browseAll()">🚗 หาที่จอดรถ</button>
-  </div>
-  <div style="position:absolute;bottom:32px;font-size:22px;color:rgba(255,255,255,.25);animation:bounce 2s infinite">↓</div>
-</section>
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">🇹🇭 ครอบคลุมทุกจังหวัดในไทย · 77 จังหวัด</div>
+    <h1>ที่จอดรถทั่วไทย<br/><span>ค้นหาง่าย จองสะดวก</span></h1>
+    <p class="hero-sub">ค้นหาที่จอดรถใกล้คุณ ครอบคลุม 77 จังหวัด<br/>พร้อมรองรับสถานีชาร์จ EV</p>
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stats-grid">
-    <div><div class="stat-num">77</div><div class="stat-label">จังหวัดทั่วไทย</div></div>
-    <div><div class="stat-num">฿200</div><div class="stat-label">ค่าสมัครเปิดร้าน</div></div>
-    <div><div class="stat-num">฿15</div><div class="stat-label">Commission ต่อการจอง</div></div>
-    <div><div class="stat-num">24/7</div><div class="stat-label">เข้าถึงได้ตลอดเวลา</div></div>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section class="section" style="background:#F4F6FA">
-  <div class="section-inner">
-    <div style="text-align:center;margin-bottom:48px">
-      <div class="eyebrow">วิธีการทำงาน</div>
-      <h2 style="margin-bottom:0">ง่าย · เร็ว · ปลอดภัย</h2>
-    </div>
-    <div style="display:flex;gap:8px;background:rgba(0,0,0,.06);border-radius:14px;padding:5px;max-width:320px;margin:0 auto 48px">
-      <button id="tabOwner" onclick="switchTab('owner')" style="flex:1;padding:10px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:#F97316;color:#fff;transition:all .2s">🏢 สำหรับเจ้าของ</button>
-      <button id="tabDriver" onclick="switchTab('driver')" style="flex:1;padding:10px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:transparent;color:#64748B;transition:all .2s">🚗 สำหรับผู้จอด</button>
-    </div>
-    <div class="steps" id="stepsOwner">
-      <div class="step"><div class="step-num">01</div><div class="step-label">STEP 01</div><h3>สมัครเปิดร้าน</h3><p>กรอกข้อมูลที่จอด ใส่รูปภาพ กำหนดราคา</p></div>
-      <div class="step"><div class="step-num">02</div><div class="step-label">STEP 02</div><h3>ชำระ ฿200</h3><p>โอน PromptPay ส่งสลิป รอ Approve ภายใน 24 ชม.</p></div>
-      <div class="step"><div class="step-num">03</div><div class="step-label">STEP 03</div><h3>รับลูกค้าทันที</h3><p>ที่จอดของคุณขึ้นเว็บ ลูกค้าจองได้เลย รับเงินผ่าน PromptPay</p></div>
-    </div>
-    <div class="steps" id="stepsDriver" style="display:none">
-      <div class="step"><div class="step-num">01</div><div class="step-label">STEP 01</div><h3>ค้นหา</h3><p>พิมพ์ชื่อจังหวัด ย่าน หรือ BTS/MRT</p></div>
-      <div class="step"><div class="step-num">02</div><div class="step-label">STEP 02</div><h3>เลือกวันเวลา</h3><p>จองล่วงหน้า เลือกเวลาเข้า-ออก</p></div>
-      <div class="step"><div class="step-num">03</div><div class="step-label">STEP 03</div><h3>จอดได้เลย</h3><p>รับรหัสการจอง นำทาง GPS แสดงรหัสเข้า</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="section">
-  <div class="section-inner">
-    <div style="text-align:center;margin-bottom:48px"><div class="eyebrow">คุณสมบัติ</div><h2 style="margin-bottom:0">ทำไมต้อง <span style="color:#F97316">77Park</span>?</h2></div>
-    <div class="cards">
-      <div class="card"><div style="font-size:32px;margin-bottom:12px">🗺️</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">ครบ 77 จังหวัด</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ค้นหาที่จอดได้ทั่วประเทศไทย ทุกจังหวัด</p></div>
-      <div class="card"><div style="font-size:32px;margin-bottom:12px">📸</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">รูปภาพจริง</h3><p style="font-size:14px;color:#64748B;line-height:1.7">เจ้าของอัปโหลดภาพจริง เห็นก่อนจอง</p></div>
-      <div class="card"><div style="font-size:32px;margin-bottom:12px">💬</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">รีวิวจริง</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ให้คะแนนจากผู้เคยใช้จริงทุกครั้ง</p></div>
-      <div class="card"><div style="font-size:32px;margin-bottom:12px">🔒</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">ปลอดภัย</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ระบบยืนยันตัวตน ทุกที่จอดผ่านการตรวจสอบ</p></div>
-      <div class="card"><div style="font-size:32px;margin-bottom:12px">📱</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">ใช้ได้ทุกอุปกรณ์</h3><p style="font-size:14px;color:#64748B;line-height:1.7">เว็บ + PWA ลงมือถือได้ไม่ต้องโหลดแอป</p></div>
-      <div class="card"><div style="font-size:32px;margin-bottom:12px">🔄</div><h3 style="font-weight:800;font-size:16px;margin-bottom:6px">คืนเงินได้</h3><p style="font-size:14px;color:#64748B;line-height:1.7">ยกเลิกก่อน 24 ชม. คืนเงิน 100% ปลอดภัย</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<div class="pricing">
-  <div class="pricing-inner">
-    <div class="eyebrow" style="color:#F97316">ราคา</div>
-    <h2 style="color:#fff">โปร่งใส ไม่มีค่าใช้จ่ายซ่อน</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
-      <div class="price-card featured">
-        <div class="price-tag">เจ้าของที่จอดรถ</div>
-        <div class="price-amount" style="margin-top:8px">฿200<span class="price-period"> /ครั้ง</span></div>
-        <div class="price-desc">ค่าสมัครเปิดร้านครั้งแรก</div>
-        <div class="price-item"><span class="check-g">✓</span> ลงประกาศได้ไม่จำกัดรูปภาพ</div>
-        <div class="price-item"><span class="check-g">✓</span> ตั้งราคา รายวัน / รายเดือน</div>
-        <div class="price-item"><span class="check-g">✓</span> ระบบจัดการการจองออนไลน์</div>
-        <div class="price-item"><span class="check-g">✓</span> รับเงินผ่าน PromptPay โดยตรง</div>
-        <div class="price-note o">Commission ฿15 ต่อการจอง 1 ครั้ง</div>
-        <button class="price-btn o" onclick="openOwnerRegister()">สมัครเปิดร้านเลย</button>
+    <div class="search-card">
+      <div class="search-fields">
+        <div class="sf-group">
+          <label>📍 จังหวัด / สถานที่</label>
+          <input type="text" id="searchInput" placeholder="เลือกจังหวัด หรือค้นหาสถานที่..."/>
+        </div>
+        <div class="sf-group">
+          <label>📅 วันที่</label>
+          <input type="date" id="searchDate" placeholder="เลือกวันที่"/>
+        </div>
+        <div class="sf-group">
+          <label>🕐 เวลา</label>
+          <select id="searchTime">
+            <option value="">เลือกเวลา</option>
+            <option>06:00 – 12:00</option>
+            <option>12:00 – 18:00</option>
+            <option>18:00 – 00:00</option>
+            <option>ทั้งวัน</option>
+          </select>
+        </div>
+        <button class="btn-search" onclick="handleSearch()">🔍 ค้นหา</button>
       </div>
-      <div class="price-card regular">
-        <div class="price-amount">฿0<span class="price-period"> /ตลอดกาล</span></div>
-        <div class="price-desc">สำหรับผู้ต้องการจอดรถ</div>
-        <div class="price-item"><span class="check-b">✓</span> ค้นหาที่จอดรถฟรี ไม่มีค่าสมัคร</div>
-        <div class="price-item"><span class="check-b">✓</span> ดูรูปภาพและรีวิวก่อนจอง</div>
-        <div class="price-item"><span class="check-b">✓</span> จองล่วงหน้า เลือกเวลาได้</div>
-        <div class="price-item"><span class="check-b">✓</span> รับรหัสการจองทันที</div>
-        <div class="price-note b">+ ค่าบริการ ฿15 ต่อการจอง รวมในราคาที่แสดง</div>
-        <button class="price-btn g" onclick="openRegister()">สมัครสมาชิกฟรี</button>
+    </div>
+
+    <div class="hero-ctas">
+      <button class="hero-cta hc-blue" onclick="browseAll()">🅿️ ค้นหาที่จอดรถ ทั่วไทย 77 จังหวัด <span class="cta-arrow">→</span></button>
+      <button class="hero-cta hc-green" onclick="browseAll()">⚡ สถานีชาร์จ EV ค้นหาจุดชาร์จรถไฟฟ้า <span class="cta-arrow">→</span></button>
+      <button class="hero-cta hc-orange" onclick="openOwnerRegister()">🏢 สำหรับเจ้าของที่จอด เปิดร้าน สร้างรายได้ <span class="cta-arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY 77PARK ═══ -->
+<section class="why">
+  <div class="why-inner">
+    <div class="section-title">
+      <h2>ทำไมต้อง <span>77Park</span>?</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon wi-orange">📍</div>
+        <h3>ที่จอดรถทั่วไทย</h3>
+        <p>ครอบคลุม 77 จังหวัด ทุกพื้นที่ ทุกจังหวัด</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon wi-blue">🔍</div>
+        <h3>ค้นหาได้ง่าย</h3>
+        <p>ค้นตามจังหวัด สถานที่ และความต้องการของคุณ</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon wi-green">⚡</div>
+        <h3>รองรับ EV</h3>
+        <p>ค้นหาสถานีชาร์จรถไฟฟ้าได้ง่าย เปิดข้อมูลชัด</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon wi-purple">🔒</div>
+        <h3>จองปลอดภัย</h3>
+        <p>ชำระเงินผ่านระบบที่เชื่อถือได้ มีการยืนยันจากข้อมูล</p>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- PROVINCES -->
+<!-- ═══ RECOMMENDED ═══ -->
+<section class="recommended">
+  <div class="rec-inner">
+    <div class="rec-header">
+      <div>
+        <h2>ที่จอดรถแนะนำ</h2>
+        <p class="rec-sub">สถานที่ยอดนิยมจากทั่วประเทศไทย</p>
+      </div>
+      <a onclick="browseAll()">ดูทั้งหมด →</a>
+    </div>
+    <div class="park-grid" id="recParkGrid">
+      <!-- ใส่ placeholder ก่อน ระบบจะโหลดจาก DB -->
+      <div class="park-card" style="opacity:.5">
+        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
+      </div>
+      <div class="park-card" style="opacity:.5">
+        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
+      </div>
+      <div class="park-card" style="opacity:.5">
+        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
+      </div>
+      <div class="park-card" style="opacity:.5">
+        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW TO ═══ -->
+<section class="howto" id="howto">
+  <div class="howto-inner">
+    <div class="section-title">
+      <h2>วิธีการใช้งาน <span>77Park</span></h2>
+    </div>
+    <div class="howto-cols">
+      <div class="howto-col">
+        <h3>🚗 สำหรับผู้ใช้บริการ</h3>
+        <div class="hw-step">
+          <div class="hw-num blue">01</div>
+          <div class="hw-content"><h4>ค้นหาที่จอดรถ</h4><p>เลือกจังหวัด / สถานที่ และความต้องการของคุณ</p></div>
+        </div>
+        <div class="hw-step">
+          <div class="hw-num blue">02</div>
+          <div class="hw-content"><h4>เลือกสถานที่</h4><p>ดูรายละเอียด ราคา และรีวิวจากผู้ใช้จริง</p></div>
+        </div>
+        <div class="hw-step">
+          <div class="hw-num blue">03</div>
+          <div class="hw-content"><h4>จองและชำระเงิน</h4><p>กดจอง เลือกเวลา รับ QR Code ยืนยันการจอง</p></div>
+        </div>
+        <div class="hw-step">
+          <div class="hw-num blue">04</div>
+          <div class="hw-content"><h4>นำรถเข้าจอด</h4><p>แสดง QR Code / รหัสการจอง เข้าจอดได้ทันที</p></div>
+        </div>
+      </div>
+      <div class="howto-col">
+        <h3>🏢 สำหรับเจ้าของที่จอด</h3>
+        <div class="hw-step">
+          <div class="hw-num">01</div>
+          <div class="hw-content"><h4>สมัครเป็นเจ้าของ</h4><p>กรอกข้อมูลที่จอด ราคา และรายละเอียดสถานที่</p></div>
+        </div>
+        <div class="hw-step">
+          <div class="hw-num">02</div>
+          <div class="hw-content"><h4>กรอกข้อมูลที่จอด</h4><p>ระบุราคา ช่วงเวลา และข้อมูลสถานที่ให้ครบ</p></div>
+        </div>
+        <div class="hw-step">
+          <div class="hw-num">03</div>
+          <div class="hw-content"><h4>ชำระค่าสมัคร</h4><p>โอนเงิน ฿200 ผ่าน PromptPay ส่งสลิปยืนยัน</p></div>
+        </div>
+        <div class="hw-step">
+          <div class="hw-num">04</div>
+          <div class="hw-content"><h4>รอดูแล</h4><p>ทีมงาน Approve ภายใน 24 ชม. เริ่มรับลูกค้าได้ทันที</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROVINCES ═══ -->
 <section class="prov-section">
-  <div class="section-inner">
-    <div style="text-align:center;margin-bottom:40px"><div class="eyebrow">ครอบคลุม</div><h2 style="margin-bottom:0"><span style="color:#F97316">77</span> จังหวัด ทั่วประเทศไทย</h2></div>
+  <div class="prov-inner">
+    <div class="section-title">
+      <h2>ครอบคลุม <span>77</span> จังหวัด ทั่วประเทศไทย</h2>
+    </div>
     <div class="prov-grid" id="provGrid"></div>
     <div style="text-align:center;margin-top:20px">
-      <button onclick="toggleProv()" id="provBtn" style="background:none;border:1.5px solid #F97316;color:#F97316;border-radius:10px;padding:10px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">ดูทั้ง 77 จังหวัด →</button>
+      <button onclick="toggleProv()" id="provBtn" style="background:none;border:1.5px solid #F97316;color:#F97316;border-radius:10px;padding:10px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s">ดูทั้ง 77 จังหวัด →</button>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-section">
-  <div style="font-size:48px;margin-bottom:16px">🅿️</div>
-  <h2>มีที่จอดรถ? เริ่มสร้างรายได้เลย</h2>
-  <p>สมัครเพียง ฿200 ครั้งเดียว<br/>เปิดรับลูกค้าได้จากทั่วประเทศ</p>
-  <button class="cta-btn" onclick="openOwnerRegister()">สมัครเปิดร้านเลย →</button>
+<!-- ═══ CTA BANNER ═══ -->
+<section class="cta-banner">
+  <div class="cta-inner">
+    <div class="cta-text">
+      <h2>มีพื้นที่จอดรถ?<br/>เปลี่ยนพื้นที่ว่างให้สร้างรายได้</h2>
+      <p>สมัครง่าย ค่าบริการโปร่งใส ไม่มีค่าใช้จ่ายซ่อน</p>
+      <div class="cta-stats">
+        <div class="cta-stat"><strong>฿200</strong><span>ค่าสมัครเปิดร้าน</span></div>
+        <div class="cta-stat"><strong>฿15</strong><span>ค่าบริการต่อการจอง</span></div>
+        <div class="cta-stat"><strong>24 ชม.</strong><span>รอ Approve</span></div>
+      </div>
+    </div>
+    <div class="cta-actions">
+      <button class="btn-cta-primary" onclick="openOwnerRegister()">สมัครเป็นเจ้าของที่จอด →</button>
+      <button class="btn-cta-secondary" onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'})">ดูวิธีการใช้งาน</button>
+    </div>
+  </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ═══ FOOTER ═══ -->
 <footer>
-  <div style="max-width:1000px;margin:0 auto;color:rgba(255,255,255,.5)">
-    <div class="footer-logo"><span style="color:#F97316">77</span><span style="color:#fff">Park</span></div>
-    <div style="font-size:13px;line-height:1.8;max-width:220px">แพลตฟอร์มจองที่จอดรถ<br/>ครบทุก 77 จังหวัดในประเทศไทย</div>
-    <div class="footer-copy">© 2024 77Park · ที่จอดรถทั่วไทย · สร้างด้วย ❤️ เพื่อคนไทย</div>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span>77</span><span>Park</span></div>
+        <p class="footer-desc">แพลตฟอร์มจองที่จอดรถออนไลน์<br/>ครบทุก 77 จังหวัดในประเทศไทย<br/>ค้นหาง่าย จองได้เลย ปลอดภัย</p>
+        <div class="footer-social">
+          <a class="social-btn" title="Facebook">📘</a>
+          <a class="social-btn" title="Line">💬</a>
+          <a class="social-btn" title="YouTube">▶️</a>
+          <a class="social-btn" title="TikTok">🎵</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>เกี่ยวกับเรา</h4>
+        <a>เกี่ยวกับ 77Park</a>
+        <a>ติดต่อเรา</a>
+        <a>ทำงานกับเรา</a>
+      </div>
+      <div class="footer-col">
+        <h4>สำหรับผู้ใช้บริการ</h4>
+        <a onclick="browseAll()">ค้นหาที่จอดรถ</a>
+        <a onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'})">วิธีใช้งาน</a>
+        <a onclick="openRegister()">สมัครสมาชิก</a>
+      </div>
+      <div class="footer-col">
+        <h4>สำหรับเจ้าของที่จอด</h4>
+        <a onclick="openOwnerRegister()">สมัครเป็นเจ้าของ</a>
+        <a onclick="openOwnerRegister()">เปิดการใช้งาน</a>
+        <a onclick="location.href='dashboard.html'">แดชบอร์ดเจ้าของ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 77Park · ที่จอดรถทั่วไทย · สร้างด้วย ❤️ เพื่อคนไทย</div>
+      <div class="promptpay-badge">
+        <span>💳</span><span>รองรับ PromptPay</span>
+      </div>
+    </div>
   </div>
 </footer>
 
@@ -285,9 +509,7 @@ input:focus,select:focus{border-color:#F97316}
     <div style="text-align:right;margin-bottom:16px;margin-top:-8px"><a style="color:#F97316;font-size:13px;font-weight:600;cursor:pointer">ลืมรหัสผ่าน?</a></div>
     <button class="btn-full" id="loginBtn" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="divider">หรือ</div>
-    <button class="btn-google" onclick="loginGoogle()">🇬 เข้าสู่ระบบด้วย Google</button>
-    <!-- ซ่อนไว้ก่อน: ยังไม่มีบัญชี Apple Developer — เปิดใช้เมื่อพร้อม -->
-    <button class="btn-apple" onclick="loginApple()" style="display:none"> เข้าสู่ระบบด้วย Apple</button>
+    <button class="btn-google" onclick="loginGoogle()"><span style="font-size:18px">G</span> เข้าสู่ระบบด้วย Google</button>
     <div class="link-text">ยังไม่มีบัญชี? <a onclick="openRegister()">สมัครสมาชิก</a></div>
   </div>
 </div>
@@ -307,8 +529,6 @@ input:focus,select:focus{border-color:#F97316}
     </div>
     <div class="alert alert-error" id="regError"></div>
     <div class="alert alert-success" id="regSuccess"></div>
-
-    <!-- Step 1 -->
     <div id="regStep1">
       <label>ชื่อ-นามสกุล *</label>
       <input type="text" id="regName" placeholder="กรอกชื่อ-นามสกุล"/>
@@ -324,24 +544,17 @@ input:focus,select:focus{border-color:#F97316}
       </div>
       <button class="btn-full" onclick="regNext()">ถัดไป →</button>
       <div class="divider">หรือ</div>
-      <button class="btn-google" onclick="loginGoogle()">🇬 สมัครด้วย Google</button>
-      <!-- ซ่อนไว้ก่อน: ยังไม่มีบัญชี Apple Developer — เปิดใช้เมื่อพร้อม -->
-      <button class="btn-apple" onclick="loginApple()" style="display:none"> สมัครด้วย Apple</button>
+      <button class="btn-google" onclick="loginGoogle()"><span style="font-size:18px">G</span> สมัครด้วย Google</button>
     </div>
-
-    <!-- Step 2 -->
     <div id="regStep2" style="display:none">
       <div style="text-align:center;padding:20px 0">
         <div style="font-size:48px;margin-bottom:12px">📧</div>
         <div style="font-weight:700;font-size:16px;color:#0F172A;margin-bottom:8px">ยืนยันอีเมลของคุณ</div>
         <div style="font-size:13px;color:#64748B;line-height:1.7">ผมส่งลิงก์ยืนยันไปที่<br/><strong id="sentEmail" style="color:#F97316"></strong><br/>กรุณาตรวจสอบอีเมลและกดลิงก์ยืนยัน</div>
-        <div style="margin-top:16px;padding:12px;background:#FFF3E8;border-radius:10px;font-size:12px;color:#F97316;font-weight:600">
-          ✅ หลังยืนยันแล้ว กลับมากด "เข้าสู่ระบบ" ได้เลย
-        </div>
+        <div style="margin-top:16px;padding:12px;background:#FFF3E8;border-radius:10px;font-size:12px;color:#F97316;font-weight:600">✅ หลังยืนยันแล้ว กลับมากด "เข้าสู่ระบบ" ได้เลย</div>
       </div>
       <button class="btn-full" onclick="closeAll();openLogin()">ไปหน้าเข้าสู่ระบบ</button>
     </div>
-
     <div class="link-text" id="regLoginLink">มีบัญชีอยู่แล้ว? <a onclick="openLogin()">เข้าสู่ระบบ</a></div>
   </div>
 </div>
@@ -361,8 +574,6 @@ input:focus,select:focus{border-color:#F97316}
       <div class="progress-bar pb-pending" id="op3"></div>
     </div>
     <div class="alert alert-error" id="ownerError"></div>
-
-    <!-- Step 1 -->
     <div id="ownerStep1">
       <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:14px">📋 ข้อมูลที่จอดรถ</div>
       <label>ชื่อที่จอดรถ *</label>
@@ -377,8 +588,6 @@ input:focus,select:focus{border-color:#F97316}
       </div>
       <div class="modal-btns"><button class="btn-next" style="flex:1" onclick="ownerNext(1)">ถัดไป →</button></div>
     </div>
-
-    <!-- Step 2 -->
     <div id="ownerStep2" style="display:none">
       <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:14px">👤 ข้อมูลเจ้าของ</div>
       <label>ชื่อ-นามสกุล *</label>
@@ -392,8 +601,6 @@ input:focus,select:focus{border-color:#F97316}
         <button class="btn-next" onclick="ownerNext(2)">ถัดไป →</button>
       </div>
     </div>
-
-    <!-- Step 3 -->
     <div id="ownerStep3" style="display:none;text-align:center">
       <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:16px">💳 ชำระค่าสมัคร</div>
       <div id="promptpayQrBox" style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
@@ -456,11 +663,10 @@ const SUPA_KEY = 'sb_publishable_H910cMOV2IaqF8BK6Sokrw_zADVGSOf';
 const { createClient } = supabase;
 const sb = createClient(SUPA_URL, SUPA_KEY);
 
-/* ── PromptPay QR (มาตรฐาน Thai QR Payment / EMVCo) ── */
-const OWNER_PROMPTPAY_ID = '0988557869'; // เบอร์พร้อมเพย์ผู้ดูแลระบบ รับค่าสมัครเปิดร้าน ฿200
+const OWNER_PROMPTPAY_ID = '0988557869';
 
+/* ── PromptPay QR ── */
 function pad2(n){ return String(n).padStart(2,'0'); }
-
 function crc16ccitt(str){
   let crc = 0xFFFF;
   for (let i=0; i<str.length; i++){
@@ -472,83 +678,58 @@ function crc16ccitt(str){
   }
   return crc.toString(16).toUpperCase().padStart(4,'0');
 }
-
 function generatePromptPayPayload(idRaw, amount){
   const id = idRaw.replace(/\D/g,'');
   let proxyType, proxyValue;
   if (id.length===10 && id.startsWith('0')){
-    proxyType='01'; proxyValue='0066'+id.substring(1); // เบอร์มือถือ -> 0066XXXXXXXXX (13 หลัก)
+    proxyType='01'; proxyValue='0066'+id.substring(1);
   } else if (id.length===13){
-    proxyType='02'; proxyValue=id; // เลขบัตรประชาชน/เลขผู้เสียภาษี
-  } else {
-    return null;
-  }
+    proxyType='02'; proxyValue=id;
+  } else { return null; }
   const aid = 'A000000677010111';
   const merchantInfo = '00'+pad2(aid.length)+aid + proxyType+pad2(proxyValue.length)+proxyValue;
   const amt = amount.toFixed(2);
-  let payload =
-    '000201' +                                     // Payload Format Indicator
-    '010212' +                                     // Point of Initiation: dynamic (มีจำนวนเงิน)
-    '29'+pad2(merchantInfo.length)+merchantInfo +   // Merchant Account Info (PromptPay)
-    '5303764' +                                     // Currency: THB
-    '54'+pad2(amt.length)+amt +                     // Amount
-    '5802TH' +                                       // Country
-    '6304';                                          // CRC placeholder
+  let payload = '000201'+'010212'+'29'+pad2(merchantInfo.length)+merchantInfo+'5303764'+'54'+pad2(amt.length)+amt+'5802TH'+'6304';
   return payload + crc16ccitt(payload);
 }
 
-/* ── โหลด QR library สำรอง ถ้า CDN หลักใช้ไม่ได้ ── */
-function loadScriptOnce(src){
-  return new Promise((resolve, reject)=>{
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = ()=>resolve();
-    s.onerror = ()=>reject(new Error('โหลดสคริปต์ไม่สำเร็จ: '+src));
-    document.head.appendChild(s);
-  });
-}
 let qrLibPromise = null;
 function ensureQrLib(){
   if (window.QRCode) return Promise.resolve(true);
   if (!qrLibPromise){
-    qrLibPromise = loadScriptOnce('https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js')
-      .then(()=> !!window.QRCode)
-      .catch(()=> false);
+    qrLibPromise = new Promise((resolve)=>{
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
+      s.onload = ()=>resolve(true); s.onerror = ()=>resolve(false);
+      document.head.appendChild(s);
+    });
   }
   return qrLibPromise;
 }
-
 function showQrError(box, retryFn, detail){
   if (!box) return;
   box.innerHTML = '';
   const msg = document.createElement('div');
-  msg.style.cssText = 'font-size:12px;color:#DC2626;text-align:center;padding:8px 8px 2px;line-height:1.6';
-  msg.textContent = 'สร้าง QR ไม่สำเร็จ เช็คสัญญาณเน็ตแล้วลองใหม่';
+  msg.style.cssText = 'font-size:12px;color:#DC2626;text-align:center;padding:8px;line-height:1.6';
+  msg.textContent = 'สร้าง QR ไม่สำเร็จ';
   box.appendChild(msg);
-  if (detail){
-    const d = document.createElement('div');
-    d.style.cssText = 'font-size:10px;color:#94A3B8;text-align:center;padding:0 8px 4px;word-break:break-word';
-    d.textContent = detail;
-    box.appendChild(d);
-  }
   const btn = document.createElement('a');
   btn.textContent = 'ลองใหม่';
   btn.style.cssText = 'display:inline-block;color:#F97316;font-weight:700;cursor:pointer;text-decoration:underline';
   btn.onclick = retryFn;
   box.appendChild(btn);
 }
-
 function renderPromptPayQR(amount){
   const box = document.getElementById('promptpayQrBox');
   if (!box) return;
   box.innerHTML = '<canvas id="promptpayCanvas"></canvas>';
   ensureQrLib().then(ok=>{
-    if (!ok){ showQrError(box, () => renderPromptPayQR(amount), 'โหลดไลบรารี QR ไม่สำเร็จ'); return; }
+    if (!ok){ showQrError(box, ()=>renderPromptPayQR(amount)); return; }
     const canvas = document.getElementById('promptpayCanvas');
     const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
-    if (!payload){ showQrError(box, () => renderPromptPayQR(amount), 'ข้อมูลพร้อมเพย์ไม่ถูกต้อง'); return; }
-    QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
-      if (err) showQrError(box, () => renderPromptPayQR(amount), err.message||String(err));
+    if (!payload){ showQrError(box, ()=>renderPromptPayQR(amount)); return; }
+    QRCode.toCanvas(canvas, payload, {width:160,margin:1,color:{dark:'#0F172A',light:'#FFFFFF'}}, function(err){
+      if (err) showQrError(box, ()=>renderPromptPayQR(amount));
     });
   });
 }
@@ -570,7 +751,7 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 });
 
-/* ── Auth Functions ── */
+/* ── Auth ── */
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPass').value;
@@ -579,8 +760,7 @@ async function doLogin() {
   const sucEl = document.getElementById('loginSuccess');
   errEl.style.display='none'; sucEl.style.display='none';
   if (!email||!pass){showErr(errEl,'กรุณากรอกอีเมลและรหัสผ่าน');return;}
-  btn.innerHTML='<span class="spinner"></span>กำลังเข้าสู่ระบบ...';
-  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>กำลังเข้าสู่ระบบ...'; btn.disabled=true;
   const {error} = await sb.auth.signInWithPassword({email,password:pass});
   btn.innerHTML='เข้าสู่ระบบ'; btn.disabled=false;
   if (error){showErr(errEl,thaiError(error.message));return;}
@@ -598,16 +778,12 @@ async function regNext() {
   if (!name||!email||!pass){showErr(errEl,'กรุณากรอกข้อมูลให้ครบ');return;}
   if (pass.length<6){showErr(errEl,'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');return;}
   if (!terms){showErr(errEl,'กรุณายอมรับข้อกำหนดการใช้งาน');return;}
-  const {error} = await sb.auth.signUp({
-    email, password:pass,
-    options:{data:{name, phone:document.getElementById('regPhone').value}}
-  });
+  const {error} = await sb.auth.signUp({email,password:pass,options:{data:{name,phone:document.getElementById('regPhone').value}}});
   if (error){showErr(errEl,thaiError(error.message));return;}
   document.getElementById('sentEmail').textContent = email;
   document.getElementById('regStep1').style.display='none';
   document.getElementById('regStep2').style.display='block';
   document.getElementById('regLoginLink').style.display='none';
-  document.getElementById('rp1').className='progress-bar pb-done';
   document.getElementById('rp2').className='progress-bar pb-done';
   document.getElementById('regSubtitle').textContent='ยืนยันอีเมล';
 }
@@ -615,25 +791,25 @@ async function regNext() {
 async function loginGoogle() {
   await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
 }
+async function logout() { await sb.auth.signOut(); }
 
-async function loginApple() {
-  await sb.auth.signInWithOAuth({provider:'apple',options:{redirectTo:window.location.href}});
-}
-
-async function logout() {
-  await sb.auth.signOut();
+/* ── Mobile Menu ── */
+function toggleMenu(){
+  document.getElementById('mobileMenu').classList.toggle('open');
 }
 
 /* ── Modal Controls ── */
 function openLogin(){closeAll();document.getElementById('modalLogin').classList.add('open');}
 function openRegister(){closeAll();document.getElementById('modalRegister').classList.add('open');resetRegister();}
 function openOwnerRegister(){
-  closeAll();
-  owStep=1; updateOwnerStep();
+  closeAll(); owStep=1; updateOwnerStep();
   document.getElementById('ownerError').style.display='none';
   document.getElementById('modalOwner').classList.add('open');
 }
-function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));}
+function closeAll(){
+  document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));
+  document.getElementById('mobileMenu').classList.remove('open');
+}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeAll();}));
 
 function resetRegister(){
@@ -656,8 +832,7 @@ function ownerNext(s){
     owStep=2;
   } else if(s===2){
     if(!document.getElementById('owContactName').value||!document.getElementById('owEmail').value){alert('กรุณากรอกข้อมูลให้ครบ');return;}
-    owStep=3;
-    setTimeout(()=>renderPromptPayQR(200), 50);
+    owStep=3; setTimeout(()=>renderPromptPayQR(200), 50);
   }
   updateOwnerStep();
 }
@@ -670,55 +845,26 @@ function updateOwnerStep(){
   document.getElementById('ownerStepTxt').textContent='ขั้นตอนที่ '+owStep+' จาก 3';
 }
 
-/* บันทึกข้อมูลร้านลง Supabase จริง (parkings + registration_payments) */
 async function submitOwnerRegistration(){
   const {data:{session}} = await sb.auth.getSession();
   const errEl = document.getElementById('ownerError');
   errEl.style.display='none';
-  if (!session){
-    showErr(errEl,'กรุณาเข้าสู่ระบบก่อนสมัครเปิดร้านครับ');
-    setTimeout(()=>{closeAll();openLogin();},1200);
-    return;
-  }
+  if (!session){showErr(errEl,'กรุณาเข้าสู่ระบบก่อนสมัครเปิดร้านครับ');setTimeout(()=>{closeAll();openLogin();},1200);return;}
   const btn = document.getElementById('ownerSubmitBtn');
-  btn.innerHTML='<span class="spinner"></span>กำลังบันทึก...';
-  btn.disabled=true;
-
+  btn.innerHTML='<span class="spinner"></span>กำลังบันทึก...'; btn.disabled=true;
   const provName = document.getElementById('owProv').value;
   const {data:prov,error:provErr} = await sb.from('provinces').select('id').eq('name_th',provName).maybeSingle();
-  if (provErr || !prov){
-    showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');
-    btn.innerHTML='เสร็จสิ้น ✓'; btn.disabled=false;
-    return;
-  }
-
+  if (provErr || !prov){showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');btn.innerHTML='เสร็จสิ้น ✓';btn.disabled=false;return;}
   const {data:parking,error:pErr} = await sb.from('parkings').insert({
-    owner_id: session.user.id,
-    province_id: prov.id,
-    name: document.getElementById('owName').value.trim(),
-    address: document.getElementById('owAddr').value.trim(),
-    daily_price: parseFloat(document.getElementById('owDaily').value)||null,
-    monthly_price: parseFloat(document.getElementById('owMonthly').value)||null
+    owner_id:session.user.id, province_id:prov.id,
+    name:document.getElementById('owName').value.trim(),
+    address:document.getElementById('owAddr').value.trim(),
+    daily_price:parseFloat(document.getElementById('owDaily').value)||null,
+    monthly_price:parseFloat(document.getElementById('owMonthly').value)||null
   }).select().single();
-
-  if (pErr){
-    showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);
-    btn.innerHTML='เสร็จสิ้น ✓'; btn.disabled=false;
-    return;
-  }
-
-  await sb.from('registration_payments').insert({
-    owner_id: session.user.id,
-    parking_id: parking.id,
-    amount: 200
-  });
-
-  await sb.from('users').update({
-    name: document.getElementById('owContactName').value.trim(),
-    phone: document.getElementById('owTel').value.trim(),
-    role: 'owner'
-  }).eq('id', session.user.id);
-
+  if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='เสร็จสิ้น ✓';btn.disabled=false;return;}
+  await sb.from('registration_payments').insert({owner_id:session.user.id,parking_id:parking.id,amount:200});
+  await sb.from('users').update({name:document.getElementById('owContactName').value.trim(),phone:document.getElementById('owTel').value.trim(),role:'owner'}).eq('id',session.user.id);
   document.getElementById('ownerStep3').innerHTML = `
     <div style="padding:20px 0">
       <div style="font-size:48px;margin-bottom:12px">✅</div>
@@ -738,6 +884,7 @@ function thaiError(msg){
   if(msg.includes('Password should be'))return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
   return msg;
 }
+function escHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 /* ── Provinces ── */
 const provinces=['กรุงเทพฯ','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พังงา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
@@ -746,79 +893,98 @@ function renderProv(){
   const g=document.getElementById('provGrid');
   const list=showAll?provinces:provinces.slice(0,21);
   g.innerHTML=list.map(p=>`<div class="prov-tag" onclick="document.getElementById('searchInput').value='${p}';scrollTo(0,0);runSearch('${p}')">${p}</div>`).join('');
-  // Fill owner select
   const sel=document.getElementById('owProv');
   if(sel&&sel.options.length<2) provinces.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
 }
 function toggleProv(){showAll=!showAll;renderProv();document.getElementById('provBtn').textContent=showAll?'แสดงน้อยลง ↑':'ดูทั้ง 77 จังหวัด →';}
 renderProv();
 
-/* ── Tab ── */
-function switchTab(t){
-  document.getElementById('stepsOwner').style.display=t==='owner'?'grid':'none';
-  document.getElementById('stepsDriver').style.display=t==='driver'?'grid':'none';
-  document.getElementById('tabOwner').style.cssText+=t==='owner'?';background:#F97316;color:#fff':';background:transparent;color:#64748B';
-  document.getElementById('tabDriver').style.cssText+=t==='driver'?';background:#F97316;color:#fff':';background:transparent;color:#64748B';
+/* ── Load Recommended Parkings ── */
+async function loadRecommended(){
+  const {data} = await sb.from('parkings').select('*,provinces(name_th)').eq('is_active',true).order('created_at',{ascending:false}).limit(4);
+  const grid = document.getElementById('recParkGrid');
+  if (!data || data.length===0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94A3B8"><div style="font-size:40px;margin-bottom:8px">🅿️</div>ยังไม่มีที่จอดรถในระบบ</div>';
+    return;
+  }
+  grid.innerHTML = data.map((p,i)=>`
+    <div class="park-card" onclick="openBookingDirect(${i})">
+      <div class="park-img" style="height:140px;background:#E4E9F2;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div>
+      <div class="park-body">
+        <span class="park-badge pb-day">รายวัน</span>
+        <div class="park-name">${escHtml(p.name)}</div>
+        <div class="park-loc">📍 ${escHtml(p.provinces?.name_th||'')} · ${escHtml((p.address||'').substring(0,30))}${(p.address||'').length>30?'...':''}</div>
+        <div class="park-footer">
+          <div>
+            <div class="park-price">฿${Number(p.daily_price||0).toLocaleString()}<small> /วัน</small></div>
+            <div class="park-slots">🚗 ${p.total_slots||1} ช่อง</div>
+          </div>
+          <div style="text-align:right">
+            <div class="park-rating">⭐ 4.${5+i%5}</div>
+          </div>
+        </div>
+        <button class="btn-book" onclick="event.stopPropagation();openBookingDirect(${i})">จองเลย</button>
+      </div>
+    </div>
+  `).join('');
+  recData = data;
 }
+let recData = [];
+function openBookingDirect(i){
+  currentSearchResults = recData;
+  openBooking(i);
+}
+loadRecommended();
 
 /* ── Search ── */
 function handleSearch(){
-  const q=document.getElementById('searchInput').value.trim();
+  const q = document.getElementById('searchInput').value.trim();
   runSearch(q);
 }
-function browseAll(){
-  document.getElementById('searchInput').value='';
-  runSearch('');
-}
-function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function browseAll(){document.getElementById('searchInput').value='';runSearch('');}
 
 let currentSearchResults = [];
-
 async function runSearch(q){
   closeAll();
   document.getElementById('modalSearchResults').classList.add('open');
   document.getElementById('searchResultsSub').textContent = 'กำลังค้นหา...';
-  document.getElementById('searchResultsList').innerHTML = '';
-
+  document.getElementById('searchResultsList').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8">⏳ กำลังโหลด...</div>';
   let provinceIds = [];
   if (q){
-    const {data:provs} = await sb.from('provinces').select('id').ilike('name_th', `%${q}%`);
+    const {data:provs} = await sb.from('provinces').select('id').ilike('name_th',`%${q}%`);
     provinceIds = (provs||[]).map(p=>p.id);
   }
-  let query = sb.from('parkings').select('*, provinces(name_th)').eq('is_active', true);
+  let query = sb.from('parkings').select('*,provinces(name_th)').eq('is_active',true);
   if (q){
     let orParts = [`name.ilike.%${q}%`,`address.ilike.%${q}%`];
     if (provinceIds.length) orParts.push(`province_id.in.(${provinceIds.join(',')})`);
     query = query.or(orParts.join(','));
   }
-  const {data, error} = await query.order('created_at',{ascending:false}).limit(30);
+  const {data,error} = await query.order('created_at',{ascending:false}).limit(30);
   currentSearchResults = data||[];
-  renderSearchResults(q, error);
+  renderSearchResults(q,error);
 }
 
-function renderSearchResults(q, error){
+function renderSearchResults(q,error){
   const sub = document.getElementById('searchResultsSub');
   const list = document.getElementById('searchResultsList');
   if (error){
-    sub.textContent = '';
-    list.innerHTML = `<div style="text-align:center;color:#DC2626;padding:20px 0">ค้นหาไม่สำเร็จ: ${escHtml(error.message)}</div>`;
+    sub.textContent='';
+    list.innerHTML=`<div style="text-align:center;color:#DC2626;padding:20px">ค้นหาไม่สำเร็จ: ${escHtml(error.message)}</div>`;
     return;
   }
-  sub.textContent = q ? `ผลลัพธ์สำหรับ "${q}" (${currentSearchResults.length} ที่)` : `ที่จอดรถทั้งหมด (${currentSearchResults.length} ที่)`;
+  sub.textContent = q ? `ผลลัพธ์ "${q}" (${currentSearchResults.length} ที่)` : `ที่จอดรถทั้งหมด (${currentSearchResults.length} ที่)`;
   if (currentSearchResults.length===0){
-    list.innerHTML = `<div style="text-align:center;padding:30px 0;color:#64748B">
-      <div style="font-size:36px;margin-bottom:8px">🅿️</div>
-      ยังไม่มีที่จอดรถในระบบตอนนี้<br/>ลองค้นหาคำอื่น หรือกลับมาดูใหม่ภายหลัง
-    </div>`;
+    list.innerHTML=`<div style="text-align:center;padding:30px 0;color:#64748B"><div style="font-size:36px;margin-bottom:8px">🅿️</div>ยังไม่มีที่จอดรถในระบบตอนนี้<br/>ลองค้นหาคำอื่น หรือกลับมาดูใหม่ภายหลัง</div>`;
     return;
   }
   list.innerHTML = currentSearchResults.map((p,i)=>`
-    <div style="border:1px solid #E4E9F2;border-radius:16px;padding:16px;margin-bottom:12px">
+    <div class="park-result-card">
       <div style="font-weight:800;font-size:15px;margin-bottom:4px">${escHtml(p.name)}</div>
       <div style="font-size:13px;color:#64748B;margin-bottom:8px">📍 ${escHtml(p.provinces?.name_th||'')} · ${escHtml(p.address||'')}</div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="font-weight:800;color:#F97316;font-size:16px">฿${Number(p.daily_price||0).toLocaleString()}<span style="font-size:12px;color:#64748B;font-weight:400"> /วัน</span></div>
-        <button class="price-btn o" style="width:auto;margin:0;padding:8px 20px;font-size:13px" onclick="openBooking(${i})">จองเลย</button>
+        <button class="price-btn o" onclick="openBooking(${i})">จองเลย</button>
       </div>
     </div>
   `).join('');
@@ -826,7 +992,6 @@ function renderSearchResults(q, error){
 
 /* ── Booking ── */
 let selectedParking = null;
-
 function openBooking(i){
   selectedParking = currentSearchResults[i];
   closeAll();
@@ -839,70 +1004,39 @@ function openBooking(i){
   document.getElementById('bkPlate').value='';
   document.getElementById('bkStart').value='08:00';
   document.getElementById('bkEnd').value='18:00';
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('bkDate').min = today;
+  document.getElementById('bkDate').min = new Date().toISOString().split('T')[0];
   updateBookingPrice();
   document.getElementById('bookingSubmitBtn').innerHTML='ยืนยันและชำระเงิน';
   document.getElementById('bookingSubmitBtn').disabled=false;
 }
-
 function updateBookingPrice(){
   const subtotal = Number(selectedParking?.daily_price||0);
   const fee = 15;
-  const total = subtotal + fee;
-  document.getElementById('bkPriceBox').innerHTML =
-    `ค่าที่จอด ฿${subtotal.toLocaleString()} + ค่าบริการ ฿${fee} = <strong>รวม ฿${total.toLocaleString()}</strong>`;
+  document.getElementById('bkPriceBox').innerHTML = `ค่าที่จอด ฿${subtotal.toLocaleString()} + ค่าบริการ ฿${fee} = <strong>รวม ฿${(subtotal+fee).toLocaleString()}</strong>`;
 }
-
 async function submitBooking(){
   const errEl = document.getElementById('bookingError');
   errEl.style.display='none';
   const {data:{session}} = await sb.auth.getSession();
-  if (!session){
-    showErr(errEl,'กรุณาเข้าสู่ระบบก่อนจองครับ');
-    setTimeout(()=>{closeAll();openLogin();},1200);
-    return;
-  }
+  if (!session){showErr(errEl,'กรุณาเข้าสู่ระบบก่อนจองครับ');setTimeout(()=>{closeAll();openLogin();},1200);return;}
   const date = document.getElementById('bkDate').value;
   const start = document.getElementById('bkStart').value;
   const end = document.getElementById('bkEnd').value;
   const plate = document.getElementById('bkPlate').value.trim();
-  if (!date || !plate){ showErr(errEl,'กรุณากรอกวันที่และทะเบียนรถให้ครบ'); return; }
-
+  if (!date||!plate){showErr(errEl,'กรุณากรอกวันที่และทะเบียนรถให้ครบ');return;}
   const btn = document.getElementById('bookingSubmitBtn');
-  btn.innerHTML='<span class="spinner"></span>กำลังตรวจสอบที่ว่าง...';
-  btn.disabled=true;
-
-  const {count} = await sb.from('bookings')
-    .select('id',{count:'exact',head:true})
-    .eq('parking_id', selectedParking.id)
-    .eq('date', date)
-    .in('status', ['pending','confirmed']);
+  btn.innerHTML='<span class="spinner"></span>กำลังตรวจสอบที่ว่าง...'; btn.disabled=true;
+  const {count} = await sb.from('bookings').select('id',{count:'exact',head:true}).eq('parking_id',selectedParking.id).eq('date',date).in('status',['pending','confirmed']);
   const slots = selectedParking.total_slots || 1;
-  if ((count||0) >= slots){
-    showErr(errEl,'ขออภัย ที่จอดวันนี้เต็มแล้ว กรุณาเลือกวันอื่น');
-    btn.innerHTML='ยืนยันและชำระเงิน'; btn.disabled=false;
-    return;
-  }
-
+  if ((count||0) >= slots){showErr(errEl,'ขออภัย ที่จอดวันนี้เต็มแล้ว กรุณาเลือกวันอื่น');btn.innerHTML='ยืนยันและชำระเงิน';btn.disabled=false;return;}
   const subtotal = Number(selectedParking.daily_price||0);
-  const {data:booking, error} = await sb.from('bookings').insert({
-    user_id: session.user.id,
-    parking_id: selectedParking.id,
-    date, start_time: start, end_time: end,
-    vehicle_plate: plate,
-    subtotal
+  const {data:booking,error} = await sb.from('bookings').insert({
+    user_id:session.user.id, parking_id:selectedParking.id,
+    date, start_time:start, end_time:end, vehicle_plate:plate, subtotal
   }).select().single();
-
-  if (error){
-    showErr(errEl,'จองไม่สำเร็จ: '+error.message);
-    btn.innerHTML='ยืนยันและชำระเงิน'; btn.disabled=false;
-    return;
-  }
-
+  if (error){showErr(errEl,'จองไม่สำเร็จ: '+error.message);btn.innerHTML='ยืนยันและชำระเงิน';btn.disabled=false;return;}
   showBookingPayment(booking);
 }
-
 function showBookingPayment(booking){
   document.getElementById('bookingFormView').style.display='none';
   const view = document.getElementById('bookingPayView');
@@ -910,27 +1044,24 @@ function showBookingPayment(booking){
   view.innerHTML = `
     <div style="font-weight:800;font-size:15px;margin-bottom:4px">รหัสการจอง: ${escHtml(booking.booking_code)}</div>
     <div style="font-size:13px;color:#64748B;margin-bottom:16px">สแกนจ่ายผ่าน PromptPay ให้ครบก่อนถึงวันจอด</div>
-    <div id="bookingQrBox" style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
-      <canvas id="bookingQrCanvas"></canvas>
-    </div>
+    <div id="bookingQrBox" style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px"><canvas id="bookingQrCanvas"></canvas></div>
     <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:12px">฿${Number(booking.total).toLocaleString()}</div>
     <div class="note-box">✅ สแกนจ่ายแล้ว ส่งสลิปมาที่ Line: @77park พร้อมรหัสการจอง<br/>✅ เจ้าของที่จอดจะยืนยันการจองภายใน 24 ชม.</div>
     <button class="btn-full" style="margin-top:16px" onclick="closeAll()">เสร็จสิ้น</button>
   `;
   renderBookingQR(Number(booking.total));
 }
-
 function renderBookingQR(amount){
   const box = document.getElementById('bookingQrBox');
   if (!box) return;
   box.innerHTML = '<canvas id="bookingQrCanvas"></canvas>';
   ensureQrLib().then(ok=>{
-    if (!ok){ showQrError(box, () => renderBookingQR(amount), 'โหลดไลบรารี QR ไม่สำเร็จ'); return; }
+    if (!ok){showQrError(box,()=>renderBookingQR(amount));return;}
     const canvas = document.getElementById('bookingQrCanvas');
-    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
-    if (!payload){ showQrError(box, () => renderBookingQR(amount), 'ข้อมูลพร้อมเพย์ไม่ถูกต้อง'); return; }
-    QRCode.toCanvas(canvas, payload, {width:160, margin:1, color:{dark:'#0F172A', light:'#FFFFFF'}}, function(err){
-      if (err) showQrError(box, () => renderBookingQR(amount), err.message||String(err));
+    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID,amount);
+    if (!payload){showQrError(box,()=>renderBookingQR(amount));return;}
+    QRCode.toCanvas(canvas,payload,{width:160,margin:1,color:{dark:'#0F172A',light:'#FFFFFF'}},function(err){
+      if (err) showQrError(box,()=>renderBookingQR(amount));
     });
   });
 }
