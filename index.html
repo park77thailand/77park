@@ -1025,14 +1025,23 @@ async function submitOwnerRegistration(){
   const provName = document.getElementById('owProv').value;
   const {data:prov,error:provErr} = await sb.from('provinces').select('id').eq('name_th',provName).maybeSingle();
   if (provErr || !prov){showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
+  const slots = parseInt(document.getElementById('owSlots').value)||1;
+  const facilities = [];
+  if(document.getElementById('owHasCover').checked) facilities.push('covered');
+  if(document.getElementById('owHasEV').checked) facilities.push('ev_charging');
+  if(document.getElementById('owHasCCTV').checked) facilities.push('cctv');
   const {data:parking,error:pErr} = await sb.from('parkings').insert({
     owner_id:session.user.id, province_id:prov.id,
     name:document.getElementById('owName').value.trim(),
+    description:document.getElementById('owDesc').value.trim()||null,
     address:document.getElementById('owAddr').value.trim(),
+    hourly_price:parseFloat(document.getElementById('owHourly').value)||null,
     daily_price:parseFloat(document.getElementById('owDaily').value)||null,
     monthly_price:parseFloat(document.getElementById('owMonthly').value)||null,
-    total_slots:parseInt(document.getElementById('owSlots').value)||1,
-    available_slots:parseInt(document.getElementById('owSlots').value)||1
+    total_slots:slots, available_slots:slots,
+    open_hours:document.getElementById('owHours').value.trim()||null,
+    parking_type:document.getElementById('owType').value||null,
+    facilities:facilities
   }).select().single();
   if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
   await sb.from('registration_payments').insert({owner_id:session.user.id,parking_id:parking.id,amount:200});
