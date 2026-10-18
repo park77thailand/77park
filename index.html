@@ -185,6 +185,23 @@ input:focus,select:focus{border-color:#F97316}
 .prov-tag{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#fff;border:1.5px solid #E4E9F2;color:#0F172A;cursor:pointer;transition:all .2s}
 .prov-tag:hover{background:#F97316;color:#fff;border-color:#F97316}
 
+/* ── OWNER STEP DOTS ── */
+.ow-step-dot{width:36px;height:36px;border-radius:50%;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s}
+.ow-step-line{flex:1;height:3px;background:#E4E9F2;transition:background .3s}
+.ow-step-line.done{background:#F97316}
+
+/* ── PRICE TABS ── */
+.price-tab{padding:7px 14px;border-radius:8px;border:1.5px solid #E4E9F2;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#64748B;transition:all .2s}
+.price-tab.active{background:#F97316;color:#fff;border-color:#F97316}
+
+/* ── TOGGLE ── */
+.toggle-label{display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:2px}
+.toggle-cb{display:none}
+.toggle-track{width:44px;height:24px;background:#E4E9F2;border-radius:40px;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .2s}
+.toggle-cb:checked + .toggle-track{background:#F97316}
+.toggle-cb:checked + .toggle-track .toggle-thumb{left:23px}
+
 /* ── SEARCH RESULTS ── */
 .park-result-card{border:1.5px solid #E4E9F2;border-radius:14px;padding:16px;margin-bottom:10px;transition:box-shadow .2s}
 .park-result-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
@@ -229,6 +246,14 @@ input:focus,select:focus{border-color:#F97316}
   .cta-actions{flex-direction:column}
   .footer-grid{grid-template-columns:1fr}
   .footer-bottom{flex-direction:column;gap:12px;text-align:center}
+}
+/* ── Owner modal responsive ── */
+@media(max-width:700px){
+  #ownerStep1 > div[style*="grid-template-columns:1fr 1fr"],
+  #ownerStep2 > div[style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr!important;
+  }
+  .modal-box[style*="max-width:760px"]{max-width:100%!important}
 }
 </style>
 </head>
@@ -561,57 +586,155 @@ input:focus,select:focus{border-color:#F97316}
 
 <!-- ═══ MODAL: OWNER REGISTER ═══ -->
 <div class="modal" id="modalOwner">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:760px">
     <button class="modal-close" onclick="closeAll()">×</button>
-    <div class="modal-logo"><span style="color:#F97316">77</span><span style="color:#0F172A">Park</span></div>
-    <div style="text-align:center;margin-bottom:16px">
-      <div class="modal-title">เปิดร้านจอดรถ</div>
-      <div class="modal-sub" id="ownerStepTxt">ขั้นตอนที่ 1 จาก 3</div>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div style="width:48px;height:48px;background:#FFF3E8;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🏢</div>
+      <div>
+        <div style="font-weight:900;font-size:18px;color:#0F172A">เปิดร้าน / ลงทะเบียนลานจอดรถ</div>
+        <div style="font-size:12px;color:#64748B">กรอกข้อมูลให้ครบถ้วน เพื่อเริ่มต้นเปิดลานจอดรถของคุณกับ 77Park</div>
+      </div>
     </div>
-    <div class="progress">
-      <div class="progress-bar pb-done" id="op1"></div>
-      <div class="progress-bar pb-pending" id="op2"></div>
-      <div class="progress-bar pb-pending" id="op3"></div>
+
+    <!-- Step indicator -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:24px">
+      <div class="ow-step-dot" id="owDot1" style="background:#F97316;color:#fff">1</div>
+      <div class="ow-step-line" id="owLine1"></div>
+      <div class="ow-step-dot" id="owDot2" style="background:#E4E9F2;color:#94A3B8">2</div>
+      <div class="ow-step-line" id="owLine2"></div>
+      <div class="ow-step-dot" id="owDot3" style="background:#E4E9F2;color:#94A3B8">3</div>
     </div>
+    <div style="display:flex;justify-content:space-between;margin-top:-16px;margin-bottom:20px">
+      <span style="font-size:11px;font-weight:700;color:#F97316;width:33%;text-align:center">ข้อมูลผู้ประกอบการ</span>
+      <span class="ow-step-lbl" id="owLbl2" style="font-size:11px;font-weight:600;color:#94A3B8;width:33%;text-align:center">ข้อมูลลานจอดรถ</span>
+      <span class="ow-step-lbl" id="owLbl3" style="font-size:11px;font-weight:600;color:#94A3B8;width:33%;text-align:center">ราคาและยืนยัน</span>
+    </div>
+
     <div class="alert alert-error" id="ownerError"></div>
+
+    <!-- ── Step 1: ข้อมูลผู้ประกอบการ ── -->
     <div id="ownerStep1">
-      <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:14px">📋 ข้อมูลที่จอดรถ</div>
-      <label>ชื่อที่จอดรถ *</label>
-      <input type="text" id="owName" placeholder="เช่น ที่จอดรถ ABC สุขุมวิท"/>
-      <label>จังหวัด *</label>
-      <select id="owProv"><option value="">เลือกจังหวัด</option></select>
-      <label>ที่อยู่โดยละเอียด *</label>
-      <input type="text" id="owAddr" placeholder="เลขที่ ถนน แขวง เขต"/>
-      <div class="row2">
-        <div><label>ราคารายวัน (฿)</label><input type="number" id="owDaily" placeholder="100"/></div>
-        <div><label>ราคารายเดือน (฿)</label><input type="number" id="owMonthly" placeholder="2500"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div>
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px;padding:10px 12px;background:#F8FAFC;border-radius:10px;border-left:3px solid #F97316">① ข้อมูลผู้ประกอบการ</div>
+          <label>ชื่อบริษัท / ชื่อผู้ประกอบการ *</label>
+          <input type="text" id="owCompany" placeholder="เช่น บริษัท เอบีซี จำกัด"/>
+          <label>เบอร์โทรศัพท์ *</label>
+          <input type="tel" id="owTel" placeholder="เช่น 081-234-5678"/>
+          <label>เบอร์บริษัท (ถ้ามี)</label>
+          <input type="tel" id="owOffTel" placeholder="เช่น 02-123-4567"/>
+          <label>อีเมล *</label>
+          <input type="email" id="owEmail" placeholder="เช่น owner@company.com"/>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px;padding:10px 12px;background:#F8FAFC;border-radius:10px;border-left:3px solid #3B82F6">📍 ที่อยู่ตามทะเบียนบริษัท / ที่อยู่ผู้ประกอบการ</div>
+          <label>จังหวัด *</label>
+          <select id="owProv"><option value="">เลือกจังหวัด</option></select>
+          <label>อำเภอ/เขต *</label>
+          <input type="text" id="owDistrict" placeholder="เช่น คลองเตย"/>
+          <label>ตำบล/แขวง *</label>
+          <input type="text" id="owSubDistrict" placeholder="เช่น คลองเตย"/>
+          <label>ที่อยู่โดยละเอียด *</label>
+          <input type="text" id="owAddr" placeholder="เช่น เลขที่ 99/9 หมู่ 1 ถนนพหลโยธิน"/>
+        </div>
       </div>
       <div class="modal-btns"><button class="btn-next" style="flex:1" onclick="ownerNext(1)">ถัดไป →</button></div>
     </div>
+
+    <!-- ── Step 2: ข้อมูลลานจอดรถ ── -->
     <div id="ownerStep2" style="display:none">
-      <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:14px">👤 ข้อมูลเจ้าของ</div>
-      <label>ชื่อ-นามสกุล *</label>
-      <input type="text" id="owContactName" placeholder="ชื่อเจ้าของ"/>
-      <label>อีเมล *</label>
-      <input type="email" id="owEmail" placeholder="email@example.com"/>
-      <label>เบอร์โทร *</label>
-      <input type="tel" id="owTel" placeholder="08X-XXX-XXXX"/>
-      <div class="modal-btns">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div>
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px;padding:10px 12px;background:#F8FAFC;border-radius:10px;border-left:3px solid #F97316">🏢 ข้อมูลลานจอดรถ</div>
+          <label>ชื่อสถานที่จอดรถ *</label>
+          <input type="text" id="owName" placeholder="เช่น ลานจอดรถเซ็นทรัล สาทรพริ้ว"/>
+          <label>รายละเอียดลานจอดรถ</label>
+          <textarea id="owDesc" placeholder="เช่น ลานจอดรถกลางแจ้ง ใกล้ห้างสรรพสินค้า มีจอดตั้งแต่ชั้น 1-3" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none;margin-bottom:14px;transition:border-color .2s"></textarea>
+
+          <!-- ตั้งราคา -->
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:10px;display:flex;align-items:center;gap:6px">🏷️ ตั้งราคา</div>
+          <div style="display:flex;gap:6px;margin-bottom:12px" id="priceTabBtns">
+            <button class="price-tab active" id="ptab1" onclick="switchPriceTab(1)">รายชั่วโมง</button>
+            <button class="price-tab" id="ptab2" onclick="switchPriceTab(2)">รายวัน</button>
+            <button class="price-tab" id="ptab3" onclick="switchPriceTab(3)">รายเดือน</button>
+          </div>
+          <div class="row2">
+            <div><label>ราคาต่อชั่วโมง (บาท)</label><input type="number" id="owHourly" placeholder="20"/></div>
+            <div><label>ราคาต่อวัน (บาท) *</label><input type="number" id="owDaily" placeholder="150"/></div>
+          </div>
+          <div class="row2">
+            <div><label>ราคาต่อเดือน (บาท)</label><input type="number" id="owMonthly" placeholder="2500"/></div>
+            <div><label>ค่าบริการอื่นๆ (ถ้ามี)</label><input type="text" id="owExtraFee" placeholder="เช่น ค่าบริการรายสัปดาห์"/></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px;padding:10px 12px;background:#F8FAFC;border-radius:10px;border-left:3px solid #22C55E">🔧 ข้อมูลเพิ่มเติม (ทางเลือก)</div>
+          <div class="row2">
+            <div><label>จำนวนที่จอดทั้งหมด *</label><input type="number" id="owSlots" placeholder="50"/></div>
+            <div><label>เวลาเปิด - ปิด *</label><input type="text" id="owHours" placeholder="06:00 - 22:00"/></div>
+          </div>
+          <label>ประเภทลานจอดรถ</label>
+          <select id="owType" style="margin-bottom:14px">
+            <option value="">เลือกประเภท</option>
+            <option value="open">ลานจอดกลางแจ้ง</option>
+            <option value="covered">ลานจอดมีหลังคา</option>
+            <option value="building">อาคารจอดรถ</option>
+            <option value="underground">ใต้ดิน</option>
+          </select>
+
+          <!-- Toggles -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+            <label class="toggle-label">
+              <input type="checkbox" id="owHasCover" class="toggle-cb"/>
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              <span style="font-size:12px;font-weight:600;color:#0F172A;margin-top:4px">มีหลังคา<br/>(ลานจอดในร่ม)</span>
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="owHasEV" class="toggle-cb"/>
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              <span style="font-size:12px;font-weight:600;color:#0F172A;margin-top:4px">มีจุดชาร์จรถ EV<br/>(EV Charging)</span>
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="owHasCCTV" class="toggle-cb"/>
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              <span style="font-size:12px;font-weight:600;color:#0F172A;margin-top:4px">มีกล้องวงจรปิด<br/>(CCTV)</span>
+            </label>
+          </div>
+
+          <label>หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+          <textarea id="owNote" placeholder="เช่น ข้อควรระวัง เงื่อนไขพิเศษ การเดินทางออกลานจอดรถ" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:13px;font-family:inherit;resize:vertical;min-height:72px;outline:none;margin-bottom:0;transition:border-color .2s"></textarea>
+        </div>
+      </div>
+      <div class="modal-btns" style="margin-top:16px">
         <button class="btn-back" onclick="ownerBack(2)">← ย้อนกลับ</button>
         <button class="btn-next" onclick="ownerNext(2)">ถัดไป →</button>
       </div>
     </div>
-    <div id="ownerStep3" style="display:none;text-align:center">
-      <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:16px">💳 ชำระค่าสมัคร</div>
-      <div id="promptpayQrBox" style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:8px">
-        <canvas id="promptpayCanvas"></canvas>
+
+    <!-- ── Step 3: ราคาและยืนยัน ── -->
+    <div id="ownerStep3" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <!-- Summary -->
+        <div style="background:#F8FAFC;border-radius:14px;padding:16px;border:1.5px solid #E4E9F2">
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px">📋 สรุปข้อมูล</div>
+          <div id="ownerSummary" style="font-size:13px;color:#374151;line-height:2"></div>
+        </div>
+        <!-- QR Payment -->
+        <div style="text-align:center">
+          <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px">💳 ชำระค่าสมัคร ฿200</div>
+          <div id="promptpayQrBox" style="width:160px;height:160px;margin:0 auto 10px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:6px">
+            <canvas id="promptpayCanvas"></canvas>
+          </div>
+          <div style="font-size:22px;font-weight:900;color:#F97316;margin-bottom:4px">฿200</div>
+          <div style="font-size:12px;color:#64748B">โอนแล้วส่งสลิปที่ Line: @77park</div>
+        </div>
       </div>
-      <div style="font-size:24px;font-weight:900;color:#F97316;margin-bottom:4px">฿200</div>
-      <div style="font-size:13px;color:#64748B;margin-bottom:16px">โอนและส่งสลิปมาที่ Line: @77park</div>
-      <div class="note-box">✅ โอนเงิน → ส่งสลิปพร้อมชื่อร้านใน Line<br/>✅ ทีมงาน Approve ภายใน 24 ชั่วโมง<br/>✅ ร้านจะขึ้นบน 77Park ทันที</div>
-      <div class="modal-btns" style="margin-top:16px">
+      <div class="note-box" style="margin-bottom:16px">✅ กรอกข้อมูลครบ → โอนเงิน ฿200 → ส่งสลิปพร้อมชื่อร้านที่ Line: @77park<br/>✅ ทีมงาน Approve ภายใน 24 ชั่วโมง · ร้านจะขึ้นบน 77Park ทันที</div>
+      <div class="modal-btns">
         <button class="btn-back" onclick="ownerBack(3)">← ย้อนกลับ</button>
-        <button class="btn-next" id="ownerSubmitBtn" onclick="submitOwnerRegistration()">เสร็จสิ้น ✓</button>
+        <button class="btn-next" id="ownerSubmitBtn" onclick="submitOwnerRegistration()">ยืนยันลงทะเบียน ✓</button>
       </div>
     </div>
   </div>
@@ -804,6 +927,13 @@ function openRegister(){closeAll();document.getElementById('modalRegister').clas
 function openOwnerRegister(){
   closeAll(); owStep=1; updateOwnerStep();
   document.getElementById('ownerError').style.display='none';
+  // reset fields
+  ['owCompany','owTel','owOffTel','owEmail','owDistrict','owSubDistrict','owAddr',
+   'owName','owDesc','owHourly','owDaily','owMonthly','owExtraFee','owSlots','owHours','owNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['owHasCover','owHasEV','owHasCCTV'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  const prov=document.getElementById('owProv'); if(prov)prov.value='';
+  const type=document.getElementById('owType'); if(type)type.value='';
+  switchPriceTab(1);
   document.getElementById('modalOwner').classList.add('open');
 }
 function closeAll(){
@@ -826,13 +956,27 @@ function resetRegister(){
 
 /* ── Owner Modal ── */
 let owStep=1;
+function switchPriceTab(t){
+  [1,2,3].forEach(i=>document.getElementById('ptab'+i).classList.toggle('active',i===t));
+}
 function ownerNext(s){
+  const errEl=document.getElementById('ownerError'); errEl.style.display='none';
   if(s===1){
-    if(!document.getElementById('owName').value||!document.getElementById('owProv').value||!document.getElementById('owAddr').value){alert('กรุณากรอกข้อมูลให้ครบ');return;}
+    const company=document.getElementById('owCompany').value.trim();
+    const tel=document.getElementById('owTel').value.trim();
+    const email=document.getElementById('owEmail').value.trim();
+    const prov=document.getElementById('owProv').value;
+    const addr=document.getElementById('owAddr').value.trim();
+    if(!company||!tel||!email||!prov||!addr){showErr(errEl,'กรุณากรอกข้อมูลที่มี * ให้ครบ');return;}
     owStep=2;
   } else if(s===2){
-    if(!document.getElementById('owContactName').value||!document.getElementById('owEmail').value){alert('กรุณากรอกข้อมูลให้ครบ');return;}
-    owStep=3; setTimeout(()=>renderPromptPayQR(200), 50);
+    const name=document.getElementById('owName').value.trim();
+    const daily=document.getElementById('owDaily').value;
+    const slots=document.getElementById('owSlots').value;
+    if(!name||!daily||!slots){showErr(errEl,'กรุณากรอกชื่อสถานที่ ราคาต่อวัน และจำนวนช่องจอด');return;}
+    owStep=3;
+    buildOwnerSummary();
+    setTimeout(()=>renderPromptPayQR(200), 80);
   }
   updateOwnerStep();
 }
@@ -840,9 +984,35 @@ function ownerBack(s){owStep=s-1;updateOwnerStep();}
 function updateOwnerStep(){
   [1,2,3].forEach(i=>{
     document.getElementById('ownerStep'+i).style.display=i===owStep?'block':'none';
-    document.getElementById('op'+i).className='progress-bar '+(i<=owStep?'pb-done':'pb-pending');
+    const dot=document.getElementById('owDot'+i);
+    if(i<owStep){dot.style.background='#F97316';dot.style.color='#fff';dot.innerHTML='✓';}
+    else if(i===owStep){dot.style.background='#F97316';dot.style.color='#fff';dot.innerHTML=i;}
+    else{dot.style.background='#E4E9F2';dot.style.color='#94A3B8';dot.innerHTML=i;}
+    if(i<3){const line=document.getElementById('owLine'+i);if(line)line.classList.toggle('done',i<owStep);}
+    if(i>1){const lbl=document.getElementById('owLbl'+i);if(lbl){lbl.style.color=i<=owStep?'#F97316':'#94A3B8';lbl.style.fontWeight=i===owStep?'800':'600';}}
   });
-  document.getElementById('ownerStepTxt').textContent='ขั้นตอนที่ '+owStep+' จาก 3';
+}
+function buildOwnerSummary(){
+  const prov=document.getElementById('owProv').value;
+  const name=document.getElementById('owName').value;
+  const company=document.getElementById('owCompany').value;
+  const slots=document.getElementById('owSlots').value;
+  const daily=document.getElementById('owDaily').value;
+  const hourly=document.getElementById('owHourly').value;
+  const monthly=document.getElementById('owMonthly').value;
+  const hours=document.getElementById('owHours').value;
+  const ev=document.getElementById('owHasEV').checked;
+  const cctv=document.getElementById('owHasCCTV').checked;
+  const cover=document.getElementById('owHasCover').checked;
+  document.getElementById('ownerSummary').innerHTML=`
+    <b>ชื่อร้าน:</b> ${escHtml(name)}<br/>
+    <b>ผู้ประกอบการ:</b> ${escHtml(company)}<br/>
+    <b>จังหวัด:</b> ${escHtml(prov)}<br/>
+    <b>ช่องจอด:</b> ${escHtml(slots)} ช่อง<br/>
+    <b>ราคา/วัน:</b> ฿${escHtml(daily)}${hourly?' · /ชม. ฿'+escHtml(hourly):''}${monthly?' · /เดือน ฿'+escHtml(monthly):''}<br/>
+    <b>เวลาเปิด-ปิด:</b> ${escHtml(hours)||'-'}<br/>
+    <b>สิ่งอำนวยความสะดวก:</b> ${[cover&&'มีหลังคา',ev&&'EV Charging',cctv&&'CCTV'].filter(Boolean).join(' · ')||'-'}
+  `;
 }
 
 async function submitOwnerRegistration(){
@@ -854,22 +1024,24 @@ async function submitOwnerRegistration(){
   btn.innerHTML='<span class="spinner"></span>กำลังบันทึก...'; btn.disabled=true;
   const provName = document.getElementById('owProv').value;
   const {data:prov,error:provErr} = await sb.from('provinces').select('id').eq('name_th',provName).maybeSingle();
-  if (provErr || !prov){showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');btn.innerHTML='เสร็จสิ้น ✓';btn.disabled=false;return;}
+  if (provErr || !prov){showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
   const {data:parking,error:pErr} = await sb.from('parkings').insert({
     owner_id:session.user.id, province_id:prov.id,
     name:document.getElementById('owName').value.trim(),
     address:document.getElementById('owAddr').value.trim(),
     daily_price:parseFloat(document.getElementById('owDaily').value)||null,
-    monthly_price:parseFloat(document.getElementById('owMonthly').value)||null
+    monthly_price:parseFloat(document.getElementById('owMonthly').value)||null,
+    total_slots:parseInt(document.getElementById('owSlots').value)||1,
+    available_slots:parseInt(document.getElementById('owSlots').value)||1
   }).select().single();
-  if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='เสร็จสิ้น ✓';btn.disabled=false;return;}
+  if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
   await sb.from('registration_payments').insert({owner_id:session.user.id,parking_id:parking.id,amount:200});
-  await sb.from('users').update({name:document.getElementById('owContactName').value.trim(),phone:document.getElementById('owTel').value.trim(),role:'owner'}).eq('id',session.user.id);
+  await sb.from('users').update({name:document.getElementById('owCompany').value.trim(),phone:document.getElementById('owTel').value.trim(),role:'owner'}).eq('id',session.user.id);
   document.getElementById('ownerStep3').innerHTML = `
-    <div style="padding:20px 0">
-      <div style="font-size:48px;margin-bottom:12px">✅</div>
-      <div style="font-weight:800;font-size:17px;color:#0F172A;margin-bottom:8px">บันทึกข้อมูลร้านเรียบร้อย!</div>
-      <div style="font-size:13px;color:#64748B;line-height:1.7">โอนเงิน ฿200 แล้วส่งสลิปพร้อมชื่อร้าน<br/>มาที่ Line: @77park<br/>ทีมงานจะ Approve ภายใน 24 ชั่วโมง</div>
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:52px;margin-bottom:12px">✅</div>
+      <div style="font-weight:900;font-size:18px;color:#0F172A;margin-bottom:8px">ลงทะเบียนสำเร็จ!</div>
+      <div style="font-size:13px;color:#64748B;line-height:1.9">โอนเงิน ฿200 แล้วส่งสลิปพร้อมชื่อร้าน<br/>มาที่ <strong style="color:#F97316">Line: @77park</strong><br/>ทีมงานจะ Approve ภายใน 24 ชั่วโมง</div>
     </div>
     <button class="btn-full" onclick="closeAll()">ปิดหน้าต่าง</button>
   `;
