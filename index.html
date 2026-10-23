@@ -257,7 +257,7 @@ input:focus,select:focus{border-color:#F97316}
   <div class="nav-links">
     <button class="nav-link active" onclick="browseAll()">ค้นหาที่จอดรถ</button>
     <button class="nav-link" onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'})">วิธีใช้งาน</button>
-    <button class="nav-link" onclick="openOwnerRegister()">สำหรับเจ้าของที่จอด</button>
+    <button class="nav-link" onclick="location.href='owner-register.html'">สำหรับเจ้าของที่จอด</button>
   </div>
   <div class="nav-right">
     <button class="nav-icon-btn" onclick="browseAll()" aria-label="ค้นหา">🔍</button>
@@ -276,7 +276,7 @@ input:focus,select:focus{border-color:#F97316}
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-link" onclick="browseAll();toggleMenu()">🔍 ค้นหาที่จอดรถ</button>
   <button class="mobile-link" onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'});toggleMenu()">📖 วิธีใช้งาน</button>
-  <button class="mobile-link" onclick="openOwnerRegister();toggleMenu()">🏢 สำหรับเจ้าของที่จอด</button>
+  <button class="mobile-link" onclick="location.href='owner-register.html'">🏢 สำหรับเจ้าของที่จอด</button>
   <div style="border-top:1px solid rgba(255,255,255,.08);margin:8px 0;padding:8px 16px;display:flex;gap:8px">
     <button class="btn-nav btn-login" style="flex:1" onclick="openLogin();toggleMenu()">เข้าสู่ระบบ</button>
     <button class="btn-nav btn-register" style="flex:1" onclick="openRegister();toggleMenu()">สมัครสมาชิก</button>
@@ -317,7 +317,7 @@ input:focus,select:focus{border-color:#F97316}
     <div class="hero-ctas">
       <button class="hero-cta hc-blue" onclick="browseAll()">🅿️ ค้นหาที่จอดรถ <small style="opacity:.7;font-weight:600">ทั่วไทย 77 จังหวัด</small></button>
       <button class="hero-cta hc-green" onclick="browseAll()">⚡ สถานีชาร์จ EV <small style="opacity:.7;font-weight:600">ค้นหาจุดชาร์จรถไฟฟ้า</small></button>
-      <button class="hero-cta hc-orange" onclick="openOwnerRegister()">🏢 สำหรับเจ้าของที่จอด <small style="opacity:.7;font-weight:600">เปิดร้าน สร้างรายได้</small></button>
+      <button class="hero-cta hc-orange" onclick="location.href='owner-register.html'">🏢 สำหรับเจ้าของที่จอด <small style="opacity:.7;font-weight:600">เปิดร้าน สร้างรายได้</small></button>
     </div>
   </div>
 </section>
@@ -437,7 +437,7 @@ input:focus,select:focus{border-color:#F97316}
       <div class="cta-stat"><strong>฿200</strong><span>ค่าสมัครเปิดร้าน</span></div>
       <div class="cta-stat"><strong>฿15</strong><span>ค่าบริการต่อการจอง</span></div>
     </div>
-    <button class="btn-cta-primary" onclick="openOwnerRegister()">สมัครเป็นเจ้าของที่จอด →</button>
+    <button class="btn-cta-primary" onclick="location.href='owner-register.html'">สมัครเป็นเจ้าของที่จอด →</button>
   </div>
 </section>
 
@@ -469,8 +469,8 @@ input:focus,select:focus{border-color:#F97316}
       </div>
       <div class="footer-col">
         <h4>สำหรับเจ้าของที่จอด</h4>
-        <a onclick="openOwnerRegister()">สมัครเป็นเจ้าของ</a>
-        <a onclick="openOwnerRegister()">เปิดการใช้งาน</a>
+        <a onclick="location.href='owner-register.html'">สมัครเป็นเจ้าของ</a>
+        <a onclick="location.href='owner-register.html'">เปิดการใช้งาน</a>
         <a onclick="location.href='dashboard.html'">แดชบอร์ดเจ้าของ</a>
       </div>
     </div>
