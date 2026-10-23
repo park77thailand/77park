@@ -17,10 +17,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;ali
 .nav-logo span:first-child{color:#F97316}.nav-logo span:last-child{color:#fff}
 .nav-logo small{font-size:11px;color:rgba(255,255,255,.4);font-weight:500;margin-left:6px;display:none}
 .nav-links{display:flex;align-items:center;gap:4px}
-.nav-link{color:rgba(255,255,255,.75);font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;text-decoration:none;border:none;background:none;font-family:inherit;transition:all .2s;white-space:nowrap}
+.nav-link{color:rgba(255,255,255,.75);font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;text-decoration:none;border:none;background:none;font-family:inherit;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.08)}
 .nav-link.active{color:#F97316}
-.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-icon-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.07);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.75);font-size:15px;transition:all .2s}
+.nav-icon-btn:hover{background:rgba(255,255,255,.14);color:#fff}
 .nav-user{color:rgba(255,255,255,.8);font-size:13px;font-weight:600;white-space:nowrap;display:none}
 .btn-nav{border:none;border-radius:10px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
 .btn-login{background:rgba(255,255,255,.1);color:#fff}.btn-login:hover{background:rgba(255,255,255,.18)}
@@ -35,95 +37,87 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;ali
 .mobile-link:active{background:rgba(255,255,255,.05)}
 
 /* ── HERO ── */
-.hero{margin-top:64px;position:relative;min-height:520px;display:flex;align-items:center;overflow:hidden;background:#081C3B}
-.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1600&q=80') center/cover no-repeat;opacity:.3}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,28,59,.95) 40%,rgba(8,28,59,.3) 100%)}
-.hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:60px 32px;width:100%}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.35);border-radius:40px;padding:5px 14px;margin-bottom:18px;font-size:12px;color:#F97316;font-weight:700}
-.hero h1{font-size:clamp(30px,5vw,54px);font-weight:900;line-height:1.2;color:#fff;margin-bottom:10px}
-.hero h1 span{color:#F97316}
-.hero-sub{font-size:clamp(14px,1.8vw,17px);color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:32px;max-width:480px}
+.hero{margin-top:64px;position:relative;min-height:560px;display:flex;align-items:center;overflow:hidden;background:#081C3B}
+.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1800&q=80') center/cover no-repeat}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,rgba(8,28,59,.92) 30%,rgba(8,28,59,.55) 70%,rgba(8,28,59,.35) 100%)}
+.hero-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:64px 32px 56px;width:100%}
+.hero h1{font-size:clamp(30px,5vw,50px);font-weight:900;line-height:1.22;color:#fff;margin-bottom:10px}
+.hero h1 .accent{color:#F97316}
+.hero-sub{font-size:clamp(14px,1.6vw,16px);color:rgba(255,255,255,.68);line-height:1.7;margin-bottom:28px;max-width:480px}
 
-/* Search Bar */
-.search-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:700px}
-.search-fields{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end}
-.sf-group label{font-size:11px;font-weight:700;color:#64748B;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:5px}
-.sf-group input,.sf-group select{width:100%;padding:10px 12px;border:1.5px solid #E4E9F2;border-radius:10px;font-size:14px;font-family:inherit;color:#0F172A;outline:none;background:#F8FAFC;transition:border-color .2s}
+/* Search Bar — floating card */
+.search-card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-width:720px}
+.search-fields{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:10px;align-items:end}
+.sf-group label{font-size:11px;font-weight:700;color:#64748B;letter-spacing:.3px;display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.sf-group input,.sf-group select{width:100%;padding:11px 12px;border:1.5px solid #E4E9F2;border-radius:10px;font-size:14px;font-family:inherit;color:#0F172A;outline:none;background:#F8FAFC;transition:border-color .2s}
 .sf-group input:focus,.sf-group select:focus{border-color:#F97316;background:#fff}
-.btn-search{background:#F97316;color:#fff;border:none;border-radius:10px;padding:11px 24px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-search{background:#F97316;color:#fff;border:none;border-radius:10px;padding:11px 26px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
 .btn-search:hover{background:#EA580C}
-.hero-ctas{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+/* Quick CTA pills under search */
+.hero-ctas{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
 .hero-cta{display:flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .2s;text-decoration:none}
 .hc-blue{background:#1B3E6F;color:#fff}.hc-blue:hover{background:#234d85}
 .hc-green{background:#065F46;color:#fff}.hc-green:hover{background:#047857}
 .hc-orange{background:#F97316;color:#fff}.hc-orange:hover{background:#EA580C}
-.hero-cta .cta-arrow{opacity:.6}
 
 /* ── WHY ── */
-.why{background:#fff;padding:64px 32px}
+.why{background:#fff;padding:60px 32px}
 .why-inner{max-width:1100px;margin:0 auto}
-.section-title{text-align:center;margin-bottom:40px}
-.section-title h2{font-size:clamp(22px,3.5vw,34px);font-weight:900;color:#0F172A}
+.section-title{text-align:center;margin-bottom:36px}
+.section-title h2{font-size:clamp(22px,3.5vw,32px);font-weight:900;color:#0F172A}
 .section-title h2 span{color:#F97316}
-.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.why-card{text-align:center;padding:28px 20px;border-radius:16px;border:1.5px solid #E4E9F2;transition:all .25s}
-.why-card:hover{border-color:#F97316;box-shadow:0 4px 24px rgba(249,115,22,.1);transform:translateY(-2px)}
-.why-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px}
-.wi-blue{background:#EFF6FF}.wi-orange{background:#FFF7ED}.wi-green{background:#F0FDF4}.wi-purple{background:#FAF5FF}
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.why-card{text-align:center;padding:24px 18px}
+.why-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;border:1.5px solid #E4E9F2}
 .why-card h3{font-size:15px;font-weight:800;color:#0F172A;margin-bottom:6px}
 .why-card p{font-size:13px;color:#64748B;line-height:1.7}
 
 /* ── RECOMMENDED ── */
-.recommended{background:#F8FAFC;padding:64px 32px}
-.rec-inner{max-width:1100px;margin:0 auto}
-.rec-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px}
-.rec-header h2{font-size:clamp(20px,3vw,28px);font-weight:900;color:#0F172A}
+.recommended{background:#F8FAFC;padding:56px 32px}
+.rec-inner{max-width:1180px;margin:0 auto}
+.rec-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px}
+.rec-header h2{font-size:clamp(19px,2.6vw,24px);font-weight:900;color:#0F172A}
 .rec-header a{color:#F97316;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
-.rec-sub{font-size:14px;color:#64748B;margin-top:2px}
-.park-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.rec-sub{font-size:13px;color:#64748B;margin-top:2px}
+.park-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .park-card{background:#fff;border-radius:16px;overflow:hidden;border:1.5px solid #E4E9F2;transition:all .25s;cursor:pointer}
-.park-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-3px)}
-.park-img{width:100%;aspect-ratio:16/10;object-fit:cover;background:#E4E9F2;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px;font-weight:700}
+.park-card:hover{box-shadow:0 10px 30px rgba(8,28,59,.1);transform:translateY(-3px)}
+.park-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:#E4E9F2;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:30px;position:relative}
 .park-img img{width:100%;height:100%;object-fit:cover}
+.park-img-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:4px 9px;border-radius:20px;color:#fff;display:flex;align-items:center;gap:4px}
 .park-body{padding:14px}
-.park-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:6px}
-.pb-day{background:#FFF7ED;color:#F97316}.pb-month{background:#EFF6FF;color:#3B82F6}.pb-ev{background:#F0FDF4;color:#22C55E}
 .park-name{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.park-loc{font-size:12px;color:#64748B;margin-bottom:8px;display:flex;align-items:center;gap:3px}
+.park-loc{font-size:12px;color:#64748B;margin-bottom:10px;display:flex;align-items:center;gap:3px}
 .park-footer{display:flex;justify-content:space-between;align-items:center}
-.park-price{font-size:18px;font-weight:900;color:#F97316}
+.park-price{font-size:17px;font-weight:900;color:#0F172A}
 .park-price small{font-size:11px;color:#94A3B8;font-weight:500}
-.park-rating{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:#0F172A}
-.park-slots{font-size:11px;color:#64748B;margin-top:2px;display:flex;align-items:center;gap:3px}
-.btn-book{width:100%;margin-top:12px;padding:9px;border-radius:10px;background:#F97316;color:#fff;border:none;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-book:hover{background:#EA580C}
+.park-meta{display:flex;align-items:center;gap:10px;font-size:11.5px;color:#64748B;font-weight:600}
+.park-rating{color:#0F172A}
 
 /* ── HOW TO ── */
-.howto{background:#fff;padding:64px 32px}
+.howto{background:#fff;padding:60px 32px}
 .howto-inner{max-width:1100px;margin:0 auto}
-.howto-cols{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:40px}
-.howto-col h3{font-size:16px;font-weight:800;color:#0F172A;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #F97316;display:flex;align-items:center;gap:8px}
-.hw-step{display:flex;gap:14px;margin-bottom:20px}
-.hw-num{width:32px;height:32px;border-radius:50%;background:#F97316;color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.hw-num.blue{background:#3B82F6}
-.hw-content h4{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:3px}
-.hw-content p{font-size:13px;color:#64748B;line-height:1.6}
+.howto-cols{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:36px}
+.howto-col h3{font-size:16px;font-weight:800;color:#0F172A;margin-bottom:18px}
+.hw-steps{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.hw-step{flex:1;min-width:120px;text-align:left}
+.hw-num{width:30px;height:30px;border-radius:10px;background:#F8FAFC;border:1.5px solid #E4E9F2;color:#64748B;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.hw-num.blue{color:#1B3E6F}
+.hw-content h4{font-size:13px;font-weight:800;color:#0F172A;margin-bottom:3px}
+.hw-content p{font-size:12px;color:#64748B;line-height:1.6}
 
 /* ── CTA BANNER ── */
-.cta-banner{background:linear-gradient(120deg,#081C3B 0%,#0F2D5E 100%);padding:64px 32px;position:relative;overflow:hidden}
-.cta-banner::before{content:'77';position:absolute;right:-20px;top:-40px;font-size:300px;font-weight:900;color:rgba(249,115,22,.04);pointer-events:none;line-height:1}
-.cta-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center}
-.cta-text h2{font-size:clamp(22px,3.5vw,36px);font-weight:900;color:#fff;margin-bottom:8px}
-.cta-text p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7}
-.cta-stats{display:flex;gap:24px;margin-top:16px}
+.cta-banner{background:linear-gradient(120deg,#081C3B 0%,#0F2D5E 100%);padding:48px 32px;position:relative;overflow:hidden;border-radius:0}
+.cta-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
+.cta-text h2{font-size:clamp(18px,2.6vw,24px);font-weight:900;color:#fff;margin-bottom:4px}
+.cta-text p{font-size:13px;color:rgba(255,255,255,.6)}
+.cta-stats{display:flex;gap:28px}
 .cta-stat{text-align:center}
-.cta-stat strong{display:block;font-size:24px;font-weight:900;color:#F97316}
-.cta-stat span{font-size:12px;color:rgba(255,255,255,.5);font-weight:600}
-.cta-actions{display:flex;flex-direction:column;gap:10px;min-width:200px}
-.btn-cta-primary{background:#F97316;color:#fff;border:none;border-radius:12px;padding:14px 28px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;transition:all .2s}
+.cta-stat strong{display:block;font-size:20px;font-weight:900;color:#F97316}
+.cta-stat span{font-size:11px;color:rgba(255,255,255,.5);font-weight:600}
+.btn-cta-primary{background:#F97316;color:#fff;border:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
 .btn-cta-primary:hover{background:#EA580C}
-.btn-cta-secondary{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-cta-secondary:hover{background:rgba(255,255,255,.14)}
 
 /* ── FOOTER ── */
 footer{background:#081C3B;padding:48px 32px 24px}
@@ -135,10 +129,10 @@ footer{background:#081C3B;padding:48px 32px 24px}
 .footer-social{display:flex;gap:8px}
 .social-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;text-decoration:none;border:none}
 .social-btn:hover{background:rgba(249,115,22,.3)}
-.footer-col h4{font-size:13px;font-weight:800;color:#fff;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+.footer-col h4{font-size:13px;font-weight:800;color:#fff;margin-bottom:14px}
 .footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:8px;cursor:pointer;text-decoration:none;transition:color .2s}
 .footer-col a:hover{color:#F97316}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .footer-copy{font-size:12px;color:rgba(255,255,255,.3)}
 .promptpay-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px}
 .promptpay-badge span{font-size:11px;color:rgba(255,255,255,.4);font-weight:600}
@@ -210,7 +204,6 @@ input:focus,select:focus{border-color:#F97316}
 .park-result-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
 .price-btn{border-radius:10px;border:none;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s}
 .price-btn.o{background:#F97316;color:#fff;padding:9px 20px;font-size:13px}.price-btn.o:hover{background:#EA580C}
-.price-btn.g{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff}
 .qr-box{width:160px;height:160px;margin:0 auto 16px;background:#F4F6FA;border-radius:16px;border:2px dashed #F97316;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-size:11px;color:#64748B}
 
 /* ── RESPONSIVE ── */
@@ -234,8 +227,7 @@ input:focus,select:focus{border-color:#F97316}
   .why-grid{grid-template-columns:repeat(2,1fr);gap:12px}
   .park-grid{grid-template-columns:repeat(2,1fr);gap:12px}
   .howto-cols{grid-template-columns:1fr;gap:32px}
-  .cta-inner{grid-template-columns:1fr}
-  .cta-actions{flex-direction:row;min-width:auto}
+  .cta-inner{flex-direction:column;align-items:flex-start}
   .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
   footer{padding:40px 16px 20px}
 }
@@ -245,12 +237,9 @@ input:focus,select:focus{border-color:#F97316}
   .search-fields{grid-template-columns:1fr}
   .hero h1{font-size:28px}
   .hero-ctas{flex-direction:column}
-  .hero-cta{justify-content:center}
-  .cta-actions{flex-direction:column}
   .footer-grid{grid-template-columns:1fr}
   .footer-bottom{flex-direction:column;gap:12px;text-align:center}
 }
-/* ── Owner modal responsive ── */
 @media(max-width:700px){
   #ownerStep1 > div[style*="grid-template-columns:1fr 1fr"],
   #ownerStep2 > div[style*="grid-template-columns:1fr 1fr"]{
@@ -271,6 +260,7 @@ input:focus,select:focus{border-color:#F97316}
     <button class="nav-link" onclick="openOwnerRegister()">สำหรับเจ้าของที่จอด</button>
   </div>
   <div class="nav-right">
+    <button class="nav-icon-btn" onclick="browseAll()" aria-label="ค้นหา">🔍</button>
     <span class="nav-user" id="navUser"></span>
     <button class="btn-nav btn-login" onclick="openLogin()">เข้าสู่ระบบ</button>
     <button class="btn-nav btn-register" onclick="openRegister()">สมัครสมาชิก</button>
@@ -297,9 +287,8 @@ input:focus,select:focus{border-color:#F97316}
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-inner">
-    <div class="hero-badge">🇹🇭 ครอบคลุมทุกจังหวัดในไทย · 77 จังหวัด</div>
-    <h1>ที่จอดรถทั่วไทย<br/><span>ค้นหาง่าย จองสะดวก</span></h1>
-    <p class="hero-sub">ค้นหาที่จอดรถใกล้คุณ ครอบคลุม 77 จังหวัด<br/>พร้อมรองรับสถานีชาร์จ EV</p>
+    <h1>ที่จอดรถทั่วไทย<br/><span class="accent">ค้นหาง่าย จองสะดวก</span></h1>
+    <p class="hero-sub">ค้นหาที่จอดรถใกล้คุณ ครอบคลุม 77 จังหวัด พร้อมรองรับสถานีชาร์จ EV</p>
 
     <div class="search-card">
       <div class="search-fields">
@@ -326,9 +315,9 @@ input:focus,select:focus{border-color:#F97316}
     </div>
 
     <div class="hero-ctas">
-      <button class="hero-cta hc-blue" onclick="browseAll()">🅿️ ค้นหาที่จอดรถ ทั่วไทย 77 จังหวัด <span class="cta-arrow">→</span></button>
-      <button class="hero-cta hc-green" onclick="browseAll()">⚡ สถานีชาร์จ EV ค้นหาจุดชาร์จรถไฟฟ้า <span class="cta-arrow">→</span></button>
-      <button class="hero-cta hc-orange" onclick="openOwnerRegister()">🏢 สำหรับเจ้าของที่จอด เปิดร้าน สร้างรายได้ <span class="cta-arrow">→</span></button>
+      <button class="hero-cta hc-blue" onclick="browseAll()">🅿️ ค้นหาที่จอดรถ <small style="opacity:.7;font-weight:600">ทั่วไทย 77 จังหวัด</small></button>
+      <button class="hero-cta hc-green" onclick="browseAll()">⚡ สถานีชาร์จ EV <small style="opacity:.7;font-weight:600">ค้นหาจุดชาร์จรถไฟฟ้า</small></button>
+      <button class="hero-cta hc-orange" onclick="openOwnerRegister()">🏢 สำหรับเจ้าของที่จอด <small style="opacity:.7;font-weight:600">เปิดร้าน สร้างรายได้</small></button>
     </div>
   </div>
 </section>
@@ -341,22 +330,22 @@ input:focus,select:focus{border-color:#F97316}
     </div>
     <div class="why-grid">
       <div class="why-card">
-        <div class="why-icon wi-orange">📍</div>
+        <div class="why-icon">📍</div>
         <h3>ที่จอดรถทั่วไทย</h3>
         <p>ครอบคลุม 77 จังหวัด ทุกพื้นที่ ทุกจังหวัด</p>
       </div>
       <div class="why-card">
-        <div class="why-icon wi-blue">🔍</div>
+        <div class="why-icon">🔍</div>
         <h3>ค้นหาได้ง่าย</h3>
         <p>ค้นตามจังหวัด สถานที่ และความต้องการของคุณ</p>
       </div>
       <div class="why-card">
-        <div class="why-icon wi-green">⚡</div>
+        <div class="why-icon">⚡</div>
         <h3>รองรับ EV</h3>
         <p>ค้นหาสถานีชาร์จรถไฟฟ้าได้ง่าย เปิดข้อมูลชัด</p>
       </div>
       <div class="why-card">
-        <div class="why-icon wi-purple">🔒</div>
+        <div class="why-icon">🔒</div>
         <h3>จองปลอดภัย</h3>
         <p>ชำระเงินผ่านระบบที่เชื่อถือได้ มีการยืนยันจากข้อมูล</p>
       </div>
@@ -375,21 +364,20 @@ input:focus,select:focus{border-color:#F97316}
       <a onclick="browseAll()">ดูทั้งหมด →</a>
     </div>
     <div class="park-grid" id="recParkGrid">
-      <!-- ใส่ placeholder ก่อน ระบบจะโหลดจาก DB -->
       <div class="park-card" style="opacity:.5">
-        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-img" style="display:flex;align-items:center;justify-content:center;font-size:32px">🅿️</div>
         <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
       </div>
       <div class="park-card" style="opacity:.5">
-        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-img" style="display:flex;align-items:center;justify-content:center;font-size:32px">🅿️</div>
         <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
       </div>
       <div class="park-card" style="opacity:.5">
-        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-img" style="display:flex;align-items:center;justify-content:center;font-size:32px">🅿️</div>
         <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
       </div>
       <div class="park-card" style="opacity:.5">
-        <div class="park-img" style="background:#E4E9F2;height:140px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:32px">🅿️</div>
+        <div class="park-img" style="display:flex;align-items:center;justify-content:center;font-size:32px">🅿️</div>
         <div class="park-body"><div style="height:12px;background:#E4E9F2;border-radius:6px;margin-bottom:8px"></div><div style="height:10px;background:#E4E9F2;border-radius:6px;width:70%"></div></div>
       </div>
     </div>
@@ -405,40 +393,20 @@ input:focus,select:focus{border-color:#F97316}
     <div class="howto-cols">
       <div class="howto-col">
         <h3>🚗 สำหรับผู้ใช้บริการ</h3>
-        <div class="hw-step">
-          <div class="hw-num blue">01</div>
-          <div class="hw-content"><h4>ค้นหาที่จอดรถ</h4><p>เลือกจังหวัด / สถานที่ และความต้องการของคุณ</p></div>
-        </div>
-        <div class="hw-step">
-          <div class="hw-num blue">02</div>
-          <div class="hw-content"><h4>เลือกสถานที่</h4><p>ดูรายละเอียด ราคา และรีวิวจากผู้ใช้จริง</p></div>
-        </div>
-        <div class="hw-step">
-          <div class="hw-num blue">03</div>
-          <div class="hw-content"><h4>จองและชำระเงิน</h4><p>กดจอง เลือกเวลา รับ QR Code ยืนยันการจอง</p></div>
-        </div>
-        <div class="hw-step">
-          <div class="hw-num blue">04</div>
-          <div class="hw-content"><h4>นำรถเข้าจอด</h4><p>แสดง QR Code / รหัสการจอง เข้าจอดได้ทันที</p></div>
+        <div class="hw-steps">
+          <div class="hw-step"><div class="hw-num blue">01</div><div class="hw-content"><h4>ค้นหาที่จอดรถ</h4><p>เลือกจังหวัด / สถานที่ และความต้องการของคุณ</p></div></div>
+          <div class="hw-step"><div class="hw-num blue">02</div><div class="hw-content"><h4>เลือกสถานที่</h4><p>ดูรายละเอียด ราคา และรีวิวจากผู้ใช้จริง</p></div></div>
+          <div class="hw-step"><div class="hw-num blue">03</div><div class="hw-content"><h4>จองและชำระเงิน</h4><p>กดจอง เลือกเวลา รับ QR Code ยืนยันการจอง</p></div></div>
+          <div class="hw-step"><div class="hw-num blue">04</div><div class="hw-content"><h4>นำรถเข้าจอด</h4><p>แสดง QR Code / รหัสการจอง เข้าจอดได้ทันที</p></div></div>
         </div>
       </div>
       <div class="howto-col">
         <h3>🏢 สำหรับเจ้าของที่จอด</h3>
-        <div class="hw-step">
-          <div class="hw-num">01</div>
-          <div class="hw-content"><h4>สมัครเป็นเจ้าของ</h4><p>กรอกข้อมูลที่จอด ราคา และรายละเอียดสถานที่</p></div>
-        </div>
-        <div class="hw-step">
-          <div class="hw-num">02</div>
-          <div class="hw-content"><h4>กรอกข้อมูลที่จอด</h4><p>ระบุราคา ช่วงเวลา และข้อมูลสถานที่ให้ครบ</p></div>
-        </div>
-        <div class="hw-step">
-          <div class="hw-num">03</div>
-          <div class="hw-content"><h4>ชำระค่าสมัคร</h4><p>โอนเงิน ฿200 ผ่าน PromptPay ส่งสลิปยืนยัน</p></div>
-        </div>
-        <div class="hw-step">
-          <div class="hw-num">04</div>
-          <div class="hw-content"><h4>รอดูแล</h4><p>ทีมงาน Approve ภายใน 24 ชม. เริ่มรับลูกค้าได้ทันที</p></div>
+        <div class="hw-steps">
+          <div class="hw-step"><div class="hw-num">01</div><div class="hw-content"><h4>สมัครเป็นเจ้าของ</h4><p>กรอกข้อมูลที่จอด ราคา และรายละเอียดสถานที่</p></div></div>
+          <div class="hw-step"><div class="hw-num">02</div><div class="hw-content"><h4>กรอกข้อมูลที่จอด</h4><p>ระบุราคา ช่วงเวลา และข้อมูลสถานที่ให้ครบ</p></div></div>
+          <div class="hw-step"><div class="hw-num">03</div><div class="hw-content"><h4>ชำระค่าสมัคร</h4><p>โอนเงิน ฿200 ผ่าน PromptPay ส่งสลิปยืนยัน</p></div></div>
+          <div class="hw-step"><div class="hw-num">04</div><div class="hw-content"><h4>รอดูแล</h4><p>ทีมงาน Approve ภายใน 24 ชม. เริ่มรับลูกค้าได้ทันที</p></div></div>
         </div>
       </div>
     </div>
@@ -462,18 +430,14 @@ input:focus,select:focus{border-color:#F97316}
 <section class="cta-banner">
   <div class="cta-inner">
     <div class="cta-text">
-      <h2>มีพื้นที่จอดรถ?<br/>เปลี่ยนพื้นที่ว่างให้สร้างรายได้</h2>
+      <h2>มีพื้นที่จอดรถ? เปลี่ยนพื้นที่ว่างให้สร้างรายได้</h2>
       <p>สมัครง่าย ค่าบริการโปร่งใส ไม่มีค่าใช้จ่ายซ่อน</p>
-      <div class="cta-stats">
-        <div class="cta-stat"><strong>฿200</strong><span>ค่าสมัครเปิดร้าน</span></div>
-        <div class="cta-stat"><strong>฿15</strong><span>ค่าบริการต่อการจอง</span></div>
-        <div class="cta-stat"><strong>24 ชม.</strong><span>รอ Approve</span></div>
-      </div>
     </div>
-    <div class="cta-actions">
-      <button class="btn-cta-primary" onclick="openOwnerRegister()">สมัครเป็นเจ้าของที่จอด →</button>
-      <button class="btn-cta-secondary" onclick="document.getElementById('howto').scrollIntoView({behavior:'smooth'})">ดูวิธีการใช้งาน</button>
+    <div class="cta-stats">
+      <div class="cta-stat"><strong>฿200</strong><span>ค่าสมัครเปิดร้าน</span></div>
+      <div class="cta-stat"><strong>฿15</strong><span>ค่าบริการต่อการจอง</span></div>
     </div>
+    <button class="btn-cta-primary" onclick="openOwnerRegister()">สมัครเป็นเจ้าของที่จอด →</button>
   </div>
 </section>
 
@@ -716,7 +680,18 @@ input:focus,select:focus{border-color:#F97316}
             <div style="font-size:11px;color:#94A3B8;margin-top:4px">JPG, PNG ขนาดไม่เกิน 5MB ต่อรูป</div>
           </div>
           <input type="file" id="owImgInput" accept="image/*" multiple style="display:none" onchange="owPreviewImages(this)"/>
-          <div id="owImgPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px"></div>
+          <div id="owImgPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>
+
+          <!-- ── ตำแหน่งบนแผนที่ (UI only — mapping deferred) ── -->
+          <label>ตำแหน่งลานจอดรถบนแผนที่</label>
+          <div style="border:1.5px solid #E4E9F2;border-radius:12px;padding:16px;background:#F8FAFC;display:flex;align-items:center;gap:12px;margin-bottom:4px">
+            <div style="width:40px;height:40px;border-radius:10px;background:#fff;border:1.5px solid #E4E9F2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📍</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#0F172A">เลือกเพื่อปักหมุดตำแหน่งที่แผนที่ หรือค้นหาที่อยู่</div>
+              <div style="font-size:11px;color:#94A3B8;margin-top:2px">ใช้สำหรับแสดงตำแหน่งให้ลูกค้าค้นหาเจอ (เร็วๆ นี้)</div>
+            </div>
+            <button type="button" onclick="return false" style="flex-shrink:0;background:#fff;border:1.5px solid #E4E9F2;color:#64748B;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:not-allowed;font-family:inherit">เลือกบนแผนที่</button>
+          </div>
         </div>
       </div>
       <div class="modal-btns" style="margin-top:16px">
@@ -961,7 +936,6 @@ function owRemoveImg(idx){
   owSelectedFiles.splice(idx,1);
   const preview = document.getElementById('owImgPreview');
   preview.innerHTML='';
-  // re-render remaining
   owSelectedFiles.forEach((file,i)=>{
     const reader=new FileReader();
     reader.onload=e=>{
@@ -977,14 +951,12 @@ function owRemoveImg(idx){
 function openOwnerRegister(){
   closeAll(); owStep=1; updateOwnerStep();
   document.getElementById('ownerError').style.display='none';
-  // reset fields
   ['owCompany','owTel','owOffTel','owEmail','owDistrict','owSubDistrict','owAddr',
    'owName','owDesc','owHourly','owDaily','owMonthly','owExtraFee','owSlots','owHours','owNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['owHasCover','owHasEV','owHasCCTV'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const prov=document.getElementById('owProv'); if(prov)prov.value='';
   const type=document.getElementById('owType'); if(type)type.value='';
   switchPriceTab(1);
-  // reset images
   owSelectedFiles = [];
   document.getElementById('owImgPreview').innerHTML = '';
   const fi = document.getElementById('owImgInput'); if(fi) fi.value='';
@@ -1098,7 +1070,6 @@ async function submitOwnerRegistration(){
     facilities:facilities
   }).select().single();
   if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
-  // upload images
   if(owSelectedFiles.length > 0){
     const urls = [];
     for(const file of owSelectedFiles){
@@ -1151,6 +1122,14 @@ function toggleProv(){showAll=!showAll;renderProv();document.getElementById('pro
 renderProv();
 
 /* ── Load Recommended Parkings ── */
+const RECOMMENDED_BADGES=[
+  {label:'ทั่วไป', color:'#1B3E6F'},
+  {label:'ใกล้สนาม', color:'#065F46'},
+  {label:'ภูเขา', color:'#7C3AED'},
+  {label:'EV Charging', color:'#059669'}
+];
+const PLACEHOLDER_IMG='https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=500&q=70';
+
 async function loadRecommended(){
   const {data} = await sb.from('parkings').select('*,provinces(name_th)').eq('is_active',true).order('created_at',{ascending:false}).limit(4);
   const grid = document.getElementById('recParkGrid');
@@ -1158,26 +1137,28 @@ async function loadRecommended(){
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94A3B8"><div style="font-size:40px;margin-bottom:8px">🅿️</div>ยังไม่มีที่จอดรถในระบบ</div>';
     return;
   }
-  grid.innerHTML = data.map((p,i)=>`
+  grid.innerHTML = data.map((p,i)=>{
+    const badge = RECOMMENDED_BADGES[i % RECOMMENDED_BADGES.length];
+    const ratingVal = (4.5 + (i%5)*0.1).toFixed(1);
+    return `
     <div class="park-card" onclick="openBookingDirect(${i})">
-      <div class="park-img" style="height:140px;background:#E4E9F2;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div>
+      <div class="park-img">
+        <img src="${PLACEHOLDER_IMG}" alt=""/>
+        <span class="park-img-badge" style="background:${badge.color}">📍 ${badge.label}</span>
+      </div>
       <div class="park-body">
-        <span class="park-badge pb-day">รายวัน</span>
         <div class="park-name">${escHtml(p.name)}</div>
-        <div class="park-loc">📍 ${escHtml(p.provinces?.name_th||'')} · ${escHtml((p.address||'').substring(0,30))}${(p.address||'').length>30?'...':''}</div>
+        <div class="park-loc">📍 ${escHtml(p.provinces?.name_th||'')}</div>
         <div class="park-footer">
-          <div>
-            <div class="park-price">฿${Number(p.daily_price||0).toLocaleString()}<small> /วัน</small></div>
-            <div class="park-slots">🚗 ${p.total_slots||1} ช่อง</div>
-          </div>
-          <div style="text-align:right">
-            <div class="park-rating">⭐ 4.${5+i%5}</div>
+          <div class="park-price">฿${Number(p.daily_price||0).toLocaleString()}<small> /วัน</small></div>
+          <div class="park-meta">
+            <span class="park-rating">⭐ ${ratingVal}</span>
+            <span>🚗 ${p.available_slots ?? p.total_slots ?? 1} ว่าง</span>
           </div>
         </div>
-        <button class="btn-book" onclick="event.stopPropagation();openBookingDirect(${i})">จองเลย</button>
       </div>
     </div>
-  `).join('');
+  `}).join('');
   recData = data;
 }
 let recData = [];
