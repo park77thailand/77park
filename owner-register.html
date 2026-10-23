@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>77Park — เปิดร้าน / ลงทะเบียนลานจอดรถ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;color:#0F172A;background:#F8FAFC;min-height:100vh}
+
+/* ── NAV ── */
+nav{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:#081C3B;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-logo{font-weight:900;font-size:22px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:2px}
+.nav-logo span:first-child{color:#F97316}.nav-logo span:last-child{color:#fff}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{color:rgba(255,255,255,.75);font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;text-decoration:none;border:none;background:none;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:6px}
+.nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.08)}
+.nav-link.active{color:#F97316}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-icon-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.07);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.75);font-size:15px;position:relative}
+.nav-icon-btn .dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#F97316}
+.nav-user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:6px 12px 6px 6px;cursor:pointer;color:#fff;font-size:13px;font-weight:600;font-family:inherit}
+.nav-user-pill .avatar{width:26px;height:26px;border-radius:50%;background:#F97316;display:flex;align-items:center;justify-content:center;font-size:13px}
+
+/* ── LAYOUT ── */
+.page-wrap{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 64px)}
+
+/* ── SIDEBAR ── */
+.side{background:#081C3B;padding:48px 36px;color:#fff;position:relative;overflow:hidden}
+.side::before{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(249,115,22,.08);top:-80px;right:-100px}
+.side-logo{font-weight:900;font-size:28px;margin-bottom:10px;position:relative;z-index:1}
+.side-logo span:first-child{color:#F97316}
+.side-tagline{font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:40px;position:relative;z-index:1}
+.side-feature{display:flex;gap:12px;align-items:flex-start;margin-bottom:26px;position:relative;z-index:1}
+.side-feature-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.side-feature h4{font-size:13.5px;font-weight:700;margin-bottom:2px}
+.side-feature p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6}
+
+/* ── MAIN ── */
+.main{padding:40px 40px 60px;max-width:1120px}
+.form-card{background:#fff;border-radius:22px;border:1.5px solid #E4E9F2;box-shadow:0 2px 12px rgba(8,28,59,.04);padding:32px 36px;max-width:1120px}
+
+.fc-header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.fc-icon{width:48px;height:48px;background:#FFF3E8;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.fc-title{font-weight:900;font-size:19px;color:#0F172A}
+.fc-sub{font-size:12.5px;color:#64748B;margin-top:2px}
+
+/* Step indicator */
+.steps-row{display:flex;align-items:center;gap:0;margin-bottom:6px}
+.step-dot{width:34px;height:34px;border-radius:50%;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s}
+.step-dot.active,.step-dot.done{background:#F97316;color:#fff}
+.step-dot.todo{background:#E4E9F2;color:#94A3B8}
+.step-line{flex:1;height:3px;background:#E4E9F2;margin:0 4px}
+.step-line.done{background:#F97316}
+.steps-labels{display:flex;justify-content:space-between;margin-bottom:26px}
+.steps-labels span{font-size:11.5px;font-weight:700;color:#94A3B8;width:33%;text-align:center}
+.steps-labels span.active{color:#F97316}
+
+.alert{padding:12px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px;display:none}
+.alert-error{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+
+/* Section block */
+.sec-label{font-weight:800;font-size:13px;color:#0F172A;margin-bottom:14px;padding:10px 12px;background:#F8FAFC;border-radius:10px;display:flex;align-items:center;gap:7px}
+.sec-label.bl{border-left:3px solid #3B82F6}
+.sec-label.or{border-left:3px solid #F97316}
+.sec-label.gr{border-left:3px solid #22C55E}
+
+label{font-size:13px;font-weight:700;color:#0F172A;display:block;margin-bottom:6px}
+.field-wrap{position:relative;margin-bottom:16px}
+.field-wrap .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:#94A3B8;pointer-events:none}
+.field-wrap input,.field-wrap select{width:100%;padding:11px 13px 11px 36px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;color:#0F172A;background:#fff;transition:border-color .2s}
+textarea{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;resize:vertical;min-height:90px;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:#F97316}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+
+.price-tab{padding:8px 16px;border-radius:9px;border:1.5px solid #E4E9F2;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#64748B;transition:all .2s}
+.price-tab.active{background:#F97316;color:#fff;border-color:#F97316}
+.price-tabs{display:flex;gap:7px;margin-bottom:14px}
+
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px}
+.toggle-label{display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:4px;padding:10px 6px;border-radius:10px;border:1.5px solid #E4E9F2;transition:border-color .2s}
+.toggle-cb{display:none}
+.toggle-track{width:40px;height:22px;background:#E4E9F2;border-radius:40px;position:relative;transition:background .2s}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .2s}
+.toggle-cb:checked + .toggle-track{background:#F97316}
+.toggle-cb:checked + .toggle-track .toggle-thumb{left:20px}
+.toggle-label span.lbl{font-size:11.5px;font-weight:600;color:#0F172A;text-align:center;line-height:1.3}
+
+.map-box{border:1.5px solid #E4E9F2;border-radius:14px;padding:16px;background:#F8FAFC;display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.map-box .pin{width:42px;height:42px;border-radius:10px;background:#fff;border:1.5px solid #E4E9F2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.map-box .txt{flex:1;min-width:0}
+.map-box .txt .t1{font-size:13.5px;font-weight:600;color:#0F172A}
+.map-box .txt .t2{font-size:11.5px;color:#94A3B8;margin-top:2px}
+.map-box .preview{width:140px;height:70px;border-radius:10px;background:linear-gradient(135deg,#E4E9F2,#F1F5F9);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:#CBD5E1;position:relative;overflow:hidden}
+.map-box .preview::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(148,163,184,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.25) 1px,transparent 1px);background-size:14px 14px}
+.btn-map{flex-shrink:0;background:#fff;border:1.5px solid #E4E9F2;color:#64748B;border-radius:9px;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-map:hover{border-color:#F97316;color:#F97316}
+.map-box.has-pin{border-color:#F97316;background:#FFF7ED}
+.map-box .preview.has-pin{background:#FFF3E8;color:#F97316}
+
+/* ── Map picker modal ── */
+.map-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:center;justify-content:center;padding:20px}
+.map-modal.open{display:flex}
+.map-modal-box{background:#fff;border-radius:20px;overflow:hidden;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column}
+.map-modal-head{padding:18px 20px;border-bottom:1.5px solid #E4E9F2;display:flex;align-items:center;justify-content:space-between}
+.map-modal-head h3{font-size:15px;font-weight:800;color:#0F172A}
+.map-modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#64748B;line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.map-modal-close:hover{background:#F1F5F9}
+.map-search-row{padding:12px 20px;border-bottom:1.5px solid #F1F5F9;display:flex;gap:8px}
+.map-search-row input{flex:1;padding:9px 12px;border:1.5px solid #E4E9F2;border-radius:9px;font-size:13px;font-family:inherit;outline:none;margin:0}
+.map-search-row input:focus{border-color:#F97316}
+.map-search-row button{background:#0F172A;color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+#leafletMap{height:340px;width:100%}
+.map-modal-foot{padding:14px 20px;border-top:1.5px solid #E4E9F2;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.map-coords{font-size:12px;color:#64748B;font-family:monospace}
+.map-modal-foot .btn-next{flex:none;padding:10px 22px;font-size:14px}
+.map-hint{font-size:11.5px;color:#94A3B8;padding:0 20px 10px}
+
+.upload-area{border:2px dashed #CBD5E1;border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:#F8FAFC;transition:border-color .2s;margin-bottom:10px}
+.upload-area:hover{border-color:#F97316}
+.img-thumb{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1.5px solid #E4E9F2}
+.img-thumb img{width:100%;height:100%;object-fit:cover}
+.img-thumb .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+.btns-row{display:flex;gap:10px;margin-top:22px}
+.btn-back{flex:1;padding:13px;border-radius:12px;border:1.5px solid #E4E9F2;background:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;color:#64748B}
+.btn-back:hover{border-color:#94A3B8}
+.btn-next{flex:2;padding:13px;border-radius:12px;border:none;background:#F97316;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px;transition:background .2s}
+.btn-next:hover{background:#EA580C}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.note-box{padding:14px;background:#FFF3E8;border-radius:12px;font-size:13px;color:#F97316;font-weight:600;line-height:1.7;margin-bottom:16px}
+
+/* ── Auth gate overlay ── */
+#authGate{position:fixed;inset:0;background:rgba(8,28,59,.85);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+#authGate.open{display:flex}
+.gate-card{background:#fff;border-radius:20px;padding:32px;max-width:380px;width:100%;text-align:center}
+.gate-card .ic{font-size:40px;margin-bottom:12px}
+.gate-card h3{font-size:17px;font-weight:800;margin-bottom:6px}
+.gate-card p{font-size:13px;color:#64748B;margin-bottom:20px}
+.gate-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#F97316;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+
+@media(max-width:900px){
+  .page-wrap{grid-template-columns:1fr}
+  .side{padding:32px 24px}
+  .main{padding:24px 16px}
+  .form-card{padding:22px}
+  .grid2{grid-template-columns:1fr}
+  .toggle-grid{grid-template-columns:1fr 1fr}
+  #leafletMap{height:280px}
+  .map-box{flex-wrap:wrap}
+  .map-box .preview{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html"><span>77</span><span>Park</span></a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">🏠 หน้าหลัก</a>
+    <a class="nav-link" href="index.html">🅿️ ค้นหาที่จอดรถ</a>
+    <a class="nav-link active" href="owner-register.html">🏢 สำหรับเจ้าของลาน</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon-btn"><span class="dot"></span>🔔</button>
+    <button class="nav-user-pill" id="navUserPill" onclick="location.href='index.html'">
+      <span class="avatar">👤</span><span id="navUserName">เข้าสู่ระบบ</span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="side">
+    <div class="side-logo"><span>77</span>Park</div>
+    <p class="side-tagline">เชื่อมต่อเจ้าของลานจอดรถ<br/>กับผู้ใช้บริการทั่วประเทศ</p>
+
+    <div class="side-feature">
+      <div class="side-feature-icon">🛡️</div>
+      <div><h4>จัดการง่าย</h4><p>ผ่านระบบออนไลน์</p></div>
+    </div>
+    <div class="side-feature">
+      <div class="side-feature-icon">📈</div>
+      <div><h4>เพิ่มรายได้</h4><p>ให้กับลานจอดรถของคุณ</p></div>
+    </div>
+    <div class="side-feature">
+      <div class="side-feature-icon">👥</div>
+      <div><h4>เข้าถึงลูกค้า</h4><p>ทั่วประเทศ</p></div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN FORM ═══ -->
+  <main class="main">
+    <div class="form-card">
+      <div class="fc-header">
+        <div class="fc-icon">🏢</div>
+        <div>
+          <div class="fc-title">เปิดร้าน / ลงทะเบียนลานจอดรถ</div>
+          <div class="fc-sub">กรอกข้อมูลให้ครบถ้วน เพื่อเริ่มต้นเปิดลานจอดรถของคุณกับ 77Park</div>
+        </div>
+      </div>
+
+      <div class="steps-row">
+        <div class="step-dot active" id="sDot1">1</div>
+        <div class="step-line" id="sLine1"></div>
+        <div class="step-dot todo" id="sDot2">2</div>
+        <div class="step-line" id="sLine2"></div>
+        <div class="step-dot todo" id="sDot3">3</div>
+      </div>
+      <div class="steps-labels">
+        <span class="active" id="sLbl1">ข้อมูลผู้ประกอบการ</span>
+        <span id="sLbl2">ข้อมูลลานจอดรถ</span>
+        <span id="sLbl3">ราคาและยืนยัน</span>
+      </div>
+
+      <div class="alert alert-error" id="ownerError"></div>
+
+      <!-- ── Step 1 ── -->
+      <div id="ownerStep1">
+        <div class="grid2">
+          <div>
+            <div class="sec-label or">① ข้อมูลผู้ประกอบการ</div>
+            <label>ชื่อบริษัท / ชื่อผู้ประกอบการ *</label>
+            <div class="field-wrap"><span class="ic">🏢</span><input type="text" id="owCompany" placeholder="เช่น บริษัท เอบีซี จำกัด"/></div>
+            <label>เบอร์โทรศัพท์ *</label>
+            <div class="field-wrap"><span class="ic">📞</span><input type="tel" id="owTel" placeholder="เช่น 081-234-5678"/></div>
+            <label>เบอร์บริษัท (ถ้ามี)</label>
+            <div class="field-wrap"><span class="ic">☎️</span><input type="tel" id="owOffTel" placeholder="เช่น 02-123-4567"/></div>
+            <label>อีเมล *</label>
+            <div class="field-wrap"><span class="ic">✉️</span><input type="email" id="owEmail" placeholder="เช่น owner@company.com"/></div>
+          </div>
+          <div>
+            <div class="sec-label bl">📍 ที่อยู่ตามทะเบียนบริษัท / ที่อยู่ผู้ประกอบการ</div>
+            <label>จังหวัด *</label>
+            <div class="field-wrap"><span class="ic">📍</span><select id="owProv"><option value="">เลือกจังหวัด</option></select></div>
+            <label>อำเภอ/เขต *</label>
+            <div class="field-wrap"><span class="ic">📍</span><input type="text" id="owDistrict" placeholder="เช่น คลองเตย"/></div>
+            <label>ตำบล/แขวง *</label>
+            <div class="field-wrap"><span class="ic">📍</span><input type="text" id="owSubDistrict" placeholder="เช่น คลองเตย"/></div>
+            <label>ที่อยู่โดยละเอียด *</label>
+            <div class="field-wrap"><span class="ic">🏠</span><input type="text" id="owAddr" placeholder="เช่น เลขที่ 99/9 หมู่ 1 ถนนพหลโยธิน"/></div>
+          </div>
+        </div>
+        <div class="btns-row"><button class="btn-next" style="flex:1" onclick="ownerNext(1)">ถัดไป →</button></div>
+      </div>
+
+      <!-- ── Step 2 ── -->
+      <div id="ownerStep2" style="display:none">
+        <div class="grid2">
+          <div>
+            <div class="sec-label or">🏢 ข้อมูลลานจอดรถ</div>
+            <label>ชื่อสถานที่จอดรถ *</label>
+            <div class="field-wrap"><span class="ic">🅿️</span><input type="text" id="owName" placeholder="เช่น ลานจอดรถเซ็นทรัล สาทรพริ้ว"/></div>
+            <label>รายละเอียดลานจอดรถ</label>
+            <textarea id="owDesc" placeholder="เช่น ลานจอดรถกลางแจ้ง ใกล้ห้างสรรพสินค้า มีจอดตั้งแต่ชั้น 1-3" style="margin-bottom:16px"></textarea>
+
+            <div class="sec-label or" style="margin-bottom:12px">🏷️ ตั้งราคา</div>
+            <div class="price-tabs" id="priceTabBtns">
+              <button type="button" class="price-tab active" id="ptab1" onclick="switchPriceTab(1)">รายชั่วโมง</button>
+              <button type="button" class="price-tab" id="ptab2" onclick="switchPriceTab(2)">รายวัน</button>
+              <button type="button" class="price-tab" id="ptab3" onclick="switchPriceTab(3)">รายเดือน</button>
+            </div>
+            <div class="row2">
+              <div><label>ราคาต่อชั่วโมง (บาท)</label><input type="number" id="owHourly" placeholder="20" style="margin-bottom:16px"/></div>
+              <div><label>ราคาต่อวัน (บาท) *</label><input type="number" id="owDaily" placeholder="150" style="margin-bottom:16px"/></div>
+            </div>
+            <div class="row2">
+              <div><label>ราคาต่อเดือน (บาท)</label><input type="number" id="owMonthly" placeholder="2500" style="margin-bottom:16px"/></div>
+              <div><label>ค่าบริการอื่นๆ (ถ้ามี)</label><input type="text" id="owExtraFee" placeholder="เช่น ค่าบริการรายสัปดาห์" style="margin-bottom:16px"/></div>
+            </div>
+          </div>
+          <div>
+            <div class="sec-label gr">🔧 ข้อมูลเพิ่มเติม (ทางเลือก)</div>
+            <div class="row2">
+              <div><label>จำนวนที่จอดทั้งหมด *</label><input type="number" id="owSlots" placeholder="50" style="margin-bottom:16px"/></div>
+              <div><label>เวลาเปิด - ปิด *</label><input type="text" id="owHours" placeholder="06:00 - 22:00" style="margin-bottom:16px"/></div>
+            </div>
+            <label>ประเภทลานจอดรถ</label>
+            <select id="owType" style="width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #E4E9F2;font-size:14px;font-family:inherit;outline:none;margin-bottom:16px;background:#fff">
+              <option value="">เลือกประเภท</option>
+              <option value="open">ลานจอดกลางแจ้ง</option>
+              <option value="covered">ลานจอดมีหลังคา</option>
+              <option value="building">อาคารจอดรถ</option>
+              <option value="underground">ใต้ดิน</option>
+            </select>
+
+            <div class="toggle-grid">
+              <label class="toggle-label">
+                <input type="checkbox" id="owHasCover" class="toggle-cb"/>
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="lbl">มีหลังคา<br/>(ลานจอดในร่ม)</span>
+              </label>
+              <label class="toggle-label">
+                <input type="checkbox" id="owHasEV" class="toggle-cb"/>
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="lbl">มีจุดชาร์จรถ EV<br/>(EV Charging)</span>
+              </label>
+              <label class="toggle-label">
+                <input type="checkbox" id="owHasCCTV" class="toggle-cb"/>
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="lbl">มีกล้องวงจรปิด<br/>(CCTV)</span>
+              </label>
+            </div>
+
+            <label>หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+            <textarea id="owNote" placeholder="เช่น ข้อควรระวัง เงื่อนไขพิเศษ การเดินทางออกลานจอดรถ" style="min-height:72px;margin-bottom:16px"></textarea>
+
+            <label>รูปภาพลานจอดรถ (สูงสุด 5 รูป)</label>
+            <div class="upload-area" id="owImgUploadArea" onclick="document.getElementById('owImgInput').click()">
+              <div style="font-size:26px;margin-bottom:6px">📷</div>
+              <div style="font-size:13px;color:#64748B;font-weight:600">คลิกเพื่อเลือกรูป</div>
+              <div style="font-size:11px;color:#94A3B8;margin-top:4px">JPG, PNG ขนาดไม่เกิน 5MB ต่อรูป</div>
+            </div>
+            <input type="file" id="owImgInput" accept="image/*" multiple style="display:none" onchange="owPreviewImages(this)"/>
+            <div id="owImgPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+
+            <label>ตำแหน่งลานจอดรถบนแผนที่</label>
+            <div class="map-box" id="mapBox">
+              <div class="preview" id="mapPreview">🗺️</div>
+              <div class="txt">
+                <div class="t1" id="mapBoxTitle">ปักหมุดตำแหน่ง หรือค้นหาที่อยู่</div>
+                <div class="t2" id="mapBoxSub">ใช้แสดงตำแหน่งให้ลูกค้าค้นหาเจอ</div>
+              </div>
+              <button type="button" class="btn-map" onclick="openMapPicker()">เลือกบนแผนที่</button>
+            </div>
+          </div>
+        </div>
+        <div class="btns-row">
+          <button class="btn-back" onclick="ownerBack(2)">← ย้อนกลับ</button>
+          <button class="btn-next" onclick="ownerNext(2)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 3 ── -->
+      <div id="ownerStep3" style="display:none">
+        <div class="row2" style="margin-bottom:16px">
+          <div style="background:#F8FAFC;border-radius:14px;padding:16px;border:1.5px solid #E4E9F2">
+            <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px">📋 สรุปข้อมูล</div>
+            <div id="ownerSummary" style="font-size:13px;color:#374151;line-height:2"></div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-weight:800;font-size:13px;color:#0F172A;margin-bottom:12px">💳 ชำระค่าสมัคร ฿200</div>
+            <div id="promptpayQrBox" style="width:160px;height:160px;margin:0 auto 10px;background:#fff;border-radius:16px;border:2px solid #F97316;display:flex;align-items:center;justify-content:center;padding:6px">
+              <canvas id="promptpayCanvas"></canvas>
+            </div>
+            <div style="font-size:22px;font-weight:900;color:#F97316;margin-bottom:4px">฿200</div>
+            <div style="font-size:12px;color:#64748B">โอนแล้วส่งสลิปที่ Line: @77park</div>
+          </div>
+        </div>
+        <div class="note-box">✅ กรอกข้อมูลครบ → โอนเงิน ฿200 → ส่งสลิปพร้อมชื่อร้านที่ Line: @77park<br/>✅ ทีมงาน Approve ภายใน 24 ชั่วโมง · ร้านจะขึ้นบน 77Park ทันที</div>
+        <div class="btns-row">
+          <button class="btn-back" onclick="ownerBack(3)">← ย้อนกลับ</button>
+          <button class="btn-next" id="ownerSubmitBtn" onclick="submitOwnerRegistration()">ยืนยันลงทะเบียน ✓</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══ MAP PICKER MODAL ═══ -->
+<div class="map-modal" id="mapModal">
+  <div class="map-modal-box">
+    <div class="map-modal-head">
+      <h3>📍 เลือกตำแหน่งลานจอดรถ</h3>
+      <button class="map-modal-close" onclick="closeMapPicker()">×</button>
+    </div>
+    <div class="map-search-row">
+      <input type="text" id="mapSearchInput" placeholder="ค้นหาที่อยู่ เช่น สยามพารากอน, กรุงเทพฯ" onkeydown="if(event.key==='Enter'){event.preventDefault();mapSearchAddress();}"/>
+      <button type="button" onclick="mapSearchAddress()">ค้นหา</button>
+    </div>
+    <div class="map-hint">คลิกบนแผนที่เพื่อปักหมุด หรือลากหมุดเพื่อปรับตำแหน่ง</div>
+    <div id="leafletMap"></div>
+    <div class="map-modal-foot">
+      <span class="map-coords" id="mapCoordsText">ยังไม่ได้เลือกตำแหน่ง</span>
+      <button type="button" class="btn-next" onclick="confirmMapPin()">ยืนยันตำแหน่งนี้</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth gate -->
+<div id="authGate">
+  <div class="gate-card">
+    <div class="ic">🔒</div>
+    <h3>กรุณาเข้าสู่ระบบก่อน</h3>
+    <p>ต้องเข้าสู่ระบบก่อนลงทะเบียนเปิดร้านลานจอดรถ</p>
+    <button class="gate-btn" onclick="location.href='index.html'">ไปหน้าเข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://xmomxdxstiqcgmoaachq.supabase.co';
+const SUPA_KEY = 'sb_publishable_H910cMOV2IaqF8BK6Sokrw_zADVGSOf';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+const OWNER_PROMPTPAY_ID = '0988557869';
+
+/* ── Auth state for nav + gate ── */
+sb.auth.onAuthStateChange((event, session) => {
+  const pillName = document.getElementById('navUserName');
+  if (session?.user) {
+    const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
+    pillName.textContent = name;
+  } else {
+    pillName.textContent = 'เข้าสู่ระบบ';
+  }
+});
+(async()=>{
+  const {data:{session}} = await sb.auth.getSession();
+  if (session?.user){
+    document.getElementById('navUserName').textContent = session.user.user_metadata?.name || session.user.email.split('@')[0];
+  }
+})();
+
+/* ── PromptPay QR (same logic as index.html) ── */
+function pad2(n){ return String(n).padStart(2,'0'); }
+function crc16ccitt(str){
+  let crc = 0xFFFF;
+  for (let i=0; i<str.length; i++){
+    crc ^= (str.charCodeAt(i) << 8);
+    for (let j=0; j<8; j++){
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,'0');
+}
+function generatePromptPayPayload(idRaw, amount){
+  const id = idRaw.replace(/\D/g,'');
+  let proxyType, proxyValue;
+  if (id.length===10 && id.startsWith('0')){
+    proxyType='01'; proxyValue='0066'+id.substring(1);
+  } else if (id.length===13){
+    proxyType='02'; proxyValue=id;
+  } else { return null; }
+  const aid = 'A000000677010111';
+  const merchantInfo = '00'+pad2(aid.length)+aid + proxyType+pad2(proxyValue.length)+proxyValue;
+  const amt = amount.toFixed(2);
+  let payload = '000201'+'010212'+'29'+pad2(merchantInfo.length)+merchantInfo+'5303764'+'54'+pad2(amt.length)+amt+'5802TH'+'6304';
+  return payload + crc16ccitt(payload);
+}
+let qrLibPromise = null;
+function ensureQrLib(){
+  if (window.QRCode) return Promise.resolve(true);
+  if (!qrLibPromise){
+    qrLibPromise = new Promise((resolve)=>{
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
+      s.onload = ()=>resolve(true); s.onerror = ()=>resolve(false);
+      document.head.appendChild(s);
+    });
+  }
+  return qrLibPromise;
+}
+function showQrError(box, retryFn){
+  if (!box) return;
+  box.innerHTML = '';
+  const msg = document.createElement('div');
+  msg.style.cssText = 'font-size:12px;color:#DC2626;text-align:center;padding:8px;line-height:1.6';
+  msg.textContent = 'สร้าง QR ไม่สำเร็จ';
+  box.appendChild(msg);
+  const btn = document.createElement('a');
+  btn.textContent = 'ลองใหม่';
+  btn.style.cssText = 'display:inline-block;color:#F97316;font-weight:700;cursor:pointer;text-decoration:underline';
+  btn.onclick = retryFn;
+  box.appendChild(btn);
+}
+function renderPromptPayQR(amount){
+  const box = document.getElementById('promptpayQrBox');
+  if (!box) return;
+  box.innerHTML = '<canvas id="promptpayCanvas"></canvas>';
+  ensureQrLib().then(ok=>{
+    if (!ok){ showQrError(box, ()=>renderPromptPayQR(amount)); return; }
+    const canvas = document.getElementById('promptpayCanvas');
+    const payload = generatePromptPayPayload(OWNER_PROMPTPAY_ID, amount);
+    if (!payload){ showQrError(box, ()=>renderPromptPayQR(amount)); return; }
+    QRCode.toCanvas(canvas, payload, {width:160,margin:1,color:{dark:'#0F172A',light:'#FFFFFF'}}, function(err){
+      if (err) showQrError(box, ()=>renderPromptPayQR(amount));
+    });
+  });
+}
+
+/* ── Image upload (same logic as index.html) ── */
+let owSelectedFiles = [];
+function owPreviewImages(input){
+  const files = Array.from(input.files);
+  const remaining = 5 - owSelectedFiles.length;
+  const toAdd = files.slice(0, remaining);
+  toAdd.forEach(file=>{
+    if(file.size > 5*1024*1024){alert('รูปขนาดเกิน 5MB: '+file.name);return;}
+    owSelectedFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const idx = owSelectedFiles.length-1;
+      const thumb = document.createElement('div');
+      thumb.className='img-thumb'; thumb.id='thumb-'+idx;
+      thumb.innerHTML=`<img src="${e.target.result}"/><div class="rm" onclick="owRemoveImg(${idx})">✕</div>`;
+      document.getElementById('owImgPreview').appendChild(thumb);
+    };
+    reader.readAsDataURL(file);
+  });
+  if(owSelectedFiles.length>=5) document.getElementById('owImgUploadArea').style.display='none';
+  input.value='';
+}
+function owRemoveImg(idx){
+  owSelectedFiles.splice(idx,1);
+  const preview = document.getElementById('owImgPreview');
+  preview.innerHTML='';
+  owSelectedFiles.forEach((file,i)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const thumb=document.createElement('div');
+      thumb.className='img-thumb';thumb.id='thumb-'+i;
+      thumb.innerHTML=`<img src="${e.target.result}"/><div class="rm" onclick="owRemoveImg(${i})">✕</div>`;
+      preview.appendChild(thumb);
+    };
+    reader.readAsDataURL(file);
+  });
+  if(owSelectedFiles.length<5) document.getElementById('owImgUploadArea').style.display='';
+}
+
+/* ── Map picker (Leaflet + OpenStreetMap, free, no API key) ── */
+let owLat = null, owLng = null;
+let leafletMap = null, leafletMarker = null;
+const MAP_DEFAULT_CENTER = [13.7563, 100.5018]; // Bangkok fallback
+
+function openMapPicker(){
+  document.getElementById('mapModal').classList.add('open');
+  setTimeout(initLeafletMap, 50); // let modal render before sizing the map
+}
+function closeMapPicker(){
+  document.getElementById('mapModal').classList.remove('open');
+}
+function initLeafletMap(){
+  if (leafletMap){ leafletMap.invalidateSize(); return; }
+  const startCenter = (owLat!=null && owLng!=null) ? [owLat,owLng] : MAP_DEFAULT_CENTER;
+  leafletMap = L.map('leafletMap').setView(startCenter, owLat!=null?15:11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(leafletMap);
+  if (owLat!=null && owLng!=null){
+    setMapPin(owLat, owLng, false);
+  }
+  leafletMap.on('click', e => setMapPin(e.latlng.lat, e.latlng.lng, false));
+}
+function setMapPin(lat, lng, recenter){
+  if (leafletMarker){
+    leafletMarker.setLatLng([lat,lng]);
+  } else {
+    leafletMarker = L.marker([lat,lng], {draggable:true}).addTo(leafletMap);
+    leafletMarker.on('dragend', ()=>{
+      const p = leafletMarker.getLatLng();
+      updateMapCoordsText(p.lat, p.lng);
+    });
+  }
+  if (recenter) leafletMap.setView([lat,lng], 16);
+  updateMapCoordsText(lat, lng);
+}
+function updateMapCoordsText(lat,lng){
+  document.getElementById('mapCoordsText').textContent = `พิกัด: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+}
+async function mapSearchAddress(){
+  const q = document.getElementById('mapSearchInput').value.trim();
+  if (!q) return;
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=th&q=${encodeURIComponent(q)}`);
+    const results = await res.json();
+    if (!results || results.length===0){
+      document.getElementById('mapCoordsText').textContent = 'ไม่พบที่อยู่นี้ ลองคำค้นอื่น';
+      return;
+    }
+    const {lat, lon} = results[0];
+    setMapPin(parseFloat(lat), parseFloat(lon), true);
+  }catch(err){
+    document.getElementById('mapCoordsText').textContent = 'ค้นหาไม่สำเร็จ ลองใหม่อีกครั้ง';
+  }
+}
+function confirmMapPin(){
+  if (!leafletMarker){
+    document.getElementById('mapCoordsText').textContent = 'กรุณาคลิกบนแผนที่เพื่อปักหมุดก่อน';
+    return;
+  }
+  const p = leafletMarker.getLatLng();
+  owLat = p.lat; owLng = p.lng;
+  const box = document.getElementById('mapBox');
+  const preview = document.getElementById('mapPreview');
+  box.classList.add('has-pin');
+  preview.classList.add('has-pin');
+  preview.textContent = '📍';
+  document.getElementById('mapBoxTitle').textContent = 'ปักหมุดแล้ว — แก้ไขได้';
+  document.getElementById('mapBoxSub').textContent = `พิกัด: ${owLat.toFixed(5)}, ${owLng.toFixed(5)}`;
+  closeMapPicker();
+}
+
+/* ── Step flow ── */
+let owStep=1;
+function switchPriceTab(t){
+  [1,2,3].forEach(i=>document.getElementById('ptab'+i).classList.toggle('active',i===t));
+}
+function ownerNext(s){
+  const errEl=document.getElementById('ownerError'); errEl.style.display='none';
+  if(s===1){
+    const company=document.getElementById('owCompany').value.trim();
+    const tel=document.getElementById('owTel').value.trim();
+    const email=document.getElementById('owEmail').value.trim();
+    const prov=document.getElementById('owProv').value;
+    const addr=document.getElementById('owAddr').value.trim();
+    if(!company||!tel||!email||!prov||!addr){showErr(errEl,'กรุณากรอกข้อมูลที่มี * ให้ครบ');return;}
+    owStep=2;
+  } else if(s===2){
+    const name=document.getElementById('owName').value.trim();
+    const daily=document.getElementById('owDaily').value;
+    const slots=document.getElementById('owSlots').value;
+    if(!name||!daily||!slots){showErr(errEl,'กรุณากรอกชื่อสถานที่ ราคาต่อวัน และจำนวนช่องจอด');return;}
+    owStep=3;
+    buildOwnerSummary();
+    setTimeout(()=>renderPromptPayQR(200), 80);
+  }
+  updateOwnerStep();
+}
+function ownerBack(s){owStep=s-1;updateOwnerStep();}
+function updateOwnerStep(){
+  [1,2,3].forEach(i=>{
+    document.getElementById('ownerStep'+i).style.display=i===owStep?'block':'none';
+    const dot=document.getElementById('sDot'+i);
+    dot.classList.remove('active','done','todo');
+    if(i<owStep){dot.classList.add('done');dot.innerHTML='✓';}
+    else if(i===owStep){dot.classList.add('active');dot.innerHTML=i;}
+    else{dot.classList.add('todo');dot.innerHTML=i;}
+    if(i<3){const line=document.getElementById('sLine'+i);if(line)line.classList.toggle('done',i<owStep);}
+    const lbl=document.getElementById('sLbl'+i);
+    if(lbl) lbl.classList.toggle('active', i===owStep);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function buildOwnerSummary(){
+  const prov=document.getElementById('owProv').value;
+  const name=document.getElementById('owName').value;
+  const company=document.getElementById('owCompany').value;
+  const slots=document.getElementById('owSlots').value;
+  const daily=document.getElementById('owDaily').value;
+  const hourly=document.getElementById('owHourly').value;
+  const monthly=document.getElementById('owMonthly').value;
+  const hours=document.getElementById('owHours').value;
+  const ev=document.getElementById('owHasEV').checked;
+  const cctv=document.getElementById('owHasCCTV').checked;
+  const cover=document.getElementById('owHasCover').checked;
+  document.getElementById('ownerSummary').innerHTML=`
+    <b>ชื่อร้าน:</b> ${escHtml(name)}<br/>
+    <b>ผู้ประกอบการ:</b> ${escHtml(company)}<br/>
+    <b>จังหวัด:</b> ${escHtml(prov)}<br/>
+    <b>ช่องจอด:</b> ${escHtml(slots)} ช่อง<br/>
+    <b>ราคา/วัน:</b> ฿${escHtml(daily)}${hourly?' · /ชม. ฿'+escHtml(hourly):''}${monthly?' · /เดือน ฿'+escHtml(monthly):''}<br/>
+    <b>เวลาเปิด-ปิด:</b> ${escHtml(hours)||'-'}<br/>
+    <b>สิ่งอำนวยความสะดวก:</b> ${[cover&&'มีหลังคา',ev&&'EV Charging',cctv&&'CCTV'].filter(Boolean).join(' · ')||'-'}
+  `;
+}
+
+/* ── Submit (same Supabase logic as index.html) ── */
+async function submitOwnerRegistration(){
+  const {data:{session}} = await sb.auth.getSession();
+  const errEl = document.getElementById('ownerError');
+  errEl.style.display='none';
+  if (!session){document.getElementById('authGate').classList.add('open');return;}
+  const btn = document.getElementById('ownerSubmitBtn');
+  btn.innerHTML='<span class="spinner"></span>กำลังบันทึก...'; btn.disabled=true;
+  const provName = document.getElementById('owProv').value;
+  const {data:prov,error:provErr} = await sb.from('provinces').select('id').eq('name_th',provName).maybeSingle();
+  if (provErr || !prov){showErr(errEl,'ไม่พบจังหวัดที่เลือก กรุณาลองใหม่');btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
+  const slots = parseInt(document.getElementById('owSlots').value)||1;
+  const facilities = [];
+  if(document.getElementById('owHasCover').checked) facilities.push('covered');
+  if(document.getElementById('owHasEV').checked) facilities.push('ev_charging');
+  if(document.getElementById('owHasCCTV').checked) facilities.push('cctv');
+  const {data:parking,error:pErr} = await sb.from('parkings').insert({
+    owner_id:session.user.id, province_id:prov.id,
+    name:document.getElementById('owName').value.trim(),
+    description:document.getElementById('owDesc').value.trim()||null,
+    address:document.getElementById('owAddr').value.trim(),
+    hourly_price:parseFloat(document.getElementById('owHourly').value)||null,
+    daily_price:parseFloat(document.getElementById('owDaily').value)||null,
+    monthly_price:parseFloat(document.getElementById('owMonthly').value)||null,
+    total_slots:slots, available_slots:slots,
+    open_hours:document.getElementById('owHours').value.trim()||null,
+    parking_type:document.getElementById('owType').value||null,
+    facilities:facilities,
+    latitude: owLat, longitude: owLng
+  }).select().single();
+  if (pErr){showErr(errEl,'บันทึกไม่สำเร็จ: '+pErr.message);btn.innerHTML='ยืนยันลงทะเบียน ✓';btn.disabled=false;return;}
+  if(owSelectedFiles.length > 0){
+    const urls = [];
+    for(const file of owSelectedFiles){
+      const ext = file.name.split('.').pop();
+      const path = `${parking.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const {data:upData, error:upErr} = await sb.storage.from('parking-images').upload(path, file, {contentType:file.type, upsert:false});
+      if(!upErr){
+        const {data:{publicUrl}} = sb.storage.from('parking-images').getPublicUrl(path);
+        urls.push(publicUrl);
+      }
+    }
+    if(urls.length > 0){
+      await sb.from('parkings').update({images:urls}).eq('id',parking.id);
+    }
+  }
+  await sb.from('registration_payments').insert({owner_id:session.user.id,parking_id:parking.id,amount:200});
+  await sb.from('users').update({name:document.getElementById('owCompany').value.trim(),phone:document.getElementById('owTel').value.trim(),role:'owner'}).eq('id',session.user.id);
+  document.getElementById('ownerStep3').innerHTML = `
+    <div style="text-align:center;padding:30px 0">
+      <div style="font-size:52px;margin-bottom:12px">✅</div>
+      <div style="font-weight:900;font-size:18px;color:#0F172A;margin-bottom:8px">ลงทะเบียนสำเร็จ!</div>
+      <div style="font-size:13px;color:#64748B;line-height:1.9">โอนเงิน ฿200 แล้วส่งสลิปพร้อมชื่อร้าน<br/>มาที่ <strong style="color:#F97316">Line: @77park</strong><br/>ทีมงานจะ Approve ภายใน 24 ชั่วโมง</div>
+      <button class="btn-next" style="margin-top:20px;width:100%" onclick="location.href='dashboard.html'">ไปที่แดชบอร์ด</button>
+    </div>
+  `;
+}
+
+/* ── Helpers ── */
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+function escHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ── Provinces ── */
+const provinces=['กรุงเทพฯ','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พังงา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
+(function initProvinces(){
+  const sel=document.getElementById('owProv');
+  provinces.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+})();
+</script>
+</body>
+</html>
