@@ -4,23 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>77Park — แดชบอร์ด</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --brand: #1a56db;
-    --brand-light: #e8f0fe;
-    --green: #0e9f6e;
-    --green-light: #def7ec;
-    --orange: #ff5a1f;
-    --orange-light: #feecdc;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-400: #9ca3af;
-    --gray-600: #4b5563;
-    --gray-800: #1f2937;
-    --radius: 12px;
+    --navy: #081C3B;
+    --navy-mid: #0F172A;
+    --brand: #F97316;
+    --brand-hover: #EA580C;
+    --brand-light: #FFF7ED;
+    --green: #10B981;
+    --green-light: #D1FAE5;
+    --orange: #F97316;
+    --orange-light: #FFF7ED;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E4E9F2;
+    --gray-400: #94A3B8;
+    --gray-600: #64748B;
+    --gray-800: #0F172A;
+    --radius: 14px;
     --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,52 +33,60 @@
   #auth-screen {
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh; padding: 24px;
+    background: radial-gradient(circle at 20% 20%, rgba(249,115,22,.06), transparent 50%), var(--gray-50);
   }
   .auth-card {
-    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
-    padding: 40px; width: 100%; max-width: 400px;
+    background: #fff; border-radius: 20px; box-shadow: 0 8px 32px rgba(8,28,59,.1);
+    padding: 40px; width: 100%; max-width: 400px; border: 1.5px solid var(--gray-200);
   }
-  .auth-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; color: var(--brand); }
+  .auth-card h1 { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+  .auth-card h1 span:first-child { color: var(--brand); }
+  .auth-card h1 span:last-child { color: var(--navy); }
   .auth-card p { color: var(--gray-600); font-size: 14px; margin-bottom: 28px; }
   .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
   .form-group input {
-    width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200);
-    border-radius: 8px; font-size: 15px; font-family: inherit;
-    transition: border-color .15s;
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200);
+    border-radius: 10px; font-size: 15px; font-family: inherit;
+    transition: border-color .15s; background: var(--gray-50);
   }
-  .form-group input:focus { outline: none; border-color: var(--brand); }
+  .form-group input:focus { outline: none; border-color: var(--brand); background: #fff; }
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 600;
-    font-family: inherit; cursor: pointer; border: none; transition: opacity .15s;
+    padding: 11px 20px; border-radius: 10px; font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer; border: none; transition: all .18s;
   }
-  .btn:hover { opacity: .88; }
-  .btn-primary { background: var(--brand); color: #fff; width: 100%; }
+  .btn:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-primary { background: var(--brand); color: #fff; width: 100%; box-shadow: 0 3px 10px rgba(249,115,22,.3); }
+  .btn-primary:hover { background: var(--brand-hover); }
   .btn-sm { padding: 6px 14px; font-size: 13px; }
   .btn-outline { background: #fff; border: 1.5px solid var(--gray-200); color: var(--gray-800); }
-  .btn-danger { background: #fee2e2; color: #dc2626; }
-  #auth-error { color: #dc2626; font-size: 13px; margin-top: 10px; display: none; }
+  .btn-outline:hover { border-color: var(--brand); color: var(--brand); }
+  .btn-danger { background: #FEE2E2; color: #DC2626; }
+  #auth-error { color: #DC2626; font-size: 13px; margin-top: 10px; display: none; }
 
   /* ── LAYOUT ── */
   #app { display: none; }
   .topbar {
-    background: #fff; border-bottom: 1px solid var(--gray-200);
+    background: var(--navy); border-bottom: 1px solid rgba(255,255,255,.06);
     padding: 0 24px; height: 60px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 10;
   }
-  .topbar-logo { font-size: 20px; font-weight: 700; color: var(--brand); }
-  .topbar-user { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--gray-600); }
+  .topbar-logo { font-size: 20px; font-weight: 900; color: #fff; }
+  .topbar-logo span:first-child { color: var(--brand); }
+  .topbar-user { display: flex; align-items: center; gap: 12px; font-size: 14px; color: rgba(255,255,255,.7); }
+  .topbar-user .btn-outline { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); color: #fff; }
+  .topbar-user .btn-outline:hover { background: rgba(255,255,255,.14); border-color: var(--brand); color: var(--brand); }
   .main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
-  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 800; margin-bottom: 24px; }
 
   /* ── TABS ── */
-  .tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 2px solid var(--gray-200); }
+  .tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 2px solid var(--gray-200); overflow-x: auto; }
   .tab {
-    padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer;
+    padding: 10px 20px; font-size: 15px; font-weight: 600; cursor: pointer;
     border: none; background: none; font-family: inherit; color: var(--gray-600);
-    border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .15s;
+    border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .15s; white-space: nowrap;
   }
   .tab.active { color: var(--brand); border-bottom-color: var(--brand); }
   .tab-pane { display: none; }
@@ -85,43 +96,52 @@
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
   .stat-card {
     background: #fff; border-radius: var(--radius); padding: 20px 24px;
-    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px;
+    box-shadow: var(--shadow); border: 1.5px solid var(--gray-200);
+    display: flex; flex-direction: column; gap: 6px; transition: box-shadow .2s;
   }
-  .stat-label { font-size: 13px; color: var(--gray-600); font-weight: 500; }
-  .stat-value { font-size: 28px; font-weight: 700; }
-  .stat-card.blue .stat-value { color: var(--brand); }
+  .stat-card:hover { box-shadow: 0 6px 20px rgba(8,28,59,.08); }
+  .stat-label { font-size: 13px; color: var(--gray-600); font-weight: 600; }
+  .stat-value { font-size: 28px; font-weight: 800; }
+  .stat-card.blue .stat-value { color: var(--navy); }
   .stat-card.green .stat-value { color: var(--green); }
   .stat-card.orange .stat-value { color: var(--orange); }
 
   /* ── TABLE ── */
-  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .card-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-200); font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); border: 1.5px solid var(--gray-200); overflow: hidden; }
+  .card-header { padding: 18px 24px; border-bottom: 1.5px solid var(--gray-100); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: space-between; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-600); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+  th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-600); background: var(--gray-50); border-bottom: 1.5px solid var(--gray-200); }
   td { padding: 13px 16px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--gray-50); }
   .empty-row td { text-align: center; color: var(--gray-400); padding: 40px; }
 
   /* ── BADGE ── */
-  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
   .badge-green { background: var(--green-light); color: var(--green); }
   .badge-orange { background: var(--orange-light); color: var(--orange); }
   .badge-gray { background: var(--gray-100); color: var(--gray-600); }
-  .badge-blue { background: var(--brand-light); color: var(--brand); }
+  .badge-blue { background: #EFF6FF; color: var(--navy); }
 
   /* ── PARKING FORM ── */
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .form-grid .full { grid-column: 1 / -1; }
-  select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; }
+  select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-size: 15px; font-family: inherit; background: #fff; }
   select:focus { outline: none; border-color: var(--brand); }
-  textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: 15px; font-family: inherit; resize: vertical; min-height: 80px; }
+  textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-size: 15px; font-family: inherit; resize: vertical; min-height: 80px; }
   textarea:focus { outline: none; border-color: var(--brand); }
   .form-actions { display: flex; gap: 12px; margin-top: 8px; }
   #form-msg { font-size: 14px; margin-top: 10px; }
 
   /* ── LOADING ── */
   .loading { text-align: center; color: var(--gray-400); padding: 32px; font-size: 14px; }
+
+  @media(max-width:640px){
+    .main{padding:20px 14px}
+    .stats-grid{grid-template-columns:1fr 1fr}
+    .stat-value{font-size:22px}
+    .topbar{padding:0 14px}
+  }
 </style>
 </head>
 <body>
@@ -129,7 +149,7 @@
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-card">
-    <h1>🅿️ 77Park</h1>
+    <h1><span>🅿️ 77</span><span>Park</span></h1>
     <p>เข้าสู่ระบบสำหรับเจ้าของที่จอดรถ</p>
     <div class="form-group">
       <label>อีเมล</label>
@@ -147,7 +167,7 @@
 <!-- APP -->
 <div id="app">
   <div class="topbar">
-    <span class="topbar-logo">🅿️ 77Park Dashboard</span>
+    <span class="topbar-logo"><span>77</span>Park Dashboard</span>
     <div class="topbar-user">
       <span id="user-name"></span>
       <button class="btn btn-sm btn-outline" onclick="logout()">ออกจากระบบ</button>
@@ -210,7 +230,7 @@
       <div class="card">
         <div class="card-header">
           การจองทั้งหมด
-          <select id="booking-filter" onchange="loadBookings()" style="width:auto;font-size:13px;padding:6px 10px;">
+          <select id="booking-filter" onchange="loadBookings()" style="width:auto;font-size:13px;padding:7px 10px;">
             <option value="">ทุกสถานะ</option>
             <option value="pending">รอยืนยัน</option>
             <option value="confirmed">ยืนยันแล้ว</option>
@@ -517,7 +537,7 @@ async function addParking() {
   const description = document.getElementById('p-desc').value.trim();
 
   if (!name || !address || !province_id || isNaN(daily_price) || isNaN(total_slots)) {
-    msg.style.color = '#dc2626';
+    msg.style.color = '#DC2626';
     msg.textContent = 'กรุณากรอกข้อมูลให้ครบ';
     return;
   }
@@ -532,12 +552,12 @@ async function addParking() {
   });
 
   if (error) {
-    msg.style.color = '#dc2626';
+    msg.style.color = '#DC2626';
     msg.textContent = 'เกิดข้อผิดพลาด: ' + error.message;
     return;
   }
 
-  msg.style.color = '#0e9f6e';
+  msg.style.color = '#10B981';
   msg.textContent = '✅ เพิ่มที่จอดรถสำเร็จ';
   ['p-name','p-address','p-price','p-slots','p-desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('p-province').value = '';
